@@ -5,7 +5,7 @@ import funcs as f
 
 
 def clone(cwd, name, repo):
-    cmd = f'cd /d "{cwd}" && git clone git@github.com:{name}/{repo}'
+    cmd = f'cd /d "{cwd}" && git clone --recursive git@github.com:{name}/{repo}'
     print(cmd)
     os.system(cmd)
 
