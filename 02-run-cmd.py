@@ -58,10 +58,10 @@ if __name__ == "__main__":
         pool.apply_async(func=run, args=(cmd_params_file, i, outputs))
     pool.close()
     pool.join()
-    for i, output in outputs.items():
-        sta, output = output
-        print(i, sta)
-        print("+++++++++++++++++++")
-        print(output)
-        print("+++++++++++++++++++")
+    # for i, output in outputs.items():
+    #     sta, output = output
+    #     print(i, sta)
+    #     print("+++++++++++++++++++")
+    #     print(output)
+    #     print("+++++++++++++++++++")
     # os.system("pause")
