@@ -29,6 +29,24 @@ def get_sta_output(cmd_params):
     return sta, output
 
 
+def get_outmsg_file(cmd_params_file):
+    try:
+        head, tail = os.path.split(cmd_params_file)
+        temp = os.path.join(head, tail.replace('params', 'outmsg'))
+        return temp
+    except Exception as e:
+        print('msg', e)
+
+
+def get_outsta_file(cmd_params_file):
+    try:
+        head, tail = os.path.split(cmd_params_file)
+        temp = os.path.join(head, tail.replace('params', 'outsta'))
+        return temp
+    except Exception as e:
+        print('msg', e)
+
+
 def run(cmd_params_file, i, outputs):
     if not os.path.exists(cmd_params_file):
         sys.exit(2)
@@ -36,14 +54,26 @@ def run(cmd_params_file, i, outputs):
         cmd_params = [
             line.strip().decode("utf-8") for line in f.readlines() if line.strip()
         ]
+    print('22222222222222222222')
     pause = False
     if cmd_params[-2] == "&&" and cmd_params[-1] == "pause":
         pause = True
         cmd_params = cmd_params[:-2]
     sta, output = get_sta_output(cmd_params)
+    print('18446744073709551615')
+    with open(get_outmsg_file(cmd_params_file), 'wb') as f:
+        f.writelines(output)
+    print('-18446744073709551615')
+    with open(get_outsta_file(cmd_params_file), 'wb') as f:
+        print('-18446744073709551614')
+        f.write(b'1')
+        print('-18446744073709551612')
+    print('-18446744073709551611')
     outputs[i] = [sta, output]
+    print('-18446744073709551608')
     if pause:
         os.system("pause")
+    print('-18446744073709551606')
 
 
 if __name__ == "__main__":
