@@ -4,14 +4,11 @@ import subprocess
 import multiprocessing
 
 def get_sta_output(cmd_params):
-    print("cmd_params:", cmd_params)
-    process = subprocess.Popen(cmd_params, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    print('22222222222222222')
+    process = subprocess.Popen(cmd_params, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     output = []
-    print('22222222222222223')
+    sta = 1234
     try:
         while True:
-            print('22222222222222224')
             res = process.stdout.readline()
             if res == '' and process.poll() is not None:
                 break
