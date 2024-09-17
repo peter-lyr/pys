@@ -67,6 +67,7 @@ def run(cmd_params_file, i, outputs):
     print('ww', tempww)
     with open(tempww, 'wb') as f:
         print('wwwwwwwwwwwww')
+        print(type(output), output)
         f.writelines(output)
         print('9999999999999')
     print('-186744073709551615')
