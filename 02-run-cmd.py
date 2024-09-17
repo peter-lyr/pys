@@ -36,6 +36,7 @@ def get_outmsg_file(cmd_params_file):
         return temp
     except Exception as e:
         print('msg', e)
+    return ''
 
 
 def get_outsta_file(cmd_params_file):
@@ -45,6 +46,7 @@ def get_outsta_file(cmd_params_file):
         return temp
     except Exception as e:
         print('msg', e)
+    return ''
 
 
 def run(cmd_params_file, i, outputs):
@@ -61,10 +63,14 @@ def run(cmd_params_file, i, outputs):
         cmd_params = cmd_params[:-2]
     sta, output = get_sta_output(cmd_params)
     print('18446744073709551615')
-    with open(get_outmsg_file(cmd_params_file), 'wb') as f:
+    tempww = get_outmsg_file(cmd_params_file)
+    print('ww', tempww)
+    with open(tempww, 'wb') as f:
         f.writelines(output)
-    print('-18446744073709551615')
-    with open(get_outsta_file(cmd_params_file), 'wb') as f:
+    print('-186744073709551615')
+    tempss = get_outsta_file(cmd_params_file)
+    print('ss', tempss)
+    with open(tempss, 'wb') as f:
         print('-18446744073709551614')
         f.write(b'1')
         print('-18446744073709551612')
