@@ -30,47 +30,44 @@ def get_sta_output(cmd_params):
 
 
 def get_outmsg_file(cmd_params_file):
-    try:
-        head, tail = os.path.split(cmd_params_file)
-        temp = os.path.join(head, tail.replace('params', 'outmsg'))
-        return temp
-    except Exception as e:
-        print('msg', e)
-    return ''
+    head, tail = os.path.split(cmd_params_file)
+    return os.path.join(head, tail.replace("params", "out-msg"))
 
 
 def get_outsta_file(cmd_params_file):
-    try:
-        head, tail = os.path.split(cmd_params_file)
-        temp = os.path.join(head, tail.replace('params', 'outsta'))
-        return temp
-    except Exception as e:
-        print('msg', e)
-    return ''
+    head, tail = os.path.split(cmd_params_file)
+    return os.path.join(head, tail.replace("params", "out-sta"))
+
+
+def get_outerr_file(cmd_params_file):
+    head, tail = os.path.split(cmd_params_file)
+    return os.path.join(head, tail.replace("params", "out-err"))
 
 
 def run(cmd_params_file, i, outputs):
-    if not os.path.exists(cmd_params_file):
-        sys.exit(2)
-    with open(cmd_params_file, "rb") as f:
-        cmd_params = [
-            line.strip().decode("utf-8") for line in f.readlines() if line.strip()
-        ]
-    pause = False
-    if cmd_params[-2] == "&&" and cmd_params[-1] == "pause":
-        pause = True
-        cmd_params = cmd_params[:-2]
-    sta, output = get_sta_output(cmd_params)
-    tempww = get_outmsg_file(cmd_params_file)
-    with open(tempww, 'wb') as f:
-        for line in output:
-            f.write(line.encode('utf-8').strip() + b'\n')
-    tempss = get_outsta_file(cmd_params_file)
-    with open(tempss, 'wb') as f:
-        f.write(b'1')
-    outputs[i] = [sta, output]
-    if pause:
-        os.system("pause")
+    try:
+        if not os.path.exists(cmd_params_file):
+            sys.exit(2)
+        with open(cmd_params_file, "rb") as f:
+            cmd_params = [
+                line.strip().decode("utf-8") for line in f.readlines() if line.strip()
+            ]
+        pause = False
+        if cmd_params[-2] == "&&" and cmd_params[-1] == "pause":
+            pause = True
+            cmd_params = cmd_params[:-2]
+        sta, output = get_sta_output(cmd_params)
+        with open(get_outmsg_file(cmd_params_file), "wb") as f:
+            for line in output:
+                f.write(line.encode("utf-8").strip() + b"\n")
+        with open(get_outsta_file(cmd_params_file), "wb") as f:
+            f.write(b"1")
+        outputs[i] = [sta, output]
+        if pause:
+            os.system("pause")
+    except Exception as e:
+        with open(get_outerr_file(cmd_params_file), "wb") as f:
+            f.write(str(e).encode("utf-8"))
 
 
 if __name__ == "__main__":
@@ -92,5 +89,3 @@ if __name__ == "__main__":
     #     print(output)
     #     print("+++++++++++++++++++")
     # os.system("pause")
-
-
