@@ -66,7 +66,9 @@ def run(cmd_params_file, i, outputs):
     tempww = get_outmsg_file(cmd_params_file)
     print('ww', tempww)
     with open(tempww, 'wb') as f:
+        print('wwwwwwwwwwwww')
         f.writelines(output)
+        print('9999999999999')
     print('-186744073709551615')
     tempss = get_outsta_file(cmd_params_file)
     print('ss', tempss)
