@@ -68,7 +68,8 @@ def run(cmd_params_file, i, outputs):
     with open(tempww, 'wb') as f:
         print('wwwwwwwwwwwww')
         print(type(output), output)
-        f.writelines(output)
+        for line in output:
+            f.write(line.encode('utf-8').strip() + b'\n')
         print('9999999999999')
     print('-186744073709551615')
     tempss = get_outsta_file(cmd_params_file)
