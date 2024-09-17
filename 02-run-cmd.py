@@ -1,16 +1,23 @@
-import os
-import sys
-import subprocess
 import multiprocessing
+import os
+import subprocess
+import sys
+
 
 def get_sta_output(cmd_params):
-    process = subprocess.Popen(cmd_params, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    process = subprocess.Popen(
+        cmd_params,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
     output = []
     sta = 1234
     try:
         while True:
             res = process.stdout.readline()
-            if res == '' and process.poll() is not None:
+            if res == "" and process.poll() is not None:
                 break
             if res:
                 print(res.strip())
@@ -21,13 +28,16 @@ def get_sta_output(cmd_params):
         print(e)
     return sta, output
 
+
 def run(cmd_params_file, i, outputs):
     if not os.path.exists(cmd_params_file):
         sys.exit(2)
-    with open(cmd_params_file, 'rb') as f:
-        cmd_params = [line.strip().decode('utf-8') for line in f.readlines() if line.strip()]
+    with open(cmd_params_file, "rb") as f:
+        cmd_params = [
+            line.strip().decode("utf-8") for line in f.readlines() if line.strip()
+        ]
     pause = False
-    if cmd_params[-2] == '&&' and cmd_params[-1] == 'pause':
+    if cmd_params[-2] == "&&" and cmd_params[-1] == "pause":
         pause = True
         cmd_params = cmd_params[:-2]
     sta, output = get_sta_output(cmd_params)
@@ -35,7 +45,8 @@ def run(cmd_params_file, i, outputs):
     if pause:
         os.system("pause")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit(1)
     pool = multiprocessing.Pool(4)
