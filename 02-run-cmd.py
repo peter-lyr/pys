@@ -58,8 +58,11 @@ def run(cmd_params_file, i, outputs):
             cmd_params = cmd_params[:-2]
         sta, output = get_sta_output(cmd_params)
         with open(get_outmsg_file(cmd_params_file), "wb") as f:
-            for line in output:
-                f.write(line.encode("utf-8").strip() + b"\n")
+            if output:
+                for line in output:
+                    f.write(line.encode("utf-8").strip() + b"\n")
+            else:
+                f.write(b'000')
         with open(get_outsta_file(cmd_params_file), "wb") as f:
             f.write(b"1")
         outputs[i] = [sta, output]
