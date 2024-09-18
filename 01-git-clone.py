@@ -18,4 +18,3 @@ if __name__ == "__main__":
         clone(root, name, repo, dir)
     except Exception as e:
         print(e)
-    os.system("pause")
