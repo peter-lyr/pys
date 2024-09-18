@@ -1,11 +1,10 @@
 import os
-from multiprocessing import Pool
 
 import funcs as f
 
 
-def clone(cwd, name, repo):
-    cmd = f'cd /d "{cwd}" && git clone --recursive git@github.com:{name}/{repo}'
+def clone(cwd, name, repo, dir):
+    cmd = f'cd /d "{cwd}" && git clone git@github.com:{name}/{repo} {dir}'
     print(cmd)
     os.system(cmd)
 
@@ -13,17 +12,10 @@ def clone(cwd, name, repo):
 if __name__ == "__main__":
     params = f.get_params()
     try:
-        root, name, repos = params[0], params[1], params[2:]
+        root, name, repo, dir = params[0], params[1], params[2], params[3]
         if not os.path.exists(root):
             os.makedirs(root, exist_ok=True)
-        if len(repos) > 1:
-            p = Pool(4)
-            for repo in repos:
-                p.apply_async(clone, args=(root, name, repo))
-            p.close()
-            p.join()
-        else:
-            clone(root, name, repos[0])
+        clone(root, name, repo, dir)
     except Exception as e:
         print(e)
     os.system("pause")
