@@ -54,9 +54,12 @@ def run(cmd_params_file):
                 line.strip().decode("utf-8") for line in f.readlines() if line.strip()
             ]
         pause = False
-        if cmd_params[-2] == "&&" and cmd_params[-1] == "pause":
-            pause = True
-            cmd_params = cmd_params[:-2]
+        try:
+            if cmd_params[-2] == "&&" and cmd_params[-1] == "pause":
+                pause = True
+                cmd_params = cmd_params[:-2]
+        except:
+            pass
         sta, output = get_sta_output(cmd_params, cmd_params_file)
         with open(get_outmsg_file(cmd_params_file), "wb") as f:
             if output:
@@ -69,6 +72,7 @@ def run(cmd_params_file):
         if pause:
             os.system("pause")
     except Exception as e:
+        print('lwkek', e)
         with open(get_outerr_file(cmd_params_file), "wb") as f:
             f.write(str(e).encode("utf-8"))
 

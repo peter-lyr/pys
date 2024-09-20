@@ -1,3 +1,4 @@
+# 20240920起不再使用，仅作参考
 import os
 
 import funcs as f
