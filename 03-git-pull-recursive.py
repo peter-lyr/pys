@@ -49,22 +49,8 @@ def get_path_url(dotgitmodules):
     return paths, urls
 
 
-def checkout_main(dotgitmodules):
-    temp = os.getcwd()
-    paths, urls = get_path_url(dotgitmodules)
-    repo = os.path.dirname(dotgitmodules)
-    os.chdir(repo)
-    repos = [os.path.join(repo, path) for path in paths]
-    for repo in repos:
-        print(f"\033[1;32m{repo}\033[0m", flush=True)
-        os.chdir(repo)
-        os.system(f"git checkout main")
-        os.chdir(repo)
-    os.chdir(temp)
-    return repos
-
-
 def git_pull(repo):
+    print(repo, flush=True)
     os.chdir(repo)
     os.system("git pull")
 
@@ -72,19 +58,36 @@ def git_pull(repo):
 if __name__ == "__main__":
     try:
         root = f.get_params()[0]
-        if not os.path.exists(root) or os.path.exists(os.path.join(root, '.git')):
+        if not os.path.exists(root) or not os.path.exists(os.path.join(root, ".git")):
             os._exit(1)
         dotgitmodules = get_gitmodules(root)
         dotgitmodules_from_leaves_to_root = level_gitmodules(dotgitmodules)
         time.sleep(1)
-        repos = []
+        Repos = []
         for dotgitmodules in dotgitmodules_from_leaves_to_root:
             for dotgitmodule in dotgitmodules:
-                repos += checkout_main(dotgitmodule)
-        repos.append(root)
-        ## for repo in repos:
-        ##     print(repo)
-        with Pool() as pool:
-            pool.map_async(git_pull, repos)
+                temp = os.getcwd()
+                paths, urls = get_path_url(dotgitmodule)
+                repo = os.path.dirname(dotgitmodule)
+                os.chdir(repo)
+                repos = [os.path.join(repo, path) for path in paths]
+                repos.append(repo)
+                for repo in repos:
+                    if repo in Repos:
+                        continue
+                    print(f"\033[1;32m{repo}\033[0m", flush=True)
+                    os.chdir(repo)
+                    os.system(f"git checkout main")
+                    os.chdir(repo)
+                os.chdir(temp)
+                for repo in repos:
+                    if repo not in Repos:
+                        Repos.append(repo)
+        if 0:
+            for repo in Repos:
+                git_pull(repo)
+        else:
+            with Pool() as pool:
+                pool.map(git_pull, Repos)
     except Exception as e:
-        print(e)
+        print(e, flush=True)
