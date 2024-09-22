@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 
-def get_sta_output(cmd_params, cmd_params_file):
+def get_sta_output(cmd_params, cmd_params_file, opts):
     output = []
     sta = 1234
     try:
@@ -14,14 +14,15 @@ def get_sta_output(cmd_params, cmd_params_file):
             stderr=subprocess.PIPE,
             text=True,
         )
-        while True:
-            res = process.stdout.readline()
-            if res == "" and process.poll() is not None:
-                break
-            if res:
-                print(res.strip())
-                output.append(res.strip())
-                sys.stdout.flush()
+        if 'no_output' not in opts:
+            while True:
+                res = process.stdout.readline()
+                if res == "" and process.poll() is not None:
+                    break
+                if res:
+                    print(res.strip())
+                    output.append(res.strip())
+                    sys.stdout.flush()
         sta = process.wait()
     except Exception as e:
         print(e)
@@ -45,7 +46,7 @@ def get_outerr_file(cmd_params_file):
     return os.path.join(head, tail.replace("params", "out-err"))
 
 
-def run(cmd_params_file):
+def run(cmd_params_file, opts):
     try:
         if not os.path.exists(cmd_params_file):
             sys.exit(2)
@@ -60,7 +61,7 @@ def run(cmd_params_file):
                 cmd_params = cmd_params[:-2]
         except:
             pass
-        sta, output = get_sta_output(cmd_params, cmd_params_file)
+        sta, output = get_sta_output(cmd_params, cmd_params_file, opts)
         with open(get_outmsg_file(cmd_params_file), "wb") as f:
             if output:
                 for line in output:
@@ -80,4 +81,4 @@ def run(cmd_params_file):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit(1)
-    run(sys.argv[1])
+    run(sys.argv[1], sys.argv[2:])
