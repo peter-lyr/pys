@@ -40,7 +40,7 @@ if __name__ == "__main__":
             f.write(b'')
         os.system('git add .')
         os.system('git commit -m "s1"')
-        os.system(f'gh repo create {repo} --{public} --source=. --remote=origin')
+        os.system(f'gh repo create {repo} --{public} --description "{path}" --source=. --remote=origin')
         os.system('git push -u origin main')
         os.chdir(root)
         os.system(f'git submodule add git@github.com:{name}/{repo} {path}')
