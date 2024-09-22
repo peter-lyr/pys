@@ -20,10 +20,10 @@ if __name__ == "__main__":
             if temp == parent:
                 break
             parent = temp
-        print("=====================")
-        print(Dirs[0], flush=True)
         for i in range(len(Dirs)):
+            print("=====================")
             dir = Dirs[i]
+            print(dir, flush=True)
             os.chdir(dir)
             if dir == Dirs[0]:
                 commit = Commit
