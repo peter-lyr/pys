@@ -1,36 +1,24 @@
 import os
 import re
 import subprocess
-from datetime import datetime
 
 import funcs as f
-from xpinyin import Pinyin
 
 if __name__ == "__main__":
     try:
         params = f.get_params()
         root = params[0]
         os.chdir(root)
+        bash_cmd = r"""gh repo list --limit 9999999 --json name,description --jq '.[] | "\(.name)\t\(.description)"'"""
         result = subprocess.run(
-            [
-                "gh",
-                "repo",
-                "list",
-                "--limit",
-                "9999999",
-                "--source",
-                "--json",
-                "name",
-                "--jq",
-                ".[] | select(.name) | .name",
-            ],
+            ["bash.exe", "-c", bash_cmd],
             capture_output=True,
             text=True,
         )
-        repos = result.stdout.replace('\r', '').split('\n')
+        repos = result.stdout.replace("\r", "").split("\n")
         R = []
         for repo in repos:
-            if re.match(r'^\d{3}[_-]', repo):
+            if re.match(r"^\d{3}[_-]", repo):
                 R.append(repo)
         R.sort(reverse=True)
         for r in R:
