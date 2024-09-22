@@ -18,7 +18,7 @@ if __name__ == "__main__":
         repos = result.stdout.replace("\r", "").split("\n")
         R = []
         for repo in repos:
-            # if re.match(r"^\d{3}[_-]", repo):
+            if re.match(r"^\d{3}[_-]", repo):
                 R.append(repo)
         R.sort(reverse=True)
         for r in R:
