@@ -21,7 +21,7 @@ if __name__ == "__main__":
                 break
             parent = temp
         for i in range(len(Dirs)):
-            print("=====================")
+            print("---------------------")
             dir = Dirs[i]
             print(dir, flush=True)
             os.chdir(dir)
