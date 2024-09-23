@@ -14,6 +14,7 @@ if __name__ == "__main__":
         path = params[1]
         public = params[2]
         name = params[3]
+        root_tail = os.path.split(root)[1]
         if public not in ['public', 'private']:
             os._exit(3)
         print(root, path)
@@ -40,7 +41,7 @@ if __name__ == "__main__":
             f.write(b'')
         os.system('git add .')
         os.system('git commit -m "s1"')
-        os.system(f'gh repo create {repo} --{public} --description "{path}" --source=. --remote=origin')
+        os.system(f'gh repo create {repo} --{public} --description "{root_tail}/{path}" --source=. --remote=origin')
         os.system('git push -u origin main')
         os.chdir(root)
         os.system(f'git submodule add git@github.com:{name}/{repo} {path}')
