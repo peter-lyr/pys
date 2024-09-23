@@ -21,16 +21,18 @@ if __name__ == "__main__":
                 break
             parent = temp
         for i in range(len(Dirs)):
-            print("---------------------")
             dir = Dirs[i]
+            print("-"*len(dir))
             print(dir, flush=True)
+            os.system("chcp")
+            os.system("chcp 65001")
             os.chdir(dir)
             if dir == Dirs[0]:
                 commit = Commit
             else:
-                last = Dirs[i-1]
-                commit = last[len(dir)+1:]
-            print('**', commit, '**')
+                last = Dirs[i - 1]
+                commit = last[len(dir) + 1 :]
+            print(commit, flush=True)
             process = subprocess.Popen(
                 [
                     "git",
@@ -45,9 +47,14 @@ if __name__ == "__main__":
                     "git",
                     "push",
                 ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 shell=True,
-                text=True,
+                encoding="utf-8",
             )
+            stdout, stderr = process.communicate()
             process.wait()
+            print(stdout, flush=True)
+            print(stderr, flush=True)
     except Exception as e:
         print(e, flush=True)
