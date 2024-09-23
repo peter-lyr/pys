@@ -24,8 +24,6 @@ if __name__ == "__main__":
             dir = Dirs[i]
             print("-"*len(dir))
             print(dir, flush=True)
-            os.system("chcp")
-            os.system("chcp 65001")
             os.chdir(dir)
             if dir == Dirs[0]:
                 commit = Commit
