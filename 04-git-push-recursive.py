@@ -30,6 +30,7 @@ if __name__ == "__main__":
             else:
                 last = Dirs[i-1]
                 commit = last[len(dir)+1:]
+            print('**', commit, '**')
             process = subprocess.Popen(
                 [
                     "git",
