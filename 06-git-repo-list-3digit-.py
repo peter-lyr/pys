@@ -15,6 +15,25 @@ if __name__ == "__main__":
             capture_output=True,
             text=True,
         )
+        try:
+            repos = result.stdout.replace("\r", "").split("\n")
+        except:
+            result = subprocess.run(
+                [
+                    "gh",
+                    "repo",
+                    "list",
+                    "--limit",
+                    "9999999",
+                    "--source",
+                    "--json",
+                    "name",
+                    "--jq",
+                    ".[] | select(.name) | .name",
+                ],
+                capture_output=True,
+                text=True,
+            )
         repos = result.stdout.replace("\r", "").split("\n")
         R = []
         for repo in repos:
