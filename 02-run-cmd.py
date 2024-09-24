@@ -32,6 +32,7 @@ def get_sta_output(cmd_params, cmd_params_file, opts):
         print(e, flush=True)
         with open(get_outerr_file(cmd_params_file), "wb") as f:
             f.write(str(e).encode("utf-8"))
+        sys.stdout.flush()
     return sta, output
 
 
