@@ -39,7 +39,7 @@ def get_params():
 
 def write_err(lines):
     file = datetime.now().strftime("%Y%m%d-%H%M%S.txt")
-    with open(file, 'wb') as f:
+    with open(os.path.join(r'C:\temp', file), 'wb') as f:
         for line in lines:
             if type(line) != bytes:
                 line = line.encode('utf-8')
