@@ -56,6 +56,10 @@ def git_pull(repo):
     os.system("git pull")
 
 
+def rep(text):
+    return text.replace('/', '\\')
+
+
 if __name__ == "__main__":
     try:
         root = f.get_params()[0]
@@ -70,17 +74,17 @@ if __name__ == "__main__":
                 temp = os.getcwd()
                 paths, urls = get_path_url(dotgitmodule)
                 repo = os.path.dirname(dotgitmodule)
-                os.chdir(repo)
+                os.chdir(rep(repo))
                 repos = [os.path.join(repo, path) for path in paths]
                 repos.append(repo)
                 for repo in repos:
                     if repo in Repos:
                         continue
                     print(f"\033[1;32m{repo}\033[0m", flush=True)
-                    os.chdir(repo)
+                    os.chdir(rep(repo))
                     os.system(f"git checkout main")
-                    os.chdir(repo)
-                os.chdir(temp)
+                    os.chdir(rep(repo))
+                os.chdir(rep(temp))
                 for repo in repos:
                     if repo not in Repos:
                         Repos.append(repo)
