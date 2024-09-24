@@ -23,7 +23,9 @@ if __name__ == "__main__":
         p = Pinyin()
         temp = repo.replace("-", ":").replace("，", ",")
         xxx = p.get_initials(temp)
-        if len(repo) <= 3:
+        # 026-富友昌
+        temp_2 = '-'.join(repo.split('-')[1:])
+        if len(temp_2) <= 3:
             xxx = p.get_pinyin(temp)
         repo = xxx.replace("-", "").replace(":", "-").replace(",", "-").strip()
         repo = re.sub(r"\W+", "_", repo)
