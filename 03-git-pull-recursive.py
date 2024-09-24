@@ -1,6 +1,7 @@
 import os
 import re
 import time
+from datetime import datetime
 from multiprocessing import Pool
 from traceback import format_exc
 
@@ -59,7 +60,7 @@ def git_pull(repo):
 
 
 def rep(text):
-    return text.replace('/', '\\')
+    return text.replace("/", "\\")
 
 
 if __name__ == "__main__":
@@ -87,6 +88,8 @@ if __name__ == "__main__":
                     print(f"{repo}", flush=True)
                     os.chdir(rep(repo))
                     os.system(f"git checkout main")
+                    dt = datetime.now().strftime("%Y%m%d-%H%M%S")
+                    os.system(f'git stash push -m "{dt}"')
                     os.chdir(rep(repo))
                 os.chdir(rep(temp))
                 for repo in repos:
