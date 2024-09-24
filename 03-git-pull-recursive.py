@@ -80,6 +80,8 @@ if __name__ == "__main__":
                 for repo in repos:
                     if repo in Repos:
                         continue
+                    if not os.path.exists(repo):
+                        continue
                     print(f"\033[1;32m{repo}\033[0m", flush=True)
                     os.chdir(rep(repo))
                     os.system(f"git checkout main")
