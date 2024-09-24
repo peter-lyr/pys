@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+from traceback import format_exc
 
 import funcs as f
 
@@ -44,5 +45,5 @@ if __name__ == "__main__":
         R.sort(reverse=True)
         for r in R:
             print(r)
-    except Exception as e:
-        print(e, flush=True)
+    except:
+        print("{{[[{{{owi2ww}}}]]}}", format_exc(), flush=True)

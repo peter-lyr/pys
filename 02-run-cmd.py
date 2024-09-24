@@ -16,6 +16,7 @@ def get_sta_output(cmd_params, cmd_params_file, opts):
             universal_newlines=True,
             text=True,
             encoding="utf-8",
+            errors="ignore",
         )
         if "no_output" not in opts:
             while True:
@@ -78,8 +79,8 @@ def run(cmd_params_file, opts):
         if pause:
             os.system("pause")
     except:
-        e = format_exc()
-        print("wioe", e, flush=True)
+        e = 'wwwwwwwwwwwwwewwwwwwwwwww: ' + format_exc()
+        print("{P{{{[wei]}}}}", e, flush=True)
         with open(get_outerr_file(cmd_params_file), "wb") as f:
             f.write(str(e).encode("utf-8"))
 

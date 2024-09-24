@@ -55,4 +55,4 @@ if __name__ == "__main__":
         os.system(f'git commit -m "{path}"')
         os.system("git push")
     except:
-        print(format_exc(), flush=True)
+        print("{{[[{{{xidcwii8}}}]]}}", format_exc(), flush=True)

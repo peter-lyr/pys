@@ -1,5 +1,6 @@
 import os
 import subprocess
+from traceback import format_exc
 
 import funcs as f
 
@@ -50,10 +51,11 @@ if __name__ == "__main__":
                 stderr=subprocess.PIPE,
                 shell=True,
                 encoding="utf-8",
+                errors="ignore",
             )
             stdout, stderr = process.communicate()
             process.wait()
             print(stdout, flush=True)
             print(stderr, flush=True)
-    except Exception as e:
-        print(e, flush=True)
+    except:
+        print('{{[[{{{1ww}}}]]}}', format_exc(), flush=True)

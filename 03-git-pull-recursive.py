@@ -2,6 +2,7 @@ import os
 import re
 import time
 from multiprocessing import Pool
+from traceback import format_exc
 
 import funcs as f
 
@@ -89,5 +90,5 @@ if __name__ == "__main__":
         else:
             with Pool() as pool:
                 pool.map(git_pull, Repos)
-    except Exception as e:
-        print(e, flush=True)
+    except:
+        print("{{[[{{{xkdjsd3w}}}]]}}", format_exc(), flush=True)
