@@ -22,8 +22,8 @@ if __name__ == "__main__":
             parent = temp
         for i in range(len(Dirs)):
             dir = Dirs[i]
-            print("-"*len(dir))
-            print(dir, flush=True)
+            print("-" * len(dir))
+            print("Commit info:", dir, flush=True)
             os.chdir(dir)
             if dir == Dirs[0]:
                 commit = Commit
@@ -33,7 +33,10 @@ if __name__ == "__main__":
             print(commit, flush=True)
             process = subprocess.Popen(
                 [
-                    "git",
+                    "cd",
+                    "/d",
+                    dir,
+                    "&&" "git",
                     "add",
                     ".",
                     "&&",
