@@ -15,9 +15,11 @@ if __name__ == "__main__":
         name = params[3]
         root_tail = os.path.split(root)[1]
         if public not in ["public", "private"]:
+            print('public not in ["public", "private"]')
             os._exit(3)
         print(root, path)
         if not os.path.exists(root):
+            print(f'{root} not exists')
             os._exit(1)
         repo = os.path.split(path)[1]
         p = Pinyin()
@@ -34,6 +36,7 @@ if __name__ == "__main__":
         os.makedirs(dir, exist_ok=True)
         os.chdir(path)
         if os.path.exists(".git"):
+            print(f'.git exists in {path}')
             os._exit(2)
         os.system("git init")
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
