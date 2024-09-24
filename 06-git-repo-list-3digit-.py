@@ -31,6 +31,7 @@ if __name__ == "__main__":
                     "--jq",
                     ".[] | select(.name) | .name",
                 ],
+                universal_newlines=True,
                 capture_output=True,
                 text=True,
                 encoding="utf-8",

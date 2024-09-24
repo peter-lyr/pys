@@ -13,6 +13,7 @@ def get_sta_output(cmd_params, cmd_params_file, opts):
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            universal_newlines=True,
             text=True,
             encoding="utf-8",
         )

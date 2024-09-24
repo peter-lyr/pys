@@ -45,6 +45,7 @@ if __name__ == "__main__":
                     "git",
                     "push",
                 ],
+                universal_newlines=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 shell=True,
