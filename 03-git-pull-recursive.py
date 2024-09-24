@@ -51,6 +51,8 @@ def get_path_url(dotgitmodules):
 
 
 def git_pull(repo):
+    if not os.path.exists(repo):
+        return
     print(repo, flush=True)
     os.chdir(repo)
     os.system("git pull")
