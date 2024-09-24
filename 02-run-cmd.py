@@ -1,7 +1,7 @@
 import os
-from traceback import format_exc
 import subprocess
 import sys
+from traceback import format_exc
 
 
 def get_sta_output(cmd_params, cmd_params_file, opts):
@@ -14,8 +14,9 @@ def get_sta_output(cmd_params, cmd_params_file, opts):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
+            encoding="utf-8",
         )
-        if 'no_output' not in opts:
+        if "no_output" not in opts:
             while True:
                 res = process.stdout.readline()
                 if res == "" and process.poll() is not None:
@@ -69,14 +70,14 @@ def run(cmd_params_file, opts):
                 for line in output:
                     f.write(line.encode("utf-8").strip() + b"\n")
             else:
-                f.write(b'000')
+                f.write(b"000")
         with open(get_outsta_file(cmd_params_file), "wb") as f:
             f.write(b"1")
         if pause:
             os.system("pause")
     except:
         e = format_exc()
-        print('wioe', e, flush=True)
+        print("wioe", e, flush=True)
         with open(get_outerr_file(cmd_params_file), "wb") as f:
             f.write(str(e).encode("utf-8"))
 
