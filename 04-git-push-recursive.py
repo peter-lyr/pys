@@ -23,20 +23,17 @@ if __name__ == "__main__":
         for i in range(len(Dirs)):
             dir = Dirs[i]
             print("-" * len(dir))
-            print("Commit info:", dir, flush=True)
+            print(dir, flush=True)
             os.chdir(dir)
             if dir == Dirs[0]:
                 commit = Commit
             else:
                 last = Dirs[i - 1]
                 commit = last[len(dir) + 1 :]
-            print(commit, flush=True)
+            print("Commit info:", commit, flush=True)
             process = subprocess.Popen(
                 [
-                    "cd",
-                    "/d",
-                    dir,
-                    "&&" "git",
+                    "git",
                     "add",
                     ".",
                     "&&",
