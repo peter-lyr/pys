@@ -1,4 +1,5 @@
 import os
+from traceback import format_exc
 import re
 from datetime import datetime
 
@@ -53,5 +54,5 @@ if __name__ == "__main__":
         os.system("git add .")
         os.system(f'git commit -m "{path}"')
         os.system("git push")
-    except Exception as e:
-        print(e, flush=True)
+    except:
+        print(format_exc(), flush=True)

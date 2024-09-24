@@ -1,4 +1,5 @@
 import os
+from traceback import format_exc
 import subprocess
 import sys
 
@@ -24,8 +25,9 @@ def get_sta_output(cmd_params, cmd_params_file, opts):
                     output.append(res.strip())
                     sys.stdout.flush()
         sta = process.wait()
-    except Exception as e:
-        print(e)
+    except:
+        e = format_exc()
+        print(e, flush=True)
         with open(get_outerr_file(cmd_params_file), "wb") as f:
             f.write(str(e).encode("utf-8"))
     return sta, output
@@ -72,8 +74,9 @@ def run(cmd_params_file, opts):
             f.write(b"1")
         if pause:
             os.system("pause")
-    except Exception as e:
-        print('lwkek', e)
+    except:
+        e = format_exc()
+        print('wioe', e, flush=True)
         with open(get_outerr_file(cmd_params_file), "wb") as f:
             f.write(str(e).encode("utf-8"))
 
