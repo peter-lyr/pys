@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime
 
 import win32clipboard
 import win32con
@@ -34,3 +35,12 @@ def get_params():
         if text != None:
             params = text.split("\n")
     return params
+
+
+def write_err(lines):
+    file = datetime.now().strftime("%Y%m%d-%H%M%S.txt")
+    with open(file, 'wb') as f:
+        for line in lines:
+            if type(line) != bytes:
+                line = line.encode('utf-8')
+            f.write(line + b'\n')
