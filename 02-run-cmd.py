@@ -39,17 +39,17 @@ def get_sta_output(cmd_params, cmd_params_file, opts):
 
 def get_outmsg_file(cmd_params_file):
     head, tail = os.path.split(cmd_params_file)
-    return os.path.join(head, tail.replace("params", "out-msg"))
+    return os.path.join(head, tail.replace("params", "out"))
 
 
 def get_outsta_file(cmd_params_file):
     head, tail = os.path.split(cmd_params_file)
-    return os.path.join(head, tail.replace("params", "out-sta"))
+    return os.path.join(head, tail.replace("params", "sta"))
 
 
 def get_outerr_file(cmd_params_file):
     head, tail = os.path.split(cmd_params_file)
-    return os.path.join(head, tail.replace("params", "out-err"))
+    return os.path.join(head, tail.replace("params", "err"))
 
 
 def run(cmd_params_file, opts):
