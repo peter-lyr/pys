@@ -40,8 +40,8 @@ if __name__ == "__main__":
             print(f'.git exists in {path}')
             os._exit(2)
         os.system("git init")
-        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        with open(f"01-初次提交-{timestamp}.txt", "wb") as f:
+        file = datetime.now().strftime("%Y%m%d-01-s1-%H%M%S.txt")
+        with open(file, "wb") as f:
             f.write(b"")
         os.system("git add .")
         os.system('git commit -m "s1"')
