@@ -7,7 +7,13 @@ import funcs as f
 if __name__ == "__main__":
     try:
         params = f.get_params()
-        Commit = params[0]
+        CommitFile = params[0]
+        if not os.path.exists(CommitFile):
+            os._exit(1)
+        with open(CommitFile, 'rb') as f:
+            Commit = f.read().decode('utf-8')
+        if not Commit:
+            os._exit(2)
         file = params[1]
         parent = file
         if os.path.isfile(parent):
