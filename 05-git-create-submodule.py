@@ -52,7 +52,7 @@ if __name__ == "__main__":
         os.chdir(root)
         os.system(f"git submodule add git@github.com:{name}/{repo} {path}")
         os.system("git add .")
-        os.system(f'git commit -m "{path}"')
+        os.system(f'git commit -m "{root_tail}/{path}"')
         os.system("git push")
     except:
         print("{{[[{{{xidcwii8}}}]]}}", format_exc(), flush=True)
