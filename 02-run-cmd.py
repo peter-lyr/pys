@@ -79,7 +79,7 @@ def run(cmd_params_file, opts):
         if pause:
             os.system("pause")
     except:
-        e = 'wwwwwwwwwwwwwewwwwwwwwwww: ' + format_exc()
+        e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
         print("{P{{{[wei]}}}}", e, flush=True)
         with open(get_outerr_file(cmd_params_file), "wb") as f:
             f.write(str(e).encode("utf-8"))
