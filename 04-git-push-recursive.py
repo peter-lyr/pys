@@ -21,6 +21,7 @@ if __name__ == "__main__":
             if temp == parent:
                 break
             parent = temp
+        lastcommit = ''
         for i in range(len(Dirs)):
             dir = Dirs[i]
             print("-" * len(dir))
@@ -30,7 +31,8 @@ if __name__ == "__main__":
                 commit = Commit
             else:
                 last = Dirs[i - 1]
-                commit = last[len(dir) + 1 :]
+                commit = last[len(dir) + 1 :] + '->' + lastcommit
+            lastcommit = commit
             print("Commit info:", commit, flush=True)
             process = subprocess.Popen(
                 [
