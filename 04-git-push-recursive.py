@@ -11,7 +11,7 @@ if __name__ == "__main__":
         if not os.path.exists(CommitFile):
             os._exit(1)
         with open(CommitFile, 'rb') as f:
-            Commit = f.read().decode('utf-8')
+            Commit = f.read().decode('utf-8').strip()
         if not Commit:
             os._exit(2)
         file = params[1]
@@ -50,7 +50,7 @@ if __name__ == "__main__":
                     "commit",
                     "-m",
                     commit,
-                    "&",
+                    "&&",
                     "git",
                     "push",
                 ],
