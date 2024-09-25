@@ -31,7 +31,7 @@ if __name__ == "__main__":
                 commit = Commit
             else:
                 last = Dirs[i - 1]
-                commit = last[len(dir) + 1 :] + '->' + lastcommit
+                commit = last[len(dir) + 1 :] + '》' + lastcommit
             lastcommit = commit
             print("Commit info:", commit, flush=True)
             process = subprocess.Popen(
