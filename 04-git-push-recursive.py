@@ -50,7 +50,7 @@ if __name__ == "__main__":
                     "commit",
                     "-m",
                     commit,
-                    "&&",
+                    "&",
                     "git",
                     "push",
                 ],
