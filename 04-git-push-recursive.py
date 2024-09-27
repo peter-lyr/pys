@@ -2,11 +2,11 @@ import os
 import subprocess
 from traceback import format_exc
 
-import funcs as f
+import b
 
 if __name__ == "__main__":
     try:
-        params = f.get_params()
+        params = b.get_params()
         CommitFile = params[0]
         if not os.path.exists(CommitFile):
             os._exit(1)
@@ -78,4 +78,4 @@ if __name__ == "__main__":
     except:
         e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
         print("{{[[{{{1ww}}}]]}}", format_exc(), flush=True)
-        f.write_err(e.split("\n"))
+        b.write_err(e.split("\n"))
