@@ -37,20 +37,33 @@ if __name__ == "__main__":
                 commit = Commit
             else:
                 last = Dirs[i - 1]
-                commit = last[len(dir) + 1 :] + ' -> ' + lastcommit
+                commit = last[len(dir) + 1 :] + '-->' + lastcommit
             lastcommit = commit
+            commit = commit.replace('"', '“')
+            commit = commit.replace(' ', '-')
             print("Commit info:", commit, flush=True)
+            commit = commit.replace('^', '^^')
+            commit = commit.replace('<', '^<')
+            commit = commit.replace('>', '^>')
+            commit = commit.replace('&', '^&')
+            commit = commit.replace('|', '^|')
+            commit = commit.replace('%', '^%')
+            commit = commit.replace("'", "^'")
+            commit = commit.replace("(", "^(")
+            commit = commit.replace(")", "^)")
+            commit = commit.replace(";", "^;")
+            commit = commit.replace("!", "^!")
             process = subprocess.Popen(
                 [
                     "git",
                     "add",
                     ".",
-                    "&&",
+                    "&",
                     "git",
                     "commit",
                     "-m",
                     commit,
-                    "&&",
+                    "&",
                     "git",
                     "push",
                 ],
