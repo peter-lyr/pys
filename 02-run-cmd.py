@@ -5,7 +5,7 @@ from traceback import format_exc
 
 
 def get_exit_line(sta):
-    return f'===============Exit Code: {sta}==============='
+    return f"===============Exit Code: {sta}==============="
 
 
 def get_sta_output(cmd_params, cmd_params_file, opts):
