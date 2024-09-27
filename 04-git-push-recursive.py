@@ -55,7 +55,7 @@ if __name__ == "__main__":
                     file.writelines(cur_commit_lines)
             print("Commit info:\n", flush=True)
             for line in cur_commit_lines:
-                print(line, flush=True)
+                print(line.decode('utf-8'), flush=True)
             last_commit_lines = cur_commit_lines
             process = subprocess.Popen(
                 cmd,
