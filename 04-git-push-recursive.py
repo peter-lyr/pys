@@ -53,7 +53,7 @@ if __name__ == "__main__":
                 cur_commit_lines = [(last[len(dir) + 1 :] + "===>\n").encode("utf-8")] + last_commit_lines
                 with open(CommitFile, "wb") as file:
                     file.writelines(cur_commit_lines)
-            print("Commit info:\n", flush=True)
+            print("Commit info:", flush=True)
             for line in cur_commit_lines:
                 print(line.rstrip().decode('utf-8'), flush=True)
             last_commit_lines = cur_commit_lines
