@@ -38,6 +38,7 @@ if __name__ == "__main__":
             else:
                 last = Dirs[i - 1]
                 commit = last[len(dir) + 1 :] + '\n└-->' + lastcommit
+
             lastcommit = commit
             commit = commit.replace('"', '“')
             commit = commit.replace(' ', '-')
