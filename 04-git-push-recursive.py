@@ -60,7 +60,7 @@ if __name__ == "__main__":
             for line in cur_commit_lines:
                 print(line.rstrip().decode("utf-8"), flush=True)
             print("", flush=True)
-            print("**************", flush=True)
+            print("******************", flush=True)
             last_commit_lines = cur_commit_lines
             process = subprocess.Popen(
                 cmd,
