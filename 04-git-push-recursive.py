@@ -50,7 +50,7 @@ if __name__ == "__main__":
                 commit = CommitLines
             else:
                 last = Dirs[i - 1]
-                commit = [(last[len(dir) + 1 :] + "===>").encode("utf-8")] + lastcommit
+                commit = [(last[len(dir) + 1 :] + "===>\n").encode("utf-8")] + lastcommit
             lastcommit = commit
             with open(CommitFile, "wb") as file:
                 file.writelines(commit)
