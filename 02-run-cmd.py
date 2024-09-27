@@ -78,6 +78,7 @@ def run(cmd_params_file, opts):
             f.write(b"1")
         if pause:
             os.system("pause")
+        print(f"Exit Code: {sta}", flush=True)
     except:
         e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
         print("{P{{{[wei]}}}}", e, flush=True)
