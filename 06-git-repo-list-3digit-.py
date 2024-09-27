@@ -3,11 +3,11 @@ import re
 import subprocess
 from traceback import format_exc
 
-import funcs as f
+import b
 
 if __name__ == "__main__":
     try:
-        params = f.get_params()
+        params = b.get_params()
         root = params[0]
         os.chdir(root)
         bash_cmd = r"""gh repo list --limit 9999999 --json name,description --jq '.[] | "\(.name)\t\t\t\t\t\(.description)"'"""

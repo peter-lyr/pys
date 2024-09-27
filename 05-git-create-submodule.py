@@ -5,11 +5,11 @@ from datetime import datetime
 
 from xpinyin import Pinyin
 
-import funcs as f
+import b
 
 if __name__ == "__main__":
     try:
-        params = f.get_params()
+        params = b.get_params()
         root = params[0]
         path = params[1]
         public = params[2]

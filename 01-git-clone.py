@@ -1,7 +1,7 @@
 # 20240920起不再使用，仅作参考
 import os
 
-import funcs as f
+import b
 
 def clone(cwd, name, repo, dir):
     cmd = f'cd /d "{cwd}" && git clone --recurse-submodules git@github.com:{name}/{repo} {dir}'
@@ -10,7 +10,7 @@ def clone(cwd, name, repo, dir):
 
 
 if __name__ == "__main__":
-    params = f.get_params()
+    params = b.get_params()
     try:
         root, name, repo, dir = params[0], params[1], params[2], params[3]
         if not os.path.exists(root):

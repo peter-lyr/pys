@@ -5,7 +5,7 @@ from datetime import datetime
 from multiprocessing import Pool
 from traceback import format_exc
 
-import funcs as f
+import b
 
 
 def get_gitmodules(root):
@@ -65,7 +65,7 @@ def rep(text):
 
 if __name__ == "__main__":
     try:
-        root = f.get_params()[0]
+        root = b.get_params()[0]
         if not os.path.exists(root) or not os.path.exists(os.path.join(root, ".git")):
             os._exit(1)
         dotgitmodules = get_gitmodules(root)
