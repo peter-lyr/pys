@@ -4,6 +4,10 @@ import sys
 from traceback import format_exc
 
 
+def get_exit_line(sta):
+    return f'===============Exit Code: {sta}==============='
+
+
 def get_sta_output(cmd_params, cmd_params_file, opts):
     output = []
     sta = 1234
@@ -28,6 +32,7 @@ def get_sta_output(cmd_params, cmd_params_file, opts):
                     output.append(res.strip())
                     sys.stdout.flush()
         sta = process.wait()
+        print(get_exit_line(sta), flush=True)
     except:
         sys.stdout.flush()
         e = format_exc()
@@ -72,13 +77,13 @@ def run(cmd_params_file, opts):
             if output:
                 for line in output:
                     f.write(line.encode("utf-8").strip() + b"\n")
+                f.write(get_exit_line(sta).encode("utf-8").strip() + b"\n")
             else:
                 f.write(b"000")
         with open(get_outsta_file(cmd_params_file), "wb") as f:
             f.write(b"1")
         if pause:
             os.system("pause")
-        print(f"Exit Code: {sta}", flush=True)
     except:
         e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
         print("{P{{{[wei]}}}}", e, flush=True)
