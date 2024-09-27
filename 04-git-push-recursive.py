@@ -10,8 +10,8 @@ if __name__ == "__main__":
         CommitFile = params[0]
         if not os.path.exists(CommitFile):
             os._exit(1)
-        with open(CommitFile, 'rb') as f:
-            Commit = f.read().decode('utf-8').strip()
+        with open(CommitFile, 'rb') as file:
+            Commit = file.read().decode('utf-8').strip()
         if not Commit:
             os._exit(2)
         file = params[1]
