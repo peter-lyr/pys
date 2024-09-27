@@ -40,20 +40,23 @@ if __name__ == "__main__":
             if temp == parent:
                 break
             parent = temp
-        lastcommit = []
+        last_commit_lines = []
         for i in range(len(Dirs)):
             dir = Dirs[i]
             print("-" * len(dir))
             print(dir, flush=True)
             os.chdir(dir)
             if dir == Dirs[0]:
-                commit = CommitLines
+                cur_commit_lines = CommitLines
             else:
                 last = Dirs[i - 1]
-                commit = [(last[len(dir) + 1 :] + "===>\n").encode("utf-8")] + lastcommit
-            lastcommit = commit
-            with open(CommitFile, "wb") as file:
-                file.writelines(commit)
+                cur_commit_lines = [(last[len(dir) + 1 :] + "===>\n").encode("utf-8")] + last_commit_lines
+                with open(CommitFile, "wb") as file:
+                    file.writelines(cur_commit_lines)
+            print("Commit info:\n", flush=True)
+            for line in cur_commit_lines:
+                print(line, flush=True)
+            last_commit_lines = cur_commit_lines
             process = subprocess.Popen(
                 cmd,
                 universal_newlines=True,
