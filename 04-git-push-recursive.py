@@ -10,9 +10,22 @@ if __name__ == "__main__":
         CommitFile = params[0]
         if not os.path.exists(CommitFile):
             os._exit(1)
-        with open(CommitFile, 'rb') as file:
-            Commit = file.read().decode('utf-8').strip()
-        if not Commit:
+        cmd = [
+            "git",
+            "add",
+            ".",
+            "&",
+            "git",
+            "commit",
+            "-F",
+            CommitFile,
+            "&",
+            "git",
+            "push",
+        ]
+        with open(CommitFile, "rb") as file:
+            CommitLines = [line.strip() for line in file.readlines()]
+        if not CommitLines:
             os._exit(2)
         file = params[1]
         parent = file
@@ -27,46 +40,22 @@ if __name__ == "__main__":
             if temp == parent:
                 break
             parent = temp
-        lastcommit = ''
+        lastcommit = []
         for i in range(len(Dirs)):
             dir = Dirs[i]
             print("-" * len(dir))
             print(dir, flush=True)
             os.chdir(dir)
             if dir == Dirs[0]:
-                commit = Commit
+                commit = CommitLines
             else:
                 last = Dirs[i - 1]
-                commit = last[len(dir) + 1 :] + '===>' + lastcommit
+                commit = [(last[len(dir) + 1 :] + "===>").encode("utf-8")] + lastcommit
             lastcommit = commit
-            commit = commit.replace('"', '“')
-            commit = commit.replace(' ', '-')
-            print("Commit info:", commit, flush=True)
-            commit = commit.replace('^', '^^')
-            commit = commit.replace('<', '^<')
-            commit = commit.replace('>', '^>')
-            commit = commit.replace('&', '^&')
-            commit = commit.replace('|', '^|')
-            commit = commit.replace('%', '^%')
-            commit = commit.replace("'", "^'")
-            commit = commit.replace("(", "^(")
-            commit = commit.replace(")", "^)")
-            commit = commit.replace(";", "^;")
-            commit = commit.replace("!", "^!")
+            with open(CommitFile, "wb") as file:
+                file.writelines(commit)
             process = subprocess.Popen(
-                [
-                    "git",
-                    "add",
-                    ".",
-                    "&",
-                    "git",
-                    "commit",
-                    "-m",
-                    commit,
-                    "&",
-                    "git",
-                    "push",
-                ],
+                cmd,
                 universal_newlines=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -79,6 +68,6 @@ if __name__ == "__main__":
             print(stdout, flush=True)
             print(stderr, flush=True)
     except:
-        e = 'wwwwwwwwwwwwwewwwwwwwwwww: ' + format_exc()
-        print('{{[[{{{1ww}}}]]}}', format_exc(), flush=True)
-        f.write_err(e.split('\n'))
+        e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
+        print("{{[[{{{1ww}}}]]}}", format_exc(), flush=True)
+        f.write_err(e.split("\n"))
