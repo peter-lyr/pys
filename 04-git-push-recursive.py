@@ -24,7 +24,7 @@ if __name__ == "__main__":
             "push",
         ]
         with open(CommitFile, "rb") as file:
-            CommitLines = [line.strip() for line in file.readlines()]
+            CommitLines = [line.strip() for line in file.readlines() if line.strip()]
         if not CommitLines:
             os._exit(2)
         file = params[1]
