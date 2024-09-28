@@ -1,4 +1,5 @@
 import os
+import shutil
 import re
 import time
 from datetime import datetime
@@ -6,7 +7,6 @@ from multiprocessing import Pool
 from traceback import format_exc
 
 import b
-
 
 def get_gitmodules(root):
     F = []
@@ -51,12 +51,17 @@ def get_path_url(dotgitmodules):
     return paths, urls
 
 
-def git_pull(repo):
-    if not os.path.exists(repo):
-        return
-    print(repo, flush=True)
-    os.chdir(repo)
-    os.system("git pull")
+def git_pull(subrepo):
+    sub, repo, url = subrepo
+    if os.path.exists(repo) and os.path.exists(os.path.join(repo, '.git')):
+        os.chdir(rep(repo))
+        print(f'pulling: {rep(repo)}')
+        os.system("git pull")
+    else:
+        print(f'cloning: {rep(repo)}')
+        os.chdir(rep(sub))
+        shutil.rmtree(rep(repo))
+        os.system(f"git clone {url} {repo}")
 
 
 def rep(text):
@@ -72,6 +77,7 @@ if __name__ == "__main__":
         dotgitmodules_from_leaves_to_root = level_gitmodules(dotgitmodules)
         time.sleep(1)
         Repos = []
+        SubRepos = []
         for dotgitmodules in dotgitmodules_from_leaves_to_root:
             for dotgitmodule in dotgitmodules:
                 temp = os.getcwd()
@@ -92,14 +98,15 @@ if __name__ == "__main__":
                     os.system(f'git stash push -m "{dt}"')
                     os.chdir(rep(repo))
                 os.chdir(rep(temp))
-                for repo in repos:
+                for repo, url in zip(repos, urls):
                     if repo not in Repos:
                         Repos.append(repo)
-        if 0:
-            for repo in Repos:
-                git_pull(repo)
+                        SubRepos.append([os.path.split(dotgitmodule)[0], repo, url])
+        if 1:
+            for subrepo in SubRepos:
+                git_pull(subrepo)
         else:
             with Pool() as pool:
-                pool.map(git_pull, Repos)
+                pool.map(git_pull, SubRepos)
     except:
         print("{{[[{{{xkdjsd3w}}}]]}}", format_exc(), flush=True)
