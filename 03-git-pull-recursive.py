@@ -60,7 +60,10 @@ def git_pull(subrepo):
     else:
         print(f'cloning: {rep(repo)}')
         os.chdir(rep(sub))
-        shutil.rmtree(rep(repo))
+        try:
+            shutil.rmtree(rep(repo))
+        except:
+            pass
         os.system(f"git clone {url} {repo}")
 
 
