@@ -55,20 +55,16 @@ def git_pull(subrepo):
     sub, repo, url = subrepo
     if os.path.exists(repo) and os.path.exists(os.path.join(repo, '.git')):
         os.chdir(rep(repo))
-        print('!!!!!!!!!!!!!!!!!!!!!!!')
-        print(f'pulling: {rep(repo)}')
+        print(f'pulling: {rep(repo)}', flush=True)
         os.system("git pull")
-        print('!!!!!!!!!!!!!!!!!!!!!!!')
     else:
-        print('@@@@@@@@@@@@@@@@@@@@@@@')
-        print(f'cloning: {rep(repo)}')
+        print(f'cloning: {rep(repo)}', flush=True)
         os.chdir(rep(sub))
         try:
             shutil.rmtree(rep(repo))
         except:
             pass
-        os.system(f"git clone {url} {repo}")
-        print('@@@@@@@@@@@@@@@@@@@@@@@')
+        os.system(f"git clone {url} {repo} && git checkout main")
 
 
 def rep(text):
