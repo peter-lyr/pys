@@ -114,7 +114,7 @@ if __name__ == "__main__":
                     if repo not in Repos:
                         Repos.append(repo)
                         SubRepos.append([os.path.split(dotgitmodule)[0], repo, url])
-        if 1:
+        if 0:
             for subrepo in SubRepos:
                 git_pull(subrepo)
         else:
