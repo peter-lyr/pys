@@ -77,11 +77,13 @@ def rep(text):
 
 
 if __name__ == "__main__":
+    global clone_when_empty
     try:
         params = b.get_params()
         root = params[0]
         try:
             clone_when_empty = params[1]
+            print(f"CCclone_when_empty: {clone_when_empty}", flush=True)
         except:
             pass
         if not os.path.exists(root) or not os.path.exists(os.path.join(root, ".git")):
