@@ -1,14 +1,18 @@
 import os
+import time
 import subprocess
 import sys
 from traceback import format_exc
 
 
-def get_exit_line(sta):
-    return f"===============Exit Code: {sta}==============="
+def get_exit_line(sta, timing=0.0):
+    temp = f', {round(timing, 6)} seconds' if timing else ''
+    return f"===============Exit Code: {sta}{temp}==============="
 
 
 def get_sta_output(cmd_params, cmd_params_file, opts):
+    global start_time
+    global end_time
     output = []
     sta = 1234
     try:
@@ -32,7 +36,8 @@ def get_sta_output(cmd_params, cmd_params_file, opts):
                     output.append(res.strip())
                     sys.stdout.flush()
         sta = process.wait()
-        print(get_exit_line(sta), flush=True)
+        end_time = time.time()
+        print(get_exit_line(sta, end_time - start_time), flush=True)
     except:
         sys.stdout.flush()
         e = format_exc()
@@ -58,6 +63,8 @@ def get_outerr_file(cmd_params_file):
 
 
 def run(cmd_params_file, opts):
+    global start_time
+    global end_time
     try:
         if not os.path.exists(cmd_params_file):
             sys.exit(2)
@@ -72,12 +79,13 @@ def run(cmd_params_file, opts):
                 cmd_params = cmd_params[:-2]
         except:
             pass
+        start_time = time.time()
         sta, output = get_sta_output(cmd_params, cmd_params_file, opts)
         with open(get_outmsg_file(cmd_params_file), "wb") as f:
             if output:
                 for line in output:
                     f.write(line.encode("utf-8").strip() + b"\n")
-                f.write(get_exit_line(sta).encode("utf-8").strip() + b"\n")
+                f.write(get_exit_line(sta, end_time - start_time).encode("utf-8").strip() + b"\n")
             else:
                 f.write(b"000")
         with open(get_outsta_file(cmd_params_file), "wb") as f:
