@@ -14,7 +14,7 @@ def get_gitmodules(root):
         for file in files:
             ## if file == "submodule-pull-or-clone.py":
             if file == ".gitmodules":
-                F.append(os.path.join(r, file))
+                F.append(rep(os.path.join(r, file)))
     return F
 
 
@@ -53,15 +53,15 @@ def get_path_url(dotgitmodules):
 
 def git_pull(subrepo):
     sub, repo, url = subrepo
-    if os.path.exists(repo) and os.path.exists(os.path.join(repo, '.git')):
-        os.chdir(rep(repo))
-        print(f'pulling: {rep(repo)}', flush=True)
+    if os.path.exists(repo) and os.path.exists(rep(os.path.join(repo, '.git'))):
+        os.chdir(repo)
+        print(f'pulling: {repo}', flush=True)
         os.system("git pull")
     else:
-        print(f'cloning: {rep(repo)}', flush=True)
+        print(f'cloning: {repo}', flush=True)
         os.chdir(rep(sub))
         try:
-            shutil.rmtree(rep(repo))
+            shutil.rmtree(repo)
         except:
             pass
         os.system(f"git clone {url} {repo} && git checkout main")
@@ -85,9 +85,9 @@ if __name__ == "__main__":
             for dotgitmodule in dotgitmodules:
                 temp = os.getcwd()
                 paths, urls = get_path_url(dotgitmodule)
-                repo = os.path.dirname(dotgitmodule)
-                os.chdir(rep(repo))
-                repos = [os.path.join(repo, path) for path in paths]
+                repo = rep(os.path.dirname(dotgitmodule))
+                os.chdir(repo)
+                repos = [rep(os.path.join(repo, path)) for path in paths]
                 repos.append(repo)
                 for repo in repos:
                     if repo in Repos:
@@ -95,11 +95,11 @@ if __name__ == "__main__":
                     if not os.path.exists(repo):
                         continue
                     print(f"{repo}", flush=True)
-                    os.chdir(rep(repo))
+                    os.chdir(repo)
                     os.system(f"git checkout main")
                     dt = datetime.now().strftime("%Y%m%d-%H%M%S")
                     os.system(f'git stash push -m "{dt}"')
-                    os.chdir(rep(repo))
+                    os.chdir(repo)
                 os.chdir(rep(temp))
                 for repo, url in zip(repos, urls):
                     if repo not in Repos:
