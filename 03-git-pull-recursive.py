@@ -55,9 +55,12 @@ def git_pull(subrepo):
     sub, repo, url = subrepo
     if os.path.exists(repo) and os.path.exists(os.path.join(repo, '.git')):
         os.chdir(rep(repo))
+        print('!!!!!!!!!!!!!!!!!!!!!!!')
         print(f'pulling: {rep(repo)}')
         os.system("git pull")
+        print('!!!!!!!!!!!!!!!!!!!!!!!')
     else:
+        print('@@@@@@@@@@@@@@@@@@@@@@@')
         print(f'cloning: {rep(repo)}')
         os.chdir(rep(sub))
         try:
@@ -65,6 +68,7 @@ def git_pull(subrepo):
         except:
             pass
         os.system(f"git clone {url} {repo}")
+        print('@@@@@@@@@@@@@@@@@@@@@@@')
 
 
 def rep(text):
