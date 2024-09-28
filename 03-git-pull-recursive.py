@@ -62,6 +62,7 @@ def git_pull(subrepo):
         os.system("git pull")
     else:
         if not clone_when_empty:
+            print(f"clone_when_empty: {clone_when_empty}", flush=True)
             return
         print(f"cloning: {repo}", flush=True)
         os.chdir(rep(sub))
