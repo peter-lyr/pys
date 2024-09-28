@@ -55,6 +55,7 @@ def get_path_url(dotgitmodules):
 
 
 def git_pull(subrepo):
+    global clone_when_empty
     sub, repo, url = subrepo
     if os.path.exists(repo) and os.path.exists(rep(os.path.join(repo, ".git"))):
         os.chdir(repo)
