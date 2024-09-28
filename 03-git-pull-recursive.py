@@ -52,8 +52,8 @@ def get_path_url(dotgitmodules):
     return paths, urls
 
 
-def git_pull(subrepo):
-    global clone_when_empty
+def git_pull(subrepo_clone_when_empty):
+    subrepo, clone_when_empty = subrepo_clone_when_empty
     sub, repo, url = subrepo
     if os.path.exists(repo) and os.path.exists(rep(os.path.join(repo, ".git"))):
         os.chdir(repo)
@@ -61,7 +61,6 @@ def git_pull(subrepo):
         os.system("git pull")
     else:
         if not clone_when_empty:
-            print(f"clone_when_empty: {clone_when_empty}", flush=True)
             return
         print(f"cloning: {repo}", flush=True)
         os.chdir(rep(sub))
@@ -77,15 +76,13 @@ def rep(text):
 
 
 if __name__ == "__main__":
-    global clone_when_empty
     try:
         params = b.get_params()
         root = params[0]
         try:
             clone_when_empty = params[1]
-            print(f"CCclone_when_empty: {clone_when_empty}", flush=True)
         except:
-            pass
+            clone_when_empty = False
         if not os.path.exists(root) or not os.path.exists(os.path.join(root, ".git")):
             os._exit(1)
         dotgitmodules = get_gitmodules(root)
@@ -116,10 +113,10 @@ if __name__ == "__main__":
                 for repo, url in zip(repos, urls):
                     if repo not in Repos:
                         Repos.append(repo)
-                        SubRepos.append([os.path.split(dotgitmodule)[0], repo, url])
+                        SubRepos.append([[os.path.split(dotgitmodule)[0], repo, url], clone_when_empty])
         if 0:
-            for subrepo in SubRepos:
-                git_pull(subrepo)
+            for subrepo_clone_when_empty in SubRepos:
+                git_pull(subrepo_clone_when_empty)
         else:
             with Pool() as pool:
                 pool.map(git_pull, SubRepos)
