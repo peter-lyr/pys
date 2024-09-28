@@ -8,8 +8,6 @@ from traceback import format_exc
 
 import b
 
-clone_when_empty = False
-
 
 def get_gitmodules(root):
     F = []
