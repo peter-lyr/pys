@@ -52,12 +52,15 @@ def get_path_url(dotgitmodules):
 
 
 def git_pull(subrepo):
+    global clone_when_empty
     sub, repo, url = subrepo
     if os.path.exists(repo) and os.path.exists(rep(os.path.join(repo, '.git'))):
         os.chdir(repo)
         print(f'pulling: {repo}', flush=True)
         os.system("git pull")
     else:
+        if not clone_when_empty:
+            return
         print(f'cloning: {repo}', flush=True)
         os.chdir(rep(sub))
         try:
@@ -72,8 +75,11 @@ def rep(text):
 
 
 if __name__ == "__main__":
+    global clone_when_empty
     try:
-        root = b.get_params()[0]
+        params = b.get_params()
+        root = params[0]
+        clone_when_empty = params[1]
         if not os.path.exists(root) or not os.path.exists(os.path.join(root, ".git")):
             os._exit(1)
         dotgitmodules = get_gitmodules(root)
