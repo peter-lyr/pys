@@ -1,12 +1,15 @@
 import os
-import shutil
 import re
+import shutil
 import time
 from datetime import datetime
 from multiprocessing import Pool
 from traceback import format_exc
 
 import b
+
+clone_when_empty = False
+
 
 def get_gitmodules(root):
     F = []
@@ -52,16 +55,15 @@ def get_path_url(dotgitmodules):
 
 
 def git_pull(subrepo):
-    global clone_when_empty
     sub, repo, url = subrepo
-    if os.path.exists(repo) and os.path.exists(rep(os.path.join(repo, '.git'))):
+    if os.path.exists(repo) and os.path.exists(rep(os.path.join(repo, ".git"))):
         os.chdir(repo)
-        print(f'pulling: {repo}', flush=True)
+        print(f"pulling: {repo}", flush=True)
         os.system("git pull")
     else:
         if not clone_when_empty:
             return
-        print(f'cloning: {repo}', flush=True)
+        print(f"cloning: {repo}", flush=True)
         os.chdir(rep(sub))
         try:
             shutil.rmtree(repo)
@@ -75,14 +77,13 @@ def rep(text):
 
 
 if __name__ == "__main__":
-    global clone_when_empty
     try:
         params = b.get_params()
         root = params[0]
         try:
             clone_when_empty = params[1]
         except:
-            clone_when_empty = False
+            pass
         if not os.path.exists(root) or not os.path.exists(os.path.join(root, ".git")):
             os._exit(1)
         dotgitmodules = get_gitmodules(root)
