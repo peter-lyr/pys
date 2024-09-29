@@ -39,11 +39,17 @@ if __name__ == "__main__":
             )
         repos = result.stdout.replace("\r", "").split("\n")
         R = []
+        L = []
         for repo in repos:
             if re.match(r"^\d{3}[_-]", repo):
                 R.append(repo)
+            else:
+                L.append(repo)
         R.sort(reverse=True)
         for r in R:
             print(r)
+        print("-----------------")
+        for l in L:
+            print(l)
     except:
         print("{{[[{{{owi2ww}}}]]}}", format_exc(), flush=True)
