@@ -3,12 +3,13 @@ import re
 from datetime import datetime
 from traceback import format_exc
 
-import b
 from xpinyin import Pinyin
+
+import b
 
 
 def run_print_cmd(cmd):
-    print(f"***** {cmd} *****", flush=True)
+    print(f"***** {cmd}", flush=True)
     os.system(cmd)
 
 
@@ -42,7 +43,7 @@ if __name__ == "__main__":
         os.makedirs(dir, exist_ok=True)
         os.chdir(path)
         if os.path.exists(".git"):
-            print(f'.git exists in {path}', flush=True)
+            print(f".git exists in {path}", flush=True)
             os._exit(2)
         run_print_cmd("git init")
         file = datetime.now().strftime("%Y%m%d-01-s1-%H%M%S.txt")
