@@ -1,11 +1,16 @@
 import os
-from traceback import format_exc
 import re
 from datetime import datetime
-
-from xpinyin import Pinyin
+from traceback import format_exc
 
 import b
+from xpinyin import Pinyin
+
+
+def run_print_cmd(cmd):
+    print(f"***** {cmd} *****")
+    os.system(cmd)
+
 
 if __name__ == "__main__":
     try:
@@ -20,14 +25,14 @@ if __name__ == "__main__":
             os._exit(3)
         print(root, path)
         if not os.path.exists(root):
-            print(f'{root} not exists')
+            print(f"{root} not exists")
             os._exit(1)
         repo = os.path.split(path)[1]
         p = Pinyin()
         temp = repo.replace("-", ":").replace("，", ",")
         xxx = p.get_initials(temp)
         # 026-富友昌
-        temp_2 = '-'.join(repo.split('-')[1:])
+        temp_2 = "-".join(repo.split("-")[1:])
         if len(temp_2) <= 3:
             xxx = p.get_pinyin(temp)
         repo = xxx.replace("-", "").replace(":", "-").replace(",", "-").strip()
@@ -39,20 +44,20 @@ if __name__ == "__main__":
         if os.path.exists(".git"):
             print(f'.git exists in {path}')
             os._exit(2)
-        os.system("git init")
+        run_print_cmd("git init")
         file = datetime.now().strftime("%Y%m%d-01-s1-%H%M%S.txt")
         with open(file, "wb") as f:
             f.write(b"")
-        os.system("git add .")
-        os.system('git commit -m "s1"')
-        os.system(
+        run_print_cmd("git add .")
+        run_print_cmd('git commit -m "s1"')
+        run_print_cmd(
             f'gh repo create {repo} --{public} --description "{root_tail}/{path}" --source=. --remote=origin'
         )
-        os.system("git push -u origin main")
+        run_print_cmd("git push -u origin main")
         os.chdir(root)
-        os.system(f"git submodule add git@github.com:{name}/{repo} {path}")
-        os.system("git add .")
-        os.system(f'git commit -m "{root_tail}/{path}"')
-        os.system("git push")
+        run_print_cmd(f"git submodule add -f git@github.com:{name}/{repo} {path}")
+        run_print_cmd("git add .")
+        run_print_cmd(f'git commit -m "{root_tail}/{path}"')
+        run_print_cmd("git push")
     except:
         print("{{[[{{{xidcwii8}}}]]}}", format_exc(), flush=True)
