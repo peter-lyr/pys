@@ -87,7 +87,7 @@ def run(cmd_params_file, opts):
                     f.write(line.encode("utf-8").strip() + b"\n")
                 f.write(get_exit_line(sta, end_time - start_time).encode("utf-8").strip() + b"\n")
             else:
-                f.write(b"000")
+                f.write(b"Output is Empty")
         with open(get_outsta_file(cmd_params_file), "wb") as f:
             f.write(b"1")
         if pause:
