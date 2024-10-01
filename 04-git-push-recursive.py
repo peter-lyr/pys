@@ -10,19 +10,6 @@ if __name__ == "__main__":
         CommitFile = params[0]
         if not os.path.exists(CommitFile):
             os._exit(1)
-        cmd = [
-            "git",
-            "add",
-            ".",
-            "&&",
-            "git",
-            "commit",
-            "-F",
-            CommitFile,
-            "&&",
-            "git",
-            "push",
-        ]
         with open(CommitFile, "rb") as file:
             CommitLines = [line.strip() for line in file.readlines() if line.strip()]
         if not CommitLines:
