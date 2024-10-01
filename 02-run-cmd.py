@@ -1,12 +1,12 @@
 import os
-import time
 import subprocess
 import sys
+import time
 from traceback import format_exc
 
 
 def get_exit_line(sta, timing=0.0):
-    temp = f', {round(timing, 6)} seconds' if timing else ''
+    temp = f", {round(timing, 6)} seconds" if timing else ""
     return f"===============Exit Code: {sta}{temp}==============="
 
 
@@ -85,11 +85,14 @@ def run(cmd_params_file, opts):
             if output:
                 for line in output:
                     f.write(line.encode("utf-8").strip() + b"\n")
-                f.write(get_exit_line(sta, end_time - start_time).encode("utf-8").strip() + b"\n")
+                f.write(
+                    get_exit_line(sta, end_time - start_time).encode("utf-8").strip()
+                    + b"\n"
+                )
             else:
                 f.write(b"Output is Empty")
         with open(get_outsta_file(cmd_params_file), "wb") as f:
-            f.write(b"1")
+            f.write(str(sta).encode("utf-8"))
         if pause:
             os.system("pause")
     except:
