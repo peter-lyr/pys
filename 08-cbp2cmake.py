@@ -157,6 +157,7 @@ if __name__ == "__main__":
 
     project_root = rep(sys.argv[1])
     print("project_root:", project_root)
+    os.chdir(project_root)
 
     rm_build_dirs(project_root)
 
