@@ -15,6 +15,36 @@ if __name__ == "__main__":
         if not CommitLines:
             os._exit(2)
         file = params[1]
+        opts = params[2:]
+        cmd = []
+        if "add" in opts:
+            cmd += [
+                "git",
+                "add",
+                ".",
+                "&&",
+            ]
+        if "commit" in opts:
+            cmd += [
+                "git",
+                "commit",
+                "-F",
+                CommitFile,
+                "&&",
+            ]
+        if "push" in opts:
+            cmd += [
+                "git",
+                "push",
+                "&&",
+            ]
+        if cmd and cmd[-1] == "&&":
+            cmd = cmd[:-1]
+        if not cmd:
+            cmd = [
+                "git",
+                "push",
+            ]
         parent = file
         if os.path.isfile(parent):
             parent = os.path.split(file)[0]
