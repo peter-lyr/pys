@@ -65,9 +65,9 @@ if __name__ == "__main__":
             print(dir, flush=True)
             os.chdir(dir)
             temp_sss = 3
-            for i in range(temp_sss):
+            for j in range(temp_sss):
                 if os.path.exists(os.path.join(dir, ".git", "index.lock")):
-                    print(f"{temp_sss - i}...", flush=True)
+                    print(f"{temp_sss - j}...", flush=True)
                     time.sleep(1)
                 else:
                     break
