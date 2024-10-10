@@ -1,4 +1,5 @@
 import os
+import time
 import subprocess
 from traceback import format_exc
 
@@ -63,6 +64,15 @@ if __name__ == "__main__":
             print("-" * len(dir))
             print(dir, flush=True)
             os.chdir(dir)
+            temp_sss = 3
+            for i in range(temp_sss):
+                if os.path.exists(os.path.join(dir, ".git", "index.lock")):
+                    print(f"{temp_sss - i}...", flush=True)
+                    time.sleep(1)
+                else:
+                    break
+            else:
+                os._exit(3)
             if dir == Dirs[0]:
                 cur_commit_lines = CommitLines
             else:
