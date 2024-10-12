@@ -79,7 +79,7 @@ if __name__ == "__main__":
             else:
                 last = Dirs[i - 1]
                 cur_commit_lines = [
-                    (f"[{last[len(dir) + 1 :]}]:\n").encode("gbk")
+                    (f"[{last[len(dir) + 1 :]}]:\n").encode("utf-8")
                 ] + last_commit_lines
                 with open(CommitFile, "wb") as file:
                     file.writelines(cur_commit_lines)
