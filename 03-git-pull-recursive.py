@@ -57,12 +57,12 @@ def git_pull(subrepo_clone_when_empty):
     sub, repo, url = subrepo
     if os.path.exists(repo) and os.path.exists(rep(os.path.join(repo, ".git"))):
         os.chdir(repo)
-        print(f"pulling: {repo}", flush=True)
+        print(f" ==== pulling: {repo}", flush=True)
         os.system("git pull")
     else:
         if not clone_when_empty:
             return
-        print(f"cloning: {repo}", flush=True)
+        print(f" ++++ cloning: {repo}", flush=True)
         os.chdir(rep(sub))
         try:
             shutil.rmtree(repo)
