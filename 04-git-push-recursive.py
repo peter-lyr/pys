@@ -97,7 +97,7 @@ if __name__ == "__main__":
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 shell=True,
-                encoding="utf-8",
+                encoding="gb2312",
                 errors="ignore",
             )
             stdout, stderr = process.communicate()
@@ -108,5 +108,3 @@ if __name__ == "__main__":
         e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
         print("{{[[{{{1ww}}}]]}}", format_exc(), flush=True)
         b.write_err(e.split("\n"))
-
-
