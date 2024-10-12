@@ -114,6 +114,6 @@ if __name__ == "__main__":
             print(stdout, flush=True)
             print(stderr, flush=True)
     except:
-        e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
+        e = "wwwwwwwwwwwwwewwwwwwwwww: " + format_exc()
         print("{{[[{{{1ww}}}]]}}", format_exc(), flush=True)
         b.write_err(e.split("\n"))
