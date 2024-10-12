@@ -46,6 +46,7 @@ if __name__ == "__main__":
                 "git",
                 "push",
             ]
+        cmd = ["chcp", "&&", "chcp", "65001", "&&"] + cmd
         parent = file
         if os.path.isfile(parent):
             parent = os.path.split(file)[0]
