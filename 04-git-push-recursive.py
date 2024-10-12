@@ -78,16 +78,24 @@ if __name__ == "__main__":
                 cur_commit_lines = CommitLines
             else:
                 last = Dirs[i - 1]
-                cur_commit_lines = [
-                    (f"[{last[len(dir) + 1 :]}]:\n").encode("gbk")
-                ] + last_commit_lines
+                try:
+                    cur_commit_lines = [
+                        (f"[{last[len(dir) + 1 :]}]:\n").encode("gbk")
+                    ] + last_commit_lines
+                except:
+                    cur_commit_lines = [
+                        (f"[{last[len(dir) + 1 :]}]:\n").encode("utf-8")
+                    ] + last_commit_lines
                 with open(CommitFile, "wb") as file:
                     file.writelines(cur_commit_lines)
             if "commit" in opts:
                 print(f"******* {i+1}. *******", flush=True)
                 print("", flush=True)
                 for line in cur_commit_lines:
-                    print(line.rstrip().decode("gbk"), flush=True)
+                    try:
+                        print(line.rstrip().decode("gbk"), flush=True)
+                    except:
+                        print(line.rstrip().decode("utf-8"), flush=True)
                 print("", flush=True)
                 print("******************", flush=True)
             last_commit_lines = cur_commit_lines
