@@ -92,13 +92,13 @@ if __name__ == "__main__":
                     ] + last_commit_lines
                 with open(CommitFile, "w") as file:
                     file.writelines(cur_commit_lines)
-            if "commit" in opts:
-                print(f"******* {i+1}. *******", flush=True)
-                print("", flush=True)
-                for line in cur_commit_lines:
-                    print(line.rstrip(), flush=True)
-                print("", flush=True)
-                print("******************", flush=True)
+            # if "commit" in opts:
+            #     print(f"******* {i+1}. *******", flush=True)
+            #     print("", flush=True)
+            #     for line in cur_commit_lines:
+            #         print(line.rstrip(), flush=True)
+            #     print("", flush=True)
+            #     print("******************", flush=True)
             last_commit_lines = cur_commit_lines
             process = subprocess.Popen(
                 cmd,
