@@ -88,8 +88,8 @@ if __name__ == "__main__":
         dotgitmodules = get_gitmodules(root)
         dotgitmodules_from_leaves_to_root = level_gitmodules(dotgitmodules)
         time.sleep(1)
-        Repos = []
-        SubRepos = []
+        Repos = [root]
+        SubRepos = [root]
         for dotgitmodules in dotgitmodules_from_leaves_to_root:
             for dotgitmodule in dotgitmodules:
                 temp = os.getcwd()
@@ -113,7 +113,12 @@ if __name__ == "__main__":
                 for repo, url in zip(repos, urls):
                     if repo not in Repos:
                         Repos.append(repo)
-                        SubRepos.append([[os.path.split(dotgitmodule)[0], repo, url], clone_when_empty])
+                        SubRepos.append(
+                            [
+                                [os.path.split(dotgitmodule)[0], repo, url],
+                                clone_when_empty,
+                            ]
+                        )
         if 0:
             for subrepo_clone_when_empty in SubRepos:
                 git_pull(subrepo_clone_when_empty)
