@@ -12,11 +12,7 @@ if __name__ == "__main__":
         if not os.path.exists(CommitFile):
             os._exit(1)
         with open(CommitFile, "rb") as file:
-            CommitLines = [
-                line.strip().decode("utf-8")
-                for line in file.readlines()
-                if line.strip()
-            ]
+            CommitLines = [line.strip() for line in file.readlines() if line.strip()]
         if not CommitLines:
             os._exit(2)
         file = params[1]
@@ -82,21 +78,16 @@ if __name__ == "__main__":
                 cur_commit_lines = CommitLines
             else:
                 last = Dirs[i - 1]
-                try:
-                    cur_commit_lines = [
-                        (f"[{last[len(dir) + 1 :]}]:\n")
-                    ] + last_commit_lines
-                except:
-                    cur_commit_lines = [
-                        (f"[{last[len(dir) + 1 :]}]:\n")
-                    ] + last_commit_lines
-                with open(CommitFile, "w") as file:
+                cur_commit_lines = [
+                    (f"[{last[len(dir) + 1 :]}]:\n").encode("gbk")
+                ] + last_commit_lines
+                with open(CommitFile, "wb") as file:
                     file.writelines(cur_commit_lines)
             # if "commit" in opts:
             #     print(f"******* {i+1}. *******", flush=True)
             #     print("", flush=True)
             #     for line in cur_commit_lines:
-            #         print(line.rstrip(), flush=True)
+            #         print(line.rstrip().decode("gbk"), flush=True)
             #     print("", flush=True)
             #     print("******************", flush=True)
             last_commit_lines = cur_commit_lines
@@ -114,6 +105,6 @@ if __name__ == "__main__":
             print(stdout, flush=True)
             print(stderr, flush=True)
     except:
-        e = "wwwwwwwwwwwwwewwwwwwwwww: " + format_exc()
+        e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
         print("{{[[{{{1ww}}}]]}}", format_exc(), flush=True)
         b.write_err(e.split("\n"))
