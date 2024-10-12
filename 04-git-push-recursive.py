@@ -97,7 +97,7 @@ if __name__ == "__main__":
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 shell=True,
-                encoding="gb2312",
+                encoding="gbk",
                 errors="ignore",
             )
             stdout, stderr = process.communicate()
