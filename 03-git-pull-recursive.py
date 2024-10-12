@@ -88,8 +88,8 @@ if __name__ == "__main__":
         dotgitmodules = get_gitmodules(root)
         dotgitmodules_from_leaves_to_root = level_gitmodules(dotgitmodules)
         time.sleep(1)
-        Repos = [root]
-        SubRepos = [root]
+        Repos = []
+        SubRepos = []
         for dotgitmodules in dotgitmodules_from_leaves_to_root:
             for dotgitmodule in dotgitmodules:
                 temp = os.getcwd()
@@ -119,6 +119,9 @@ if __name__ == "__main__":
                                 clone_when_empty,
                             ]
                         )
+        os.chdir(root)
+        print(f" ==== pulling: {root}", flush=True)
+        os.system("git pull")
         if 0:
             for subrepo_clone_when_empty in SubRepos:
                 git_pull(subrepo_clone_when_empty)
