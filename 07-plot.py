@@ -4,17 +4,16 @@ import sys
 import matplotlib.pyplot as plt
 
 P = {
-    "empty_hex": re.compile("[0-9a-fA-F]+"),  # '2d'
-    "hex": re.compile("[0-9a-fA-F]+"),  # '0x2d2d2d'
-    "hex2": re.compile("[0-9a-fA-F]{2}"),  # '0x2d'
-    "num": re.compile("[0-9]+"),
+    "num": re.compile("\b([0-9]+)\b"),
+    "0xXX": re.compile(r"\b(0x[0-9a-fA-F]{2})\b"),  # 0xXX
+    "XX": re.compile(r"\b([0-9a-fA-F]{2})\b"),  # XX
 }
 
-N = "num"
+N = "0xXX"
 
 
 def get_num(text):
-    if "empty" in N and "hex" in N:
+    if "0x" not in N and "XX" in N:
         num = eval("0x" + text)
     else:
         num = eval(text)
@@ -22,7 +21,7 @@ def get_num(text):
 
 
 def get_number(t):
-    m = P[N].match(t)
+    m = P[N].findall(t)
     if not m:
         return
     try:
@@ -35,11 +34,10 @@ def get_number(t):
 
 def get_nums_list_from_file(file):
     with open(file, "rb") as f:
-        content = f.read().decode("utf-8")
+        lines = f.readlines()
     numbers = []
-    temp = content.split()
-    for t in temp:
-        temp = get_number(t)
+    for t in lines:
+        temp = get_number(t.decode('utf-8'))
         if temp:
             numbers.append(temp)
     return numbers
