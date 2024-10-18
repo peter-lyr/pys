@@ -46,7 +46,7 @@ if __name__ == "__main__":
             print(f".git exists in {path}", flush=True)
             os._exit(2)
         run_print_cmd("git init")
-        file = datetime.now().strftime("%Y%m%d-01-s1-%H%M%S.txt")
+        file = datetime.now().strftime("0-%Y%m%d-%H%M%S.txt")
         with open(file, "wb") as f:
             f.write(b"")
         run_print_cmd("git add .")
