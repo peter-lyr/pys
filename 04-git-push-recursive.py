@@ -87,7 +87,7 @@ if __name__ == "__main__":
             #     print(f"******* {i+1}. *******", flush=True)
             #     print("", flush=True)
             #     for line in cur_commit_lines:
-            #         print(line.rstrip().decode("gbk"), flush=True)
+            #         print(line.rstrip().decode("utf-8"), flush=True)
             #     print("", flush=True)
             #     print("******************", flush=True)
             last_commit_lines = cur_commit_lines
@@ -97,7 +97,7 @@ if __name__ == "__main__":
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 shell=True,
-                encoding="gbk",
+                encoding="utf-8",
                 errors="ignore",
             )
             stdout, stderr = process.communicate()
