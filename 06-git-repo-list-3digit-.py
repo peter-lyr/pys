@@ -5,6 +5,25 @@ from traceback import format_exc
 
 import b
 
+
+def purify(lines):
+    A = []
+    B = []
+    for line in lines:
+        temp = line.split("\t\t\t\t\t")
+        # print(temp, len(temp))
+        if len(temp) >= 2:
+            A.append(temp[0])
+            B.append(temp[1])
+    m = max([len(n) for n in A])
+    t = f"{{:<{m}}} {{}}"
+    L = []
+    for a, b in zip(A, B):
+        L.append(t.format(a, b))
+    for l in L:
+        print(l)
+
+
 if __name__ == "__main__":
     try:
         params = b.get_params()
@@ -46,10 +65,12 @@ if __name__ == "__main__":
             else:
                 L.append(repo)
         R.sort(reverse=True)
-        for r in R:
-            print(r)
+        purify(R)
+        # for r in R:
+        #     print(r)
         print("-----------------")
-        for l in L:
-            print(l)
+        # for l in L:
+        #     print(l)
+        purify(L)
     except:
         print("{{[[{{{owi2ww}}}]]}}", format_exc(), flush=True)
