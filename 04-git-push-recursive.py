@@ -5,16 +5,19 @@ from traceback import format_exc
 
 import b
 
+
 def p(text):
     try:
-        for line in text.strip().replace('\r', '').split('\n'):
-            if line.strip():
+        for line in text.strip().replace("\r", "").split("\n"):
+            line = line.strip()
+            if line:
                 os.system(f"chcp 65001>nul & echo {line}")
             else:
-                os.system(f"chcp 65001>nul & echo.")
+                os.system("chcp 65001>nul & echo.")
     except Exception as e:
         print(f"echo {text}", flush=True)
-        print(e, '][]]]]]]]]]]]')
+        print(e, "][]]]]]]]]]]]")
+
 
 if __name__ == "__main__":
     try:
