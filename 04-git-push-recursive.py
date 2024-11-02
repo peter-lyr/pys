@@ -15,7 +15,7 @@ def p(text):
             if line:
                 with open(test_txt, "wb") as f:
                     f.write(line.encode("utf-8"))
-                os.system(f"chcp 65001>nul & cat {test_txt}")
+                os.system(f"chcp 65001>nul & cat {test_txt} & echo.")
             else:
                 os.system("chcp 65001>nul & echo.")
     except Exception as e:
