@@ -8,7 +8,10 @@ import b
 def p(text):
     try:
         for line in text.strip().replace('\r', '').split('\n'):
-            os.system(f"chcp 65001>nul & echo {line}")
+            if line.strip():
+                os.system(f"chcp 65001>nul & echo {line}")
+            else:
+                os.system(f"chcp 65001>nul & echo.")
     except Exception as e:
         print(f"echo {text}", flush=True)
         print(e, '][]]]]]]]]]]]')
