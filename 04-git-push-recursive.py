@@ -11,10 +11,8 @@ def p(text):
         for line in text.strip().replace("\r", "").split("\n"):
             line = line.strip()
             if line:
-                print(f"chcp 65001>nul & echo {line}")
-                os.system(f"chcp 65001>nul & echo {line}")
+                os.system(f'chcp 65001>nul & echo "{line}"')
             else:
-                print("chcp 65001>nul & echo.")
                 os.system("chcp 65001>nul & echo.")
     except Exception as e:
         print(f"echo {text}", flush=True)
