@@ -5,13 +5,17 @@ from traceback import format_exc
 
 import b
 
+test_txt = r"C:\Windows\Temp\23sxi.txt"
+
 
 def p(text):
     try:
         for line in text.strip().replace("\r", "").split("\n"):
             line = line.strip()
             if line:
-                os.system(f'chcp 65001>nul & echo "{line}"')
+                with open(test_txt, "wb") as f:
+                    f.write(line.encode("utf-8"))
+                os.system(f"chcp 65001>nul & cat {test_txt}")
             else:
                 os.system("chcp 65001>nul & echo.")
     except Exception as e:
