@@ -7,6 +7,7 @@ import b
 
 
 def p(text):
+    return
     try:
         for line in text.strip().replace("\r", "").split("\n"):
             line = line.strip()
