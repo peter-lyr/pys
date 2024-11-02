@@ -5,6 +5,14 @@ from traceback import format_exc
 
 import b
 
+def p(text):
+    try:
+        for line in text.strip().replace('\r', '').split('\n'):
+            os.system(f"chcp 65001>nul & echo {line}")
+    except Exception as e:
+        print(f"echo {text}", flush=True)
+        print(e, '][]]]]]]]]]]]')
+
 if __name__ == "__main__":
     try:
         params = b.get_params()
@@ -46,8 +54,9 @@ if __name__ == "__main__":
                 "git",
                 "push",
             ]
-        # 测试中文乱码1
-        cmd = ["chcp", "&&", "chcp", "65001", "&&"] + cmd
+        # cmd = ["chcp", "&&", "chcp", "65001", "&&"] + cmd
+        cmd = ["chcp", "65001>nul", "&&"] + cmd
+        # cmd = ["chcp", "936", "&&"] + cmd
         parent = file
         if os.path.isfile(parent):
             parent = os.path.split(file)[0]
@@ -63,13 +72,14 @@ if __name__ == "__main__":
         last_commit_lines = []
         for i in range(len(Dirs)):
             dir = Dirs[i]
-            print("-" * len(dir))
-            print(dir, flush=True)
+            p("-" * len(dir))
+            p(dir)
             os.chdir(dir)
-            temp_sss = 3
+            temp_sss = 10
             for j in range(temp_sss):
-                if os.path.exists(os.path.join(dir, ".git", "index.lock")):
-                    print(f"{temp_sss - j}...", flush=True)
+                lock = os.path.join(dir, ".git", "index.lock")
+                if os.path.exists(lock):
+                    p(f"{temp_sss - j} .git/index.lock exist")
                     time.sleep(1)
                 else:
                     break
@@ -103,8 +113,8 @@ if __name__ == "__main__":
             )
             stdout, stderr = process.communicate()
             process.wait()
-            print(stdout, flush=True)
-            print(stderr, flush=True)
+            p(stdout)
+            p(stderr)
     except:
         e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
         print("{{[[{{{1ww}}}]]}}", format_exc(), flush=True)
