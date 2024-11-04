@@ -62,6 +62,23 @@ def run_cmd_and_get_output(command):
     return output
 
 
+test_txt = r"C:\Windows\Temp\23sxi.txt"
+
+def p(text):
+    try:
+        for line in text.strip().replace("\r", "").split("\n"):
+            line = line.strip()
+            if line:
+                with open(test_txt, "wb") as f:
+                    f.write(line.encode("utf-8"))
+                os.system(f"chcp 65001>nul & cat {test_txt} & echo.")
+            else:
+                os.system("chcp 65001>nul & echo.")
+    except Exception as e:
+        print(f"echo {text}", flush=True)
+        print(e, "][]]]]]]]]]]]")
+
+
 def get_untracked_file_size(dir=None):
     if not dir:
         return -1
@@ -72,7 +89,7 @@ def get_untracked_file_size(dir=None):
     sizes = 0
     for untracked_file in untracked_files:
         if os.path.isfile(untracked_file):
-            print(untracked_file)
+            p(untracked_file)
             sizes += os.path.getsize(untracked_file)
     if sizes >= 500 * 1024 * 1024:
         print("error")
