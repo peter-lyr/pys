@@ -1,6 +1,6 @@
 import os
-import time
 import subprocess
+import time
 from traceback import format_exc
 
 import b
@@ -36,13 +36,6 @@ if __name__ == "__main__":
         file = params[1]
         opts = params[2:]
         cmd = []
-        if "add" in opts:
-            cmd += [
-                "git",
-                "add",
-                ".",
-                "&&",
-            ]
         if "commit" in opts:
             cmd += [
                 "git",
@@ -64,9 +57,6 @@ if __name__ == "__main__":
                 "git",
                 "push",
             ]
-        # cmd = ["chcp", "&&", "chcp", "65001", "&&"] + cmd
-        cmd = ["chcp", "65001>nul", "&&"] + cmd
-        # cmd = ["chcp", "936", "&&"] + cmd
         parent = file
         if os.path.isfile(parent):
             parent = os.path.split(file)[0]
@@ -80,14 +70,37 @@ if __name__ == "__main__":
                 break
             parent = temp
         last_commit_lines = []
+        add_all = 1
+        untracked_files = []
         if Dirs:
-            fsize = b.get_untracked_file_size(Dirs[0])
+            fsize, untracked_files = b.get_untracked_file_size(Dirs[0])
             if fsize > 0:
-                p(f'{fsize} untracked files size of:')
-            if fsize > 500 *1024*1024:
-                p(f'{Dirs[0]}\n Is more than 500MB.')
-                os._exit(4)
-        # os._exit(5)
+                p(f"{fsize} untracked files size of:")
+            if fsize > 500 * 1024 * 1024:
+                p(f"{Dirs[0]}\n Is more than 500MB.")
+                add_all = 0
+                # os._exit(4)
+        if add_all:
+            if "add" in opts:
+                temp = [
+                    "git",
+                    "add",
+                    ".",
+                    "&&",
+                ]
+                cmd = temp+cmd
+        else:
+            if "add" in opts:
+                temp = [
+                    "git",
+                    "add",
+                ]
+                temp += untracked_files
+                temp += [
+                    "&&",
+                ]
+                cmd = temp+cmd
+        cmd = ["chcp", "65001>nul", "&&"] + cmd
         for i in range(len(Dirs)):
             dir = Dirs[i]
             p("-" * len(dir))
