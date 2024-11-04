@@ -129,17 +129,11 @@ def get_untracked_file_size(dir=None):
             "--others",
         ]
     )
-    # untracked_files = run_cmd_and_get_output(
-    #     f"git ls-files --exclude-standard --no-ignored --others"
-    # )
-    # untracked_files = untracked_files.strip().replace("\r", "").split("\n")
     sizes = 0
     for untracked_file in untracked_files:
         if os.path.isfile(untracked_file):
-            p("======== " + untracked_file + "|")
+            p("untracked " + untracked_file + "|")
             sizes += os.path.getsize(untracked_file)
         else:
             p("Is not a file: [" + untracked_file + "]")
-    # if sizes >= 500 * 1024 * 1024:
-    #     p("error")
     return sizes
