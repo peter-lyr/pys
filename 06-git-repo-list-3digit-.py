@@ -11,17 +11,27 @@ def purify(lines):
     B = []
     for line in lines:
         temp = line.split("\t\t\t\t\t")
-        # print(temp, len(temp))
         if len(temp) >= 2:
             A.append(temp[0])
             B.append(temp[1])
-    m = max([len(n) for n in A])
-    t = f"{{:<{m}}} {{}}"
-    L = []
-    for a, b in zip(A, B):
-        L.append(t.format(a, b))
-    for l in L:
-        print(l)
+        else:
+            A.append(temp[0])
+    if len(A) == len(B):
+        m = max([len(n) for n in A])
+        t = f"{{:<{m}}} {{}}"
+        L = []
+        for a, b in zip(A, B):
+            L.append(t.format(a, b))
+        for l in L:
+            print(l)
+    else:
+        m = max([len(n) for n in A])
+        t = f"{{:<{m}}}"
+        L = []
+        for a in A:
+            L.append(t.format(a))
+        for l in L:
+            print(l)
 
 
 if __name__ == "__main__":
