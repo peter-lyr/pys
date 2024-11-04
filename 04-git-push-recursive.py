@@ -86,6 +86,7 @@ if __name__ == "__main__":
             if fsize > 500 *1024*1024:
                 p(f'{Dirs[0]}\n Is more than 500MB.')
                 os._exit(4)
+        # os._exit(5)
         for i in range(len(Dirs)):
             dir = Dirs[i]
             p("-" * len(dir))

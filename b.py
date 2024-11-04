@@ -1,8 +1,8 @@
 import os
-from os.path import isfile
 import subprocess
 import sys
 from datetime import datetime
+from traceback import format_exc
 
 import win32clipboard
 import win32con
@@ -41,28 +41,65 @@ def get_params():
 
 def write_err(lines):
     file = datetime.now().strftime("%Y%m%d-%H%M%S.txt")
-    with open(os.path.join(r'C:\temp', file), 'wb') as f:
+    with open(os.path.join(r"C:\temp", file), "wb") as f:
         for line in lines:
             if type(line) != bytes:
-                line = line.encode('utf-8')
-            f.write(line + b'\n')
+                line = line.encode("utf-8")
+            f.write(line + b"\n")
 
-def run_cmd_and_get_output(command):
-    """
-    运行cmd命令并返回它的执行结果
-    """
+
+def get_sta_output(cmd_params):
+    output = []
+    sta = 1234
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
-        if result.returncode == 0:
-            output = result.stdout.strip()
-        else:
-            output = result.stderr.strip()
-    except Exception as e:
-        output = str(e)
-    return output
+        process = subprocess.Popen(
+            cmd_params,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            text=True,
+            encoding="utf-8",
+            errors="ignore",
+        )
+        while True:
+            res = process.stdout.readline()
+            if res == "" and process.poll() is not None:
+                break
+            if res:
+                print(res.strip())
+                output.append(res.strip())
+                sys.stdout.flush()
+        sta = process.wait()
+    except:
+        sys.stdout.flush()
+        e = format_exc()
+        print(e, flush=True)
+    return sta, output
+
+
+# def run_cmd_and_get_output(command):
+#     """
+#     运行cmd命令并返回它的执行结果
+#     """
+#     output = ""
+#     try:
+#         result = subprocess.run(command, shell=True, capture_output=True, text=True)
+#         p(command)
+#         if result.returncode == 0:
+#             if result.stdout:
+#                 output = result.stdout.strip()
+#         else:
+#             if result.stderr:
+#                 output = result.stderr.strip()
+#     except Exception as e:
+#         output = str(e) + "WWEWEWEWEWE"
+#         return "-23238"
+#     return output
 
 
 test_txt = r"C:\Windows\Temp\23sxi.txt"
+
 
 def p(text):
     try:
@@ -82,15 +119,27 @@ def p(text):
 def get_untracked_file_size(dir=None):
     if not dir:
         return -1
-    untracked_files = run_cmd_and_get_output(
-        f"cd {dir} & git ls-files --exclude-standard --no-ignored --others"
+    os.chdir(dir)
+    _, untracked_files = get_sta_output(
+        [
+            "git",
+            "ls-files",
+            "--exclude-standard",
+            "--no-ignored",
+            "--others",
+        ]
     )
-    untracked_files = untracked_files.strip().replace("\r", "").split("\n")
+    # untracked_files = run_cmd_and_get_output(
+    #     f"git ls-files --exclude-standard --no-ignored --others"
+    # )
+    # untracked_files = untracked_files.strip().replace("\r", "").split("\n")
     sizes = 0
     for untracked_file in untracked_files:
         if os.path.isfile(untracked_file):
-            p(untracked_file)
+            p("======== " + untracked_file + "|")
             sizes += os.path.getsize(untracked_file)
-    if sizes >= 500 * 1024 * 1024:
-        print("error")
+        else:
+            p("Is not a file: [" + untracked_file + "]")
+    # if sizes >= 500 * 1024 * 1024:
+    #     p("error")
     return sizes
