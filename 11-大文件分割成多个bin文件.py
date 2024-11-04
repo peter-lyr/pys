@@ -33,4 +33,4 @@ with open(bin_file_full, "rb") as infile:
             buffer = infile.read(bin_sub_size)
             outfile.write(buffer)
 
-os.system("pause")
+# os.system("pause")
