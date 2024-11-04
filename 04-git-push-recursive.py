@@ -104,6 +104,8 @@ if __name__ == "__main__":
                         break
                     new_untracked_files.append(untracked_file)
                 temp += new_untracked_files
+                for new_untracked_file in new_untracked_files:
+                    p(new_untracked_file)
                 temp += [
                     "&&",
                 ]
