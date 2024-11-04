@@ -158,6 +158,7 @@ if __name__ == "__main__":
             p(stdout)
             if stderr:
                 p("MayBe Err: " + stderr)
+        p(f"================ {sta} ================")
         os._exit(sta)
     except:
         e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
