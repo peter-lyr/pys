@@ -108,7 +108,7 @@ if __name__ == "__main__":
                     "&&",
                 ]
                 cmd = temp + cmd
-                # sta = 234
+                sta = 234
         cmd = ["chcp", "65001>nul", "&&"] + cmd
         for i in range(len(Dirs)):
             dir = Dirs[i]
