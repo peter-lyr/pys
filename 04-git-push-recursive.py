@@ -88,18 +88,25 @@ if __name__ == "__main__":
                     ".",
                     "&&",
                 ]
-                cmd = temp+cmd
+                cmd = temp + cmd
         else:
             if "add" in opts:
                 temp = [
                     "git",
                     "add",
                 ]
-                temp += untracked_files
+                new_untracked_files = []
+                size = 0
+                for untracked_file in untracked_files:
+                    size += os.path.getsize(untracked_file)
+                    if size > 50*1024*1024:
+                        break
+                    new_untracked_files.append(untracked_file)
+                temp += new_untracked_files
                 temp += [
                     "&&",
                 ]
-                cmd = temp+cmd
+                cmd = temp + cmd
         cmd = ["chcp", "65001>nul", "&&"] + cmd
         for i in range(len(Dirs)):
             dir = Dirs[i]
