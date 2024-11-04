@@ -133,7 +133,7 @@ def get_untracked_file_size(dir=None):
     new_untracked_files = []
     for untracked_file in untracked_files:
         if os.path.isfile(untracked_file):
-            p("untracked " + untracked_file + "|")
+            # p("untracked " + untracked_file + "|")
             sizes += os.path.getsize(untracked_file)
             new_untracked_files.append(untracked_file)
         else:
