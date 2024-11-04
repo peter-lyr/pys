@@ -28,7 +28,7 @@ os.makedirs(bin_dir, exist_ok=True)
 with open(bin_file_full, "rb") as infile:
     for i in range(bin_sub_nums + 1):
         part_name = f"{bin_dir}/{bin_file}_{(i + 1):0>4}.bin"
-        print(part_name)
+        # print(part_name)
         with open(part_name, "wb") as outfile:
             buffer = infile.read(bin_sub_size)
             outfile.write(buffer)
