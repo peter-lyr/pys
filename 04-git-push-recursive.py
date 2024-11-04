@@ -155,7 +155,7 @@ if __name__ == "__main__":
             process.wait()
             p(stdout)
             if stderr:
-                p("Err:---" + stderr)
+                p("MayBe Err: " + stderr)
         os._exit(sta)
     except:
         e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
