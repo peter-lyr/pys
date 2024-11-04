@@ -80,6 +80,11 @@ if __name__ == "__main__":
                 break
             parent = temp
         last_commit_lines = []
+        if Dirs:
+            fsize = b.get_untracked_file_size(Dirs[0])
+            p(f'{fsize} untracked files size of {Dirs[0]}')
+            if fsize > 500 *1024*1024:
+                os._exit(4)
         for i in range(len(Dirs)):
             dir = Dirs[i]
             p("-" * len(dir))
