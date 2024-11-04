@@ -1,8 +1,8 @@
 import os
 import sys
 
-dp = os.path.dirname(os.path.abspath(__file__))
-print(dp)
+# dp = os.path.dirname(os.path.abspath(__file__))
+# print(dp)
 
 # bin_file = "3.midi资料.zip"
 # bin_file_full = os.path.join(dp, bin_file)
