@@ -72,6 +72,7 @@ if __name__ == "__main__":
         last_commit_lines = []
         add_all = 1
         untracked_files = []
+        sta = 0
         if Dirs:
             fsize, untracked_files = b.get_untracked_file_size(Dirs[0])
             if fsize > 0:
@@ -107,6 +108,7 @@ if __name__ == "__main__":
                     "&&",
                 ]
                 cmd = temp + cmd
+                sta = 234
         cmd = ["chcp", "65001>nul", "&&"] + cmd
         for i in range(len(Dirs)):
             dir = Dirs[i]
@@ -153,6 +155,7 @@ if __name__ == "__main__":
             process.wait()
             p(stdout)
             p(stderr)
+        os._exit(sta)
     except:
         e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()
         print("{{[[{{{1ww}}}]]}}", format_exc(), flush=True)
