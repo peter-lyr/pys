@@ -82,7 +82,8 @@ if __name__ == "__main__":
         last_commit_lines = []
         if Dirs:
             fsize = b.get_untracked_file_size(Dirs[0])
-            p(f'{fsize} untracked files size of:')
+            if fsize > 0:
+                p(f'{fsize} untracked files size of:')
             if fsize > 500 *1024*1024:
                 p(f'{Dirs[0]}\n Is more than 500MB.')
                 os._exit(4)
