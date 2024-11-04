@@ -100,7 +100,7 @@ if __name__ == "__main__":
                 size = 0
                 for untracked_file in untracked_files:
                     size += os.path.getsize(untracked_file)
-                    if size > 50 * 1024 * 1024:
+                    if size > 20 * 1024 * 1024:
                         break
                     new_untracked_files.append(untracked_file)
                 temp += new_untracked_files
