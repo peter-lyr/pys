@@ -15,6 +15,7 @@ bins_dir_root, bins_dir = os.path.split(bins_dir_full)
 # print(bins_dir)
 
 out_file = "-bin".join(bins_dir.split("-bin")[:-1])
+out_file_name = out_file
 # print(out_file)
 
 temp = out_file.split(".")
@@ -29,9 +30,18 @@ bins.sort()
 # print("bins:")
 with open(os.path.join(bins_dir_root, out_file), "wb") as outf:
     for bin in bins:
+        if out_file_name not in bin:
+            continue
         print(bin)
         with open(os.path.join(bins_dir_full, bin), "rb") as inf:
             buffer = inf.read()
             outf.write(buffer)
 
-# os.system("pause")
+# # print(out_file_name)
+# for bin in bins:
+#     print(bin)
+#     # with open(os.path.join(bins_dir_full, bin), "rb") as inf:
+#     #     buffer = inf.read()
+#     #     outf.write(buffer)
+
+os.system("pause")
