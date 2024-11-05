@@ -15,21 +15,30 @@ bins_dir_root, bins_dir = os.path.split(bins_dir_full)
 # print(bins_dir)
 
 out_file = "-bin".join(bins_dir.split("-bin")[:-1])
+if not out_file:
+    os._exit(4)
+
 out_file_name = out_file
 # print(out_file)
 
 temp = out_file.split(".")
-out_file = ".".join(temp[:-1])
+out_file_true = ".".join(temp[:-1])
 out_ext = temp[-1]
 
-out_file = out_file + "-out." + out_ext
-# print(out_file)
+out_file_true = out_file_true + "-out." + out_ext
+# print(out_file_true)
 
 bins = os.listdir(bins_dir_full)
 bins.sort()
 # print("bins:")
-with open(os.path.join(bins_dir_root, out_file), "wb") as outf:
-    for bin in bins:
+new_bins = []
+for bin in bins:
+    if out_file_name in bin:
+        new_bins.append(bin)
+if not new_bins:
+    os._exit(3)
+with open(os.path.join(bins_dir_root, out_file_true), "wb") as outf:
+    for bin in new_bins:
         if out_file_name not in bin:
             continue
         print(bin)
