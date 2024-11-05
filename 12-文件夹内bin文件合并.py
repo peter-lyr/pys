@@ -53,4 +53,4 @@ with open(os.path.join(bins_dir_root, out_file_true), "wb") as outf:
 #     #     buffer = inf.read()
 #     #     outf.write(buffer)
 
-os.system("pause")
+# os.system("pause")

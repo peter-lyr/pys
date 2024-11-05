@@ -78,7 +78,7 @@ if __name__ == "__main__":
             if fsize > 0:
                 p(f"{fsize} untracked files size of:")
             if fsize > 20 * 1024 * 1024:
-                p(f"{Dirs[0]}\n Is more than 500MB.")
+                p(f"{Dirs[0]}\n Is more than 20MB.")
                 add_all = 0
                 # os._exit(4)
         if add_all:
