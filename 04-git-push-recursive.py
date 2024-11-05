@@ -157,7 +157,7 @@ if __name__ == "__main__":
             process.wait()
             p(stdout)
             if stderr:
-                p("MayBe Err: " + stderr)
+                p(" " + stderr)
         p(f"================ {sta} ================")
         os._exit(sta)
     except:
