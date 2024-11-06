@@ -19,7 +19,7 @@ bin_file = os.path.split(bin_file_full)[-1]
 # print(bin_file)
 
 bin_size = os.path.getsize(bin_file_full)
-bin_sub_size = 5 * 1024 * 1024
+bin_sub_size = 10 * 1024 * 1024
 if bin_size < bin_sub_size:
     os._exit(3)
 bin_sub_nums = int(bin_size / bin_sub_size)
