@@ -16,10 +16,13 @@ for R, D, F in os.walk(root):
             repos.append(d_full)
 l = len(repos)
 for i, repo in enumerate(repos):
-    b.p("# " + str(i + 1) + ". " + "-" * (len(repo) - 5))
-    b.p(repo)
     os.chdir(repo)
-    _, output = b.get_sta_output(["git", "status", "-s"])
-# print(output)
+    _, output = b.get_sta_output(["git", "status", "-s"], True)
+    if output:
+        b.p(str(i + 1) + ".")
+        b.p(repo)
+        for line in output:
+            b.p(line)
+        b.p("-" * len(repo))
 
 # time.sleep(3)
