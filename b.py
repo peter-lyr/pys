@@ -48,7 +48,7 @@ def write_err(lines):
             f.write(line + b"\n")
 
 
-def get_sta_output(cmd_params):
+def get_sta_output(cmd_params, silent=False):
     output = []
     sta = 1234
     try:
@@ -67,8 +67,10 @@ def get_sta_output(cmd_params):
             if res == "" and process.poll() is not None:
                 break
             if res:
-                print(res.strip())
-                output.append(res.strip())
+                res = res.strip()
+                output.append(res)
+                if not silent:
+                    print(res)
                 sys.stdout.flush()
         sta = process.wait()
     except:
