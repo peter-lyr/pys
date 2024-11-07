@@ -3,6 +3,9 @@
 import multiprocessing
 
 import os
+
+# import chardet
+# import sys
 import re
 import shutil
 import time
@@ -19,9 +22,14 @@ import b
 
 test_txt = r"C:\Windows\Temp\23sxi.txt"
 
+# detected_encoding = chardet.detect("中文".encode())["encoding"]
+
 
 def p(text):
     print(text, flush=True)
+    # sys.stdout.write(text.encode(detected_encoding).decode(detected_encoding) + "\n")
+    # sys.stdout.write(text.encode("gbk").decode("gbk") + '\n')
+    # sys.stdout.flush()
     # try:
     #     print("********", text.encode("gbk").decode("gbk"), flush=True)
     # except UnicodeEncodeError:
