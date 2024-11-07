@@ -1,3 +1,4 @@
+import multiprocessing
 import os
 import re
 import shutil
@@ -67,6 +68,11 @@ def get_path_url(dotgitmodules):
                 res = res[0]
                 urls.append(res.decode("utf-8"))
     return paths, urls
+
+
+def pp(txt):
+    with multiprocessing.Lock():
+        p(txt)
 
 
 def git_pull(subrepo_clone_when_empty):
