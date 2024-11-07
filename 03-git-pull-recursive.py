@@ -96,8 +96,8 @@ if __name__ == "__main__":
     try:
         params = b.get_params()
         root = params[0]
-        clone_when_empty = params[1]
-        checkout = params[2]
+        clone_when_empty = 0 if params[1] == "no" else 1
+        checkout = 0 if params[2] == "no" else 1
         if not os.path.exists(root) or not os.path.exists(os.path.join(root, ".git")):
             os._exit(1)
         dotgitmodules = get_gitmodules(root)
