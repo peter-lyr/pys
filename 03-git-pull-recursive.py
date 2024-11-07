@@ -96,10 +96,8 @@ if __name__ == "__main__":
     try:
         params = b.get_params()
         root = params[0]
-        try:
-            clone_when_empty = params[1]
-        except:
-            clone_when_empty = False
+        clone_when_empty = params[1]
+        checkout = params[2]
         if not os.path.exists(root) or not os.path.exists(os.path.join(root, ".git")):
             os._exit(1)
         dotgitmodules = get_gitmodules(root)
@@ -115,17 +113,18 @@ if __name__ == "__main__":
                 os.chdir(repo)
                 repos = [rep(os.path.join(repo, path)) for path in paths]
                 repos.append(repo)
-                for repo in repos:
-                    if repo in Repos:
-                        continue
-                    if not os.path.exists(repo):
-                        continue
-                    p(f"{repo}")
-                    os.chdir(repo)
-                    os.system(f"git checkout main")
-                    dt = datetime.now().strftime("%Y%m%d-%H%M%S")
-                    os.system(f'git stash push -m "{dt}"')
-                    os.chdir(repo)
+                if checkout:
+                    for repo in repos:
+                        if repo in Repos:
+                            continue
+                        if not os.path.exists(repo):
+                            continue
+                        p(f"{repo}")
+                        os.chdir(repo)
+                        os.system(f"git checkout main")
+                        dt = datetime.now().strftime("%Y%m%d-%H%M%S")
+                        os.system(f'git stash push -m "{dt}"')
+                        os.chdir(repo)
                 os.chdir(rep(temp))
                 for repo, url in zip(repos, urls):
                     if repo not in Repos:
