@@ -1,4 +1,7 @@
+# -*- coding:utf-8 -*-
+
 import multiprocessing
+
 import os
 import re
 import shutil
@@ -9,22 +12,32 @@ from traceback import format_exc
 
 import b
 
+# import win_unicode_console
+
+# win_unicode_console.enable()
+# print("中文", "wwwwwwwww")
+
 test_txt = r"C:\Windows\Temp\23sxi.txt"
 
 
 def p(text):
-    try:
-        for line in text.strip().replace("\r", "").split("\n"):
-            line = line.strip()
-            if line:
-                with open(test_txt, "wb") as f:
-                    f.write(line.encode("utf-8"))
-                os.system(f"chcp 65001>nul & cat {test_txt} & echo.")
-            else:
-                os.system("chcp 65001>nul & echo.")
-    except Exception as e:
-        print(f"echo {text}", flush=True)
-        print(e, "][]]]]]]]]]]]")
+    print(text, flush=True)
+    # try:
+    #     print("********", text.encode("gbk").decode("gbk"), flush=True)
+    # except UnicodeEncodeError:
+    #     print("########", text.encode("utf - 8").decode("utf - 8"), flush=True)
+    # try:
+    #     for line in text.strip().replace("\r", "").split("\n"):
+    #         line = line.strip()
+    #         if line:
+    #             with open(test_txt, "wb") as f:
+    #                 f.write(line.encode("utf-8"))
+    #             os.system(f"chcp 65001>nul & cat {test_txt} & echo.")
+    #         else:
+    #             os.system("chcp 65001>nul & echo.")
+    # except Exception as e:
+    #     print(f"echo {text}", flush=True)
+    #     print(e, "][]]]]]]]]]]]")
 
 
 def get_gitmodules(root):
