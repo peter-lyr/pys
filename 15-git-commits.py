@@ -11,6 +11,9 @@ if os.path.isfile(file):
 while 1:
     if os.path.exists(os.path.join(dir, ".git")):
         print(dir)
+        os.chdir(dir)
+        _, output = b.get_sta_output(["git", "rev-list", "--all", "--count"], True)
+        print(output[0])
     bak = dir
     dir = os.path.dirname(dir)
     if bak == dir:
