@@ -169,7 +169,7 @@ if __name__ == "__main__":
             for subrepo_clone_when_empty in SubRepos:
                 git_pull(subrepo_clone_when_empty)
         else:
-            with Pool() as pool:
+            with Pool(processes=(os.cpu_count() or 1) * 4) as pool:
                 pool.map(git_pull, SubRepos)
     except:
         print("{{[[{{{xkdjsd3w}}}]]}}", format_exc(), flush=True)
