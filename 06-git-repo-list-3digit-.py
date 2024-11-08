@@ -38,6 +38,7 @@ if __name__ == "__main__":
     try:
         params = b.get_params()
         root = params[0]
+        show_what = params[1]
         os.chdir(root)
         bash_cmd = r"""gh repo list --limit 9999999 --json name,description --jq '.[] | "\(.name)\t\t\t\t\t\(.description)"'"""
         result = subprocess.run(
@@ -69,18 +70,23 @@ if __name__ == "__main__":
         repos = result.stdout.replace("\r", "").split("\n")
         R = []
         L = []
+        patt = r"^\d{3}[_-]"  # main
+        if show_what == "temp":
+            patt = r"^t\d{3}[_-]"
         for repo in repos:
-            if re.match(r"^\d{3}[_-]", repo):
+            if re.match(patt, repo):
                 R.append(repo)
             else:
                 L.append(repo)
-        R.sort(reverse=True)
-        purify(R)
+        if R:
+            R.sort(reverse=True)
+            purify(R)
         # for r in R:
         #     print(r)
         print("-----------------")
         # for l in L:
         #     print(l)
-        purify(L)
+        if L:
+            purify(L)
     except:
         print("{{[[{{{owi2ww}}}]]}}", format_exc(), flush=True)
