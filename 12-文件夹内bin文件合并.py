@@ -25,7 +25,8 @@ temp = out_file.split(".")
 out_file_true = ".".join(temp[:-1])
 out_ext = temp[-1]
 
-out_file_true = out_file_true + "-out." + out_ext
+# out_file_true = out_file_true + "-out." + out_ext
+out_file_true = out_file_true + out_ext
 # print(out_file_true)
 
 # 去重
