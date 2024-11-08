@@ -28,6 +28,20 @@ out_ext = temp[-1]
 out_file_true = out_file_true + "-out." + out_ext
 # print(out_file_true)
 
+# 去重
+lines = []
+gitignore = os.path.join(bins_dir_root, ".gitignore")
+with open(gitignore, "rb") as f:
+    for line in f.readlines():
+        line = line.strip()
+        if line not in lines:
+            lines.append(line)
+if out_file_true.encode("utf-8") not in lines:
+    lines.append(out_file_true.encode("utf-8"))
+with open(gitignore, "wb") as f:
+    for line in lines:
+        f.write(line + b"\n")
+
 bins = os.listdir(bins_dir_full)
 bins.sort()
 # print("bins:")
