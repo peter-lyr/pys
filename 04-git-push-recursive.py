@@ -97,12 +97,18 @@ if __name__ == "__main__":
                     "add",
                 ]
                 new_untracked_files = []
+                for untracked_file in untracked_files:
+                    if ".gitignore" == os.path.split(untracked_file)[-1].lower():
+                        p(".gitignore: " + untracked_file)
+                        temp = ["git", "add", untracked_file, "&&"] + temp
+                        break
                 size = 0
                 for untracked_file in untracked_files:
                     size += os.path.getsize(untracked_file)
                     if size > 20 * 1024 * 1024:
                         break
-                    new_untracked_files.append(untracked_file)
+                    if untracked_file not in new_untracked_files:
+                        new_untracked_files.append(untracked_file)
                 temp += new_untracked_files
                 for new_untracked_file in new_untracked_files:
                     p(new_untracked_file)
