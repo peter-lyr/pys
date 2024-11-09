@@ -141,3 +141,20 @@ def get_untracked_file_size(dir=None):
         else:
             p("Is not a file: [" + untracked_file + "]")
     return sizes, new_untracked_files
+
+
+def add_ignore_files(dir, files):
+    lines = []
+    gitignore = os.path.join(dir, ".gitignore")
+    if os.path.exists(gitignore):
+        with open(gitignore, "rb") as f:
+            for line in f.readlines():
+                line = line.strip()
+                if line not in lines:
+                    lines.append(line)
+    for file in files:
+        if file.encode("utf-8") not in lines:
+            lines.append(file.encode("utf-8"))
+    with open(gitignore, "wb") as f:
+        for line in lines:
+            f.write(line + b"\n")
