@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-# 已收录get_untracked_file_size
+# 已收录到b.py
 import b
 
 

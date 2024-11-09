@@ -193,12 +193,11 @@ def merge_bins_file(bins_dir_full):
                 outf.write(buffer)
 
 
-def split_big_file(bin_file_full):
+def split_big_file(bin_file_full, bin_sub_size=10 * 1024 * 1024):
     bin_file_full_dir = os.path.split(bin_file_full)[0]
     bin_file = os.path.split(bin_file_full)[-1]
 
     bin_size = os.path.getsize(bin_file_full)
-    bin_sub_size = 10 * 1024 * 1024
     if bin_size < bin_sub_size:
         os._exit(3)
     bin_sub_nums = int(bin_size / bin_sub_size)

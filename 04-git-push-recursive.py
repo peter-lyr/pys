@@ -7,6 +7,9 @@ import b
 
 test_txt = r"C:\Windows\Temp\23sxi.txt"
 
+single_file_max_size = 10 * 1024 * 1024
+one_push_max_size = 20 * 1024 * 1024
+
 
 def p(text):
     try:
@@ -75,10 +78,14 @@ if __name__ == "__main__":
         sta = 0
         if Dirs:
             fsize, untracked_files = b.get_untracked_file_size(Dirs[0])
+            for untracked_file in untracked_files:
+                if os.path.getsize(untracked_file) > single_file_max_size:
+                    b.split_big_file(untracked_file, single_file_max_size)
+            fsize, untracked_files = b.get_untracked_file_size(Dirs[0])
             if fsize > 0:
                 p(f"{fsize} untracked files size of:")
-            if fsize > 20 * 1024 * 1024:
-                p(f"{Dirs[0]}\n Is more than 20MB.")
+            if fsize > one_push_max_size:
+                p(f"{Dirs[0]}\n Is more than {one_push_max_size/1024/1024}MB.")
                 add_all = 0
                 # os._exit(4)
         if add_all:
@@ -105,7 +112,7 @@ if __name__ == "__main__":
                 size = 0
                 for untracked_file in untracked_files:
                     size += os.path.getsize(untracked_file)
-                    if size > 20 * 1024 * 1024:
+                    if size > one_push_max_size:
                         break
                     if untracked_file not in new_untracked_files:
                         new_untracked_files.append(untracked_file)
