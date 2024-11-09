@@ -3,6 +3,7 @@ import b
 import sys
 
 
+# 已收录到b.py
 def split_big_file(bin_file_full):
     bin_file_full_dir = os.path.split(bin_file_full)[0]
     bin_file = os.path.split(bin_file_full)[-1]
@@ -35,4 +36,4 @@ if __name__ == "__main__":
         os._exit(1)
     split_big_file(bin_file_full)
 
-os.system("pause")
+# os.system("pause")

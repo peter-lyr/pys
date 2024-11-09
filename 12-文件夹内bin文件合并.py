@@ -2,6 +2,7 @@ import os
 import sys
 
 
+# 已收录到b.py
 def merge_bins_file(bins_dir_full):
     bins_dir_root, bins_dir = os.path.split(bins_dir_full)
 

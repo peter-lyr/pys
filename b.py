@@ -158,3 +158,59 @@ def add_ignore_files(dir, files):
     with open(gitignore, "wb") as f:
         for line in lines:
             f.write(line + b"\n")
+
+
+def merge_bins_file(bins_dir_full):
+    bins_dir_root, bins_dir = os.path.split(bins_dir_full)
+
+    out_file = "-bin".join(bins_dir.split("-bin")[:-1])
+    if not out_file:
+        os._exit(4)
+
+    out_file_name = out_file
+
+    temp = out_file.split(".")
+    out_file_true = ".".join(temp[:-1])
+    out_ext = temp[-1]
+
+    out_file_true = out_file_true + "." + out_ext
+
+    bins = os.listdir(bins_dir_full)
+    bins.sort()
+    new_bins = []
+    for bin in bins:
+        if out_file_name in bin:
+            new_bins.append(bin)
+    if not new_bins:
+        os._exit(3)
+    with open(os.path.join(bins_dir_root, out_file_true), "wb") as outf:
+        for bin in new_bins:
+            if out_file_name not in bin:
+                continue
+            print(bin)
+            with open(os.path.join(bins_dir_full, bin), "rb") as inf:
+                buffer = inf.read()
+                outf.write(buffer)
+
+
+def split_big_file(bin_file_full):
+    bin_file_full_dir = os.path.split(bin_file_full)[0]
+    bin_file = os.path.split(bin_file_full)[-1]
+
+    bin_size = os.path.getsize(bin_file_full)
+    bin_sub_size = 10 * 1024 * 1024
+    if bin_size < bin_sub_size:
+        os._exit(3)
+    bin_sub_nums = int(bin_size / bin_sub_size)
+
+    bin_dir = f"{bin_file_full}-bins"
+    os.makedirs(bin_dir, exist_ok=True)
+
+    add_ignore_files(bin_file_full_dir, [bin_file])
+
+    with open(bin_file_full, "rb") as infile:
+        for i in range(bin_sub_nums + 1):
+            part_name = f"{bin_dir}/{bin_file}_{(i + 1):0>4}.bin"
+            with open(part_name, "wb") as outfile:
+                buffer = infile.read(bin_sub_size)
+                outfile.write(buffer)
