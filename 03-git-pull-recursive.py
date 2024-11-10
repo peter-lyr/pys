@@ -114,7 +114,9 @@ def git_pull(subrepo_clone_when_empty):
         if not clone_when_empty:
             return
         if os.path.exists(repo):
+            pp(f"deleting {repo}")
             shutil.rmtree(repo)
+            pp(f"deleted {repo}")
         pp(f" ++++ cloning: {repo}")
         os.chdir(rep(sub))
         try:
