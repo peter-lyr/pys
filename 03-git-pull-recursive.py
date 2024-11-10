@@ -99,7 +99,14 @@ def pp(txt):
 def git_pull(subrepo_clone_when_empty):
     subrepo, clone_when_empty = subrepo_clone_when_empty
     sub, repo, url = subrepo
-    if os.path.exists(repo) and os.path.exists(rep(os.path.join(repo, ".git"))):
+
+    pulling = 1 if os.path.exists(repo) else 0
+    if pulling:
+        pulling *= 1 if os.path.exists(rep(os.path.join(repo, ".git"))) else 0
+    if pulling:
+        files = os.listdir(repo)
+        pulling *= 1 if len(files) > 2 else 0
+    if pulling:
         os.chdir(repo)
         pp(f" ==== pulling: {repo}")
         os.system("git pull")
