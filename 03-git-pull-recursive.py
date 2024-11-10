@@ -105,7 +105,7 @@ def git_pull(subrepo_clone_when_empty):
         pulling *= 1 if os.path.exists(rep(os.path.join(repo, ".git"))) else 0
     if pulling:
         files = os.listdir(repo)
-        pulling *= 1 if len(files) > 2 else 0
+        pulling *= 1 if len(files) >= 2 else 0
     if pulling:
         os.chdir(repo)
         pp(f" ==== pulling: {repo}")
