@@ -134,6 +134,10 @@ if __name__ == "__main__":
             for j in range(temp_sss):
                 lock = os.path.join(dir, ".git", "index.lock")
                 if os.path.exists(lock):
+                    try:
+                        os.remove(lock)
+                    except:
+                        pass
                     p(f"{temp_sss - j} .git/index.lock exist")
                     time.sleep(1)
                 else:
