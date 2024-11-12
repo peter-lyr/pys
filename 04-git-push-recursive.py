@@ -128,8 +128,9 @@ if __name__ == "__main__":
         for i in range(len(Dirs)):
             dir = Dirs[i]
             p("-" * len(dir))
-            p(dir)
             os.chdir(dir)
+            _, output = b.get_sta_output(["git", "rev-list", "--all", "--count"], True)
+            p(dir + " " + output[0])
             temp_sss = 10
             for j in range(temp_sss):
                 lock = os.path.join(dir, ".git", "index.lock")
