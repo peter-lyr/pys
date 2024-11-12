@@ -129,7 +129,6 @@ if __name__ == "__main__":
             dir = Dirs[i]
             os.chdir(dir)
             _, output = b.get_sta_output(["git", "rev-list", "--all", "--count"], True)
-            p("-" * len(dir) + " " + output[0] + " commits")
             p(f"""{"-" * len(dir)} [{int(output[0])+1}] commits""")
             p(dir)
             temp_sss = 10
