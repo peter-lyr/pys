@@ -130,7 +130,7 @@ if __name__ == "__main__":
             p("-" * len(dir))
             os.chdir(dir)
             _, output = b.get_sta_output(["git", "rev-list", "--all", "--count"], True)
-            p(dir + " " + output[0])
+            p(dir + " " + output[0] + " commits")
             temp_sss = 10
             for j in range(temp_sss):
                 lock = os.path.join(dir, ".git", "index.lock")
