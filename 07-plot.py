@@ -7,9 +7,10 @@ P = {
     "num": re.compile("\b([0-9]+)\b"),
     "0xXX": re.compile(r"\b(0x[0-9a-fA-F]{2})\b"),  # 0xXX
     "XX": re.compile(r"\b([0-9a-fA-F]{2})\b"),  # XX
+    "0xXXXX": re.compile(r"\b(0x[0-9a-fA-F]{4})\b"),  # 0xXXXX
 }
 
-N = "0xXX"
+N = "0xXXXX"
 
 
 def get_num(text):
@@ -37,7 +38,7 @@ def get_nums_list_from_file(file):
         lines = f.readlines()
     numbers = []
     for t in lines:
-        temp = get_number(t.decode('utf-8'))
+        temp = get_number(t.decode("utf-8"))
         if temp:
             numbers.append(temp)
     return numbers

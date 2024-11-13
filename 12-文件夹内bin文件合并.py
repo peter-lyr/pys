@@ -1,5 +1,6 @@
 import os
 import sys
+import b
 
 
 # 已收录到b.py
@@ -17,6 +18,8 @@ def merge_bins_file(bins_dir_full):
     out_ext = temp[-1]
 
     out_file_true = out_file_true + "." + out_ext
+
+    b.add_ignore_files(bins_dir_root, [out_file_true])
 
     bins = os.listdir(bins_dir_full)
     bins.sort()
