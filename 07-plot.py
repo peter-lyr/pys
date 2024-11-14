@@ -22,6 +22,8 @@ def get_num(text):
 
 
 def get_number(t):
+    if "Error" in t:
+        return None
     m = P[N].findall(t)
     if not m:
         print(f"not match [[[{t}]]]")
@@ -39,11 +41,12 @@ def get_nums_list_from_file(file):
         lines = f.readlines()
     numbers = []
     for t in lines:
-        temp = get_number(t.strip().decode("utf-8"))
+        t = t.strip().decode("utf-8")
+        temp = get_number(t)
         if temp is not None:
             numbers.append(temp)
         else:
-            print(temp, t)
+            print(t)
     return numbers
 
 
