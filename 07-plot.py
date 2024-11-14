@@ -10,7 +10,7 @@ P = {
     "0xXXXX": re.compile(r"\b(0x[0-9a-fA-F]{4})\b"),  # 0xXXXX
 }
 
-N = "0xXXXX"
+N = "0xXX"
 
 
 def get_num(text):
@@ -24,13 +24,14 @@ def get_num(text):
 def get_number(t):
     m = P[N].findall(t)
     if not m:
-        return
+        print(f"not match [[[{t}]]]")
+        return None
     try:
         num = get_num(m[0])
         return num
     except Exception as e:
-        print(e)
-    return
+        print(e, "OPOOERROR")
+    return None
 
 
 def get_nums_list_from_file(file):
@@ -38,9 +39,11 @@ def get_nums_list_from_file(file):
         lines = f.readlines()
     numbers = []
     for t in lines:
-        temp = get_number(t.decode("utf-8"))
-        if temp:
+        temp = get_number(t.strip().decode("utf-8"))
+        if temp is not None:
             numbers.append(temp)
+        else:
+            print(temp, t)
     return numbers
 
 
