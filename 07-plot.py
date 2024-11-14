@@ -26,7 +26,6 @@ def get_number(t):
         return None
     m = P[N].findall(t)
     if not m:
-        print(f"not match [[[{t}]]]")
         return None
     try:
         num = get_num(m[0])
