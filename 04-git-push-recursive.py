@@ -7,8 +7,8 @@ import b
 
 test_txt = r"C:\Windows\Temp\23sxi.txt"
 
-single_file_max_size = 10 * 1024 * 1024
-one_push_max_size = 20 * 1024 * 1024
+single_file_max_size = 500 * 1024 * 1024
+one_push_max_size = 500 * 1024 * 1024
 
 
 def p(text):
