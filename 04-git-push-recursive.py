@@ -5,25 +5,8 @@ from traceback import format_exc
 
 import b
 
-test_txt = r"C:\Windows\Temp\23sxi.txt"
-
 single_file_max_size = 500 * 1024 * 1024
 one_push_max_size = 500 * 1024 * 1024
-
-
-def p(text):
-    try:
-        for line in text.strip().replace("\r", "").split("\n"):
-            line = line.strip()
-            if line:
-                with open(test_txt, "wb") as f:
-                    f.write(line.encode("utf-8"))
-                os.system(f"chcp 65001>nul & cat {test_txt} & echo.")
-            else:
-                os.system("chcp 65001>nul & echo.")
-    except Exception as e:
-        print(f"echo {text}", flush=True)
-        print(e, "][]]]]]]]]]]]")
 
 
 if __name__ == "__main__":
@@ -83,9 +66,9 @@ if __name__ == "__main__":
                     b.split_big_file(untracked_file, single_file_max_size)
             fsize, untracked_files = b.get_untracked_file_size(Dirs[0])
             if fsize > 0:
-                p(f"{fsize} untracked files size of:")
+                b.p(f"{fsize} untracked files size of:")
             if fsize > one_push_max_size:
-                p(f"{Dirs[0]}\n Is more than {one_push_max_size/1024/1024}MB.")
+                b.p(f"{Dirs[0]}\n Is more than {one_push_max_size/1024/1024}MB.")
                 add_all = 0
                 # os._exit(4)
         if add_all:
@@ -106,7 +89,7 @@ if __name__ == "__main__":
                 new_untracked_files = []
                 for untracked_file in untracked_files:
                     if ".gitignore" == os.path.split(untracked_file)[-1].lower():
-                        p(".gitignore: " + untracked_file)
+                        b.p(".gitignore: " + untracked_file)
                         temp = ["git", "add", untracked_file, "&&"] + temp
                         break
                 size = 0
@@ -118,7 +101,7 @@ if __name__ == "__main__":
                         new_untracked_files.append(untracked_file)
                 temp += new_untracked_files
                 for new_untracked_file in new_untracked_files:
-                    p(new_untracked_file)
+                    b.p(new_untracked_file)
                 temp += [
                     "&&",
                 ]
@@ -129,8 +112,8 @@ if __name__ == "__main__":
             dir = Dirs[i]
             os.chdir(dir)
             _, output = b.get_sta_output(["git", "rev-list", "--all", "--count"], True)
-            p(f"""{"-" * len(dir)} [{int(output[0])+1}] commits""")
-            p(dir)
+            b.p(f"""{"-" * len(dir)} [{int(output[0])+1}] commits""")
+            b.p(dir)
             temp_sss = 10
             for j in range(temp_sss):
                 lock = os.path.join(dir, ".git", "index.lock")
@@ -139,7 +122,7 @@ if __name__ == "__main__":
                         os.remove(lock)
                     except:
                         pass
-                    p(f"{temp_sss - j} .git/index.lock exist")
+                    b.p(f"{temp_sss - j} .git/index.lock exist")
                     time.sleep(1)
                 else:
                     break
@@ -173,9 +156,9 @@ if __name__ == "__main__":
             )
             stdout, stderr = process.communicate()
             process.wait()
-            p(stdout)
+            b.p(stdout)
             if stderr:
-                p(stderr)
+                b.p(stderr)
         os._exit(sta)
     except:
         e = "wwwwwwwwwwwwwewwwwwwwwwww: " + format_exc()

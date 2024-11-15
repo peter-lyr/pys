@@ -1,10 +1,6 @@
-# -*- coding:utf-8 -*-
-
 import multiprocessing
-
 import os
 
-# import chardet
 # import sys
 import re
 import shutil
@@ -14,38 +10,6 @@ from multiprocessing import Pool
 from traceback import format_exc
 
 import b
-
-# import win_unicode_console
-
-# win_unicode_console.enable()
-# print("中文", "wwwwwwwww")
-
-test_txt = r"C:\Windows\Temp\23sxi.txt"
-
-# detected_encoding = chardet.detect("中文".encode())["encoding"]
-
-
-def p(text):
-    print(text, flush=True)
-    # sys.stdout.write(text.encode(detected_encoding).decode(detected_encoding) + "\n")
-    # sys.stdout.write(text.encode("gbk").decode("gbk") + '\n')
-    # sys.stdout.flush()
-    # try:
-    #     print("********", text.encode("gbk").decode("gbk"), flush=True)
-    # except UnicodeEncodeError:
-    #     print("########", text.encode("utf - 8").decode("utf - 8"), flush=True)
-    # try:
-    #     for line in text.strip().replace("\r", "").split("\n"):
-    #         line = line.strip()
-    #         if line:
-    #             with open(test_txt, "wb") as f:
-    #                 f.write(line.encode("utf-8"))
-    #             os.system(f"chcp 65001>nul & cat {test_txt} & echo.")
-    #         else:
-    #             os.system("chcp 65001>nul & echo.")
-    # except Exception as e:
-    #     print(f"echo {text}", flush=True)
-    #     print(e, "][]]]]]]]]]]]")
 
 
 def get_gitmodules(root):
@@ -93,7 +57,7 @@ def get_path_url(dotgitmodules):
 
 def pp(txt):
     with multiprocessing.Lock():
-        p(txt)
+        b.p(txt)
 
 
 def git_pull(subrepo_clone_when_empty):
@@ -157,7 +121,7 @@ if __name__ == "__main__":
                             continue
                         if not os.path.exists(repo):
                             continue
-                        p(f"{repo}")
+                        b.p(f"{repo}")
                         os.chdir(repo)
                         os.system(f"git checkout main")
                         dt = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -174,7 +138,7 @@ if __name__ == "__main__":
                             ]
                         )
         os.chdir(root)
-        p(f" ==== pulling: {root}")
+        b.p(f" ==== pulling: {root}")
         os.system("git pull")
         if 0:
             for subrepo_clone_when_empty in SubRepos:
