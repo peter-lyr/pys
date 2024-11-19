@@ -5,12 +5,13 @@ import matplotlib.pyplot as plt
 
 P = {
     "num": re.compile("\b([0-9]+)\b"),
-    "0xXX": re.compile(r"\b(0x[0-9a-fA-F]{2})\b"),  # 0xXX
-    "XX": re.compile(r"\b([0-9a-fA-F]{2})\b"),  # XX
-    "0xXXXX": re.compile(r"\b(0x[0-9a-fA-F]{4})\b"),  # 0xXXXX
+    "0xXX": re.compile(r"\b(0x[0-9a-fA-F]{2})\b"),
+    "XX": re.compile(r"\b([0-9a-fA-F]{2})\b"),
+    "0xXXXX": re.compile(r"\b(0x[0-9a-fA-F]{4})\b"),
+    "0xXXXXXX": re.compile(r"\b(0x[0-9a-fA-F]{6})\b"),
 }
 
-N = "0xXX"
+N = "0xXXXXXX"
 
 
 def get_num(text):
