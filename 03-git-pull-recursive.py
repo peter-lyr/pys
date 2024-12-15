@@ -71,7 +71,7 @@ def run_outside(cmd, py):
     with open(py, "wb") as f:
         f.write(cmd.strip().encode("utf-8"))
     # os.system(f"""start cmd /c "{py} & pause" """)
-    os.system(f"""start /min cmd /c "{py}" """)
+    os.system(f"""start /b /min cmd /c "{py}" """)
 
 
 def git_pull(subrepo_clone_when_empty):
@@ -85,11 +85,11 @@ def git_pull(subrepo_clone_when_empty):
         files = os.listdir(repo)
         pulling *= 1 if len(files) >= 2 else 0
     if pulling:
+        pp(f"[pulling]: {repo}")
         run_outside(
             f"""
 import os
 try:
-    print(rf" ==== pulling: {repo}")
     os.chdir(r'''{repo}''')
     os.system(rf"git pull")
 except Exception as e:
@@ -102,7 +102,7 @@ except Exception as e:
     else:
         if not clone_when_empty:
             return
-        pp(f" ++++ cloning: {repo}")
+        pp(f"[cloning]: {repo}")
         run_outside(
             f"""
 import os
