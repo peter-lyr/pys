@@ -85,7 +85,7 @@ def git_pull(subrepo_clone_when_empty):
         files = os.listdir(repo)
         pulling *= 1 if len(files) >= 2 else 0
     if pulling:
-        pp(f"[pulling]: [{repo}]\n")
+        pp(f"[pulling]: ##### [{repo}]\n")
         run_outside(
             f"""
 import os
@@ -102,7 +102,7 @@ except Exception as e:
     else:
         if not clone_when_empty:
             return
-        pp(f"[cloning]: [{repo}]\n")
+        pp(f"[cloning]: +++++ [{repo}]\n")
         run_outside(
             f"""
 import os
