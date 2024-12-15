@@ -60,6 +60,20 @@ def pp(txt):
         b.p(txt)
 
 
+temp_dir = "C:\\Windows\\Temp\\git-pull-recursive\\"
+if not os.path.exists(temp_dir):
+    os.makedirs(temp_dir, exist_ok=True)
+
+
+def run_outside(cmd, py):
+    py = re.sub(r"[^\w\d_]", "_", py)
+    py = temp_dir + py + ".py"
+    with open(py, "wb") as f:
+        f.write(cmd.strip().encode("utf-8"))
+    # os.system(f"""start cmd /c "{py} & pause" """)
+    os.system(f"""start cmd /c "{py}" """)
+
+
 def git_pull(subrepo_clone_when_empty):
     subrepo, clone_when_empty = subrepo_clone_when_empty
     sub, repo, url = subrepo
@@ -71,26 +85,43 @@ def git_pull(subrepo_clone_when_empty):
         files = os.listdir(repo)
         pulling *= 1 if len(files) >= 2 else 0
     if pulling:
-        os.chdir(repo)
-        pp(f" ==== pulling: {repo}")
-        os.system("git pull")
+        run_outside(
+            f"""
+import os
+import time
+try:
+    print(rf" ==== pulling: {repo}")
+    os.chdir(r'''{repo}''')
+    os.system(rf"git pull")
+except Exception as e:
+    print("==========================error==========================")
+    print(e)
+    print("==========================error end =====================")
+            """,
+            repo,
+        )
     else:
         if not clone_when_empty:
             return
-        if os.path.exists(repo):
-            pp(f"deleting {repo}")
-            try:
-                shutil.rmtree(repo)
-            except:
-                pass
-            pp(f"deleted {repo}")
         pp(f" ++++ cloning: {repo}")
-        os.chdir(rep(sub))
-        try:
-            shutil.rmtree(repo)
-        except:
-            pass
-        os.system(f"git clone {url} {repo} && git checkout main")
+        run_outside(
+            f"""
+import os
+import shutil
+os.chdir(r'''{sub}''')
+for i in range(100):
+    try:
+        shutil.rmtree(r'''{repo}''')
+        break
+    except Exception as e:
+        print("==========================error==========================")
+        print(e)
+        print("==========================error end =====================")
+        time.sleep(0.1)
+os.system(rf"git clone {url} {repo} && git checkout main")
+            """,
+            repo,
+        )
 
 
 def rep(text):
