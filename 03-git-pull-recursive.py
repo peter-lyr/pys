@@ -71,7 +71,7 @@ def run_outside(cmd, py):
     with open(py, "wb") as f:
         f.write(cmd.strip().encode("utf-8"))
     # os.system(f"""start cmd /c "{py} & pause" """)
-    os.system(f"""start cmd /c "{py}" """)
+    os.system(f"""start /min cmd /c "{py}" """)
 
 
 def git_pull(subrepo_clone_when_empty):
@@ -88,7 +88,6 @@ def git_pull(subrepo_clone_when_empty):
         run_outside(
             f"""
 import os
-import time
 try:
     print(rf" ==== pulling: {repo}")
     os.chdir(r'''{repo}''')
@@ -107,17 +106,19 @@ except Exception as e:
         run_outside(
             f"""
 import os
+import time
 import shutil
 os.chdir(r'''{sub}''')
-for i in range(100):
-    try:
-        shutil.rmtree(r'''{repo}''')
-        break
-    except Exception as e:
-        print("==========================error==========================")
-        print(e)
-        print("==========================error end =====================")
-        time.sleep(0.1)
+if os.path.exists(r'''{repo}'''):
+    for i in range(100):
+        try:
+            shutil.rmtree(r'''{repo}''')
+            break
+        except Exception as e:
+            print("==========================error==========================")
+            print(e)
+            print("==========================error end =====================")
+            time.sleep(0.1)
 os.system(rf"git clone {url} {repo} && git checkout main")
             """,
             repo,
