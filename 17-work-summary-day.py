@@ -1,4 +1,5 @@
 import os
+import pyperclip
 import re
 import subprocess
 import sys
@@ -8,6 +9,7 @@ import b
 
 work_org = sys.argv[1]
 day = sys.argv[2]
+morning = sys.argv[3]
 
 # ptr_task = 0  # * 凯利诺，13X，PS4拔插3.5mm耳机会重新枚举一次
 # ptr_list = 0  # 1. 耳机座4脚增加磁珠，缩短USB线，关闭所有audio寄存器，均未改善。
@@ -44,10 +46,12 @@ if __name__ == "__main__":
         lines = [line.strip().decode("utf-8") for line in f.readlines()]
     # tasks = []
     tasks = {}
+    text = f"刘德培{day}计划\n"
+    task_cnt = 1
     for i, line in enumerate(lines):
         if re.findall(r"^\*\* " + day, line):
             # b.p(line.strip())
-            b.p(str(i) + "-----------")
+            # b.p(str(i) + "-----------")
             # tasks.append(search_task(lines[i::-1]))
             task = search_task(lines[i::-1])
             # b.p("task:")
@@ -59,7 +63,18 @@ if __name__ == "__main__":
             # b.p("\n".join(lists))
             if not lists:
                 tasks[task] = "未跟进"
+                if morning == "morning":
+                    text += f"{task_cnt}. {task}\n"
+                else:
+                    text += f"{task_cnt}. {task}->未跟进\n"
             else:
-                tasks[task] = "；".join([i.strip("。").strip("；") for i in lists])
-    b.p("tasks:")
-    b.p(str(tasks))
+                t = "；".join([i.strip("。").strip("；") for i in lists])
+                tasks[task] = t
+                if morning == "morning":
+                    text += f"{task_cnt}. {task}\n"
+                else:
+                    text += f"{task_cnt}. {task}->{t}\n"
+            task_cnt += 1
+    # b.p("tasks:")
+    # b.p(str(tasks))
+    pyperclip.copy(text.strip())
