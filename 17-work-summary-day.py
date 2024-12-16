@@ -35,12 +35,24 @@ def search_task(lines):
 def search_lists(lines):
     # b.p("\n".join(lines))
     l = []
+    percentage = ""
     for line in lines:
         res = re.findall(r"^\d+\. (.+)", line)
+        # 1. 50%，trim一下芯片，微信去电未听见杂音，给到华哥测试
         if not res:
+            if percentage:
+                return [percentage] + l
             return l
-        # b.p(line)
-        l.append(res[0])
+        t = res[0]
+        res = re.findall(r"([^，]+)，(.+)", t)
+        if res:
+            res = res[0]
+            l.append(res[1])
+            percentage = res[0]
+        else:
+            l.append(t)
+    if percentage:
+        return [percentage] + l
     return l
 
 
