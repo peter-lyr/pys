@@ -1,4 +1,5 @@
 import os
+import datetime
 import pyperclip
 import re
 import subprocess
@@ -10,6 +11,8 @@ import b
 work_org = sys.argv[1]
 day = sys.argv[2]
 morning = sys.argv[3]
+
+week_list = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 
 # ptr_task = 0  # * 凯利诺，13X，PS4拔插3.5mm耳机会重新枚举一次
 # ptr_list = 0  # 1. 耳机座4脚增加磁珠，缩短USB线，关闭所有audio寄存器，均未改善。
@@ -46,7 +49,9 @@ if __name__ == "__main__":
         lines = [line.strip().decode("utf-8") for line in f.readlines()]
     # tasks = []
     tasks = {}
-    text = f"刘德培{day}计划\n"
+    y, m, d = [int(i) for i in day.split("-")]
+    date_week = datetime.date(y, m, d).weekday()
+    text = f"刘德培{day}-{week_list[date_week]}计划\n"
     task_cnt = 1
     for i, line in enumerate(lines):
         if re.findall(r"^\*\* " + day, line):
