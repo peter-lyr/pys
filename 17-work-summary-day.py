@@ -60,6 +60,6 @@ if __name__ == "__main__":
             if not lists:
                 tasks[task] = "未跟进"
             else:
-                tasks[task] = "。".join([i.strip("。") for i in lists])
+                tasks[task] = "；".join([i.strip("。").strip("；") for i in lists])
     b.p("tasks:")
     b.p(str(tasks))
