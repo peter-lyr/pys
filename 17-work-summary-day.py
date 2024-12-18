@@ -63,7 +63,7 @@ if __name__ == "__main__":
     tasks = {}
     y, m, d = [int(i) for i in day.split("-")]
     date_week = datetime.date(y, m, d).weekday()
-    text = f"** 刘德培{day}-{week_list[date_week]}计划\n"
+    text = f"** 刘德培{day}-{week_list[date_week]}进度\n"
     task_cnt = 1
     for i, line in enumerate(lines):
         if re.findall(r"^\*\* " + day, line):
