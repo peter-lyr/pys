@@ -44,6 +44,9 @@ def search_lists(lines):
                 return [percentage] + l
             return l
         t = res[0]
+        no_report = re.findall(r"^\d+\. \~", line)  # 不汇报该行
+        if no_report:
+            continue
         res = re.findall(r"([^，]+)，(.+)", t)
         if res:
             res = res[0]
@@ -66,7 +69,7 @@ if __name__ == "__main__":
     text = f"** 刘德培{day}-{week_list[date_week]}进度\n"
     task_cnt = 1
     for i, line in enumerate(lines):
-        if re.findall(r"^\*\* " + day, line):
+        if re.findall(r"^\*\* " + day, line):  # ** ~2024-12-19这种不汇报
             # b.p(line.strip())
             # b.p(str(i) + "-----------")
             # tasks.append(search_task(lines[i::-1]))
