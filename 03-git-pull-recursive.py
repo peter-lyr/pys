@@ -71,7 +71,8 @@ def run_outside(cmd, py):
     with open(py, "wb") as f:
         f.write(cmd.strip().encode("utf-8"))
     # os.system(f"""start cmd /c "{py} & pause" """)
-    os.system(f"""start /b /min cmd /c "{py}" """)
+    os.system(f"""start /min cmd /c "{py}" """)
+    # os.system(f"""start /b /min cmd /c "{py}" """)
 
 
 def git_pull(subrepo_clone_when_empty):
