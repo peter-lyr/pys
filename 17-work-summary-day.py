@@ -44,14 +44,14 @@ def search_lists(lines):
                 return [percentage] + l
             return l
         t = res[0]
-        no_report = re.findall(r"^\d+\. \~", line)  # 不汇报该行
-        if no_report:
+        report = re.findall(r"^\d+\. #", line)  # 汇报该行
+        if not report:
             continue
         res = re.findall(r"([^，]+)，(.+)", t)
         if res:
             res = res[0]
             l.append(res[1])
-            percentage = res[0]
+            percentage = res[0].strip("#")
         else:
             l.append(t)
     if percentage:
