@@ -59,7 +59,9 @@ if __name__ == "__main__":
             if task not in Tasks:
                 Tasks[task] = []
             Tasks[task].append([f"{day_str}-{week_list[day.weekday()]}"] + lists)
-    for k, v in Tasks.items():
+    T = sorted(list(Tasks.keys()))
+    for k in T:
+        v = Tasks[k]
         if len(v) == 0:
             continue
         text += f"\n** {k}\n"
