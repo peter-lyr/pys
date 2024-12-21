@@ -63,10 +63,11 @@ if __name__ == "__main__":
         if len(v) == 0:
             continue
         text += f"\n** {k}\n"
+        text += f"============={week_num}=============\n"
         for _, days in enumerate(v[::-1]):
             if len(days) <= 1:
                 continue
-            text += f"*** {days[0]}\n"
+            text += f"\n*** {days[0]}\n"
             for j, line in enumerate(days[:0:-1]):
                 text += f"{j+1}. {line}\n"
     pyperclip.copy(text.strip())
