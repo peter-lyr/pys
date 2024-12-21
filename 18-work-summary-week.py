@@ -7,6 +7,8 @@ import pyperclip
 work_org = sys.argv[1]
 week_range = sys.argv[2]
 
+week_list = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+
 
 def search_task(lines):
     for line in lines:
@@ -43,9 +45,10 @@ if __name__ == "__main__":
     text = f"* 刘德培{week_num}周汇报\n"
     Tasks = {}
     for i in range((datetime_end - datetime_start).days + 1):
-        day = (datetime_start + datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+        day = datetime_start + datetime.timedelta(days=i)
+        day_str = day.strftime("%Y-%m-%d")
         for i, line in enumerate(lines):
-            if not re.findall(r"^\*\* " + day, line):  # ** ~2024-12-19这种不汇报
+            if not re.findall(r"^\*\* " + day_str, line):  # ** ~2024-12-19这种不汇报
                 continue
             task = search_task(lines[i::-1])
             if not task:
@@ -55,7 +58,7 @@ if __name__ == "__main__":
                 continue
             if task not in Tasks:
                 Tasks[task] = []
-            Tasks[task].append([day] + lists)
+            Tasks[task].append([f"{day_str}-{week_list[day.weekday()]}"] + lists)
     for k, v in Tasks.items():
         if len(v) == 0:
             continue
