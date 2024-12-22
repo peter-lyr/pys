@@ -6,7 +6,7 @@ from traceback import format_exc
 import b
 
 
-def purify(lines):
+def purify(lines, no_print=False):
     A = []
     B = []
     for line in lines:
@@ -24,7 +24,8 @@ def purify(lines):
         for a, b in zip(A, B):
             L.append(t.format(a, b))
         for l in L:
-            print(l)
+            if not no_print:
+                print(l)
             AA.append(l)
     else:
         m = max([len(n) for n in A])
@@ -33,7 +34,8 @@ def purify(lines):
         for a in A:
             L.append(t.format(a))
         for l in L:
-            print(l)
+            if not no_print:
+                print(l)
             AA.append(l)
     return AA
 
@@ -86,7 +88,7 @@ def get_max_num_index():
                 R.append(repo)
         if R:
             R.sort(reverse=True)
-            AA = purify(R)
+            AA = purify(R, True)
             return AA[0].split("-")[0].split("_")[0]
     except:
         print("{{[[{{{owi2ww}}}]]}}", format_exc(), flush=True)

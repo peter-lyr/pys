@@ -28,7 +28,6 @@ if __name__ == "__main__":
         if public not in ["public", "private"]:
             print('public not in ["public", "private"]', flush=True)
             os._exit(3)
-        print(root, path, flush=True)
         if not os.path.exists(root):
             print(f"{root} not exists", flush=True)
             os._exit(1)
@@ -41,9 +40,14 @@ if __name__ == "__main__":
             num_index_new = str(temp_index)
         except Exception as e:
             # print(e)
-            num_index_new = ""
-        if num_index != num_index_new:
-            repo = re.sub(num_index, num_index_new, repo, 1)
+            temp_index = int(max_num_index) + 1
+            num_index_new = str(temp_index)
+        if num_index_new and num_index != num_index_new:
+            try:
+                temp_index = int(num_index)
+                repo = re.sub(num_index, num_index_new, repo, 1)
+            except:
+                repo = f"{num_index_new}_{repo}"
         p = Pinyin()
         temp = repo.replace("-", ":").replace("，", ",")
         xxx = p.get_initials(temp)
