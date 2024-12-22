@@ -135,7 +135,7 @@ if __name__ == "__main__":
                         break
                 if to_break:
                     break
-        if repo_exists:  # 不存在仓库
+        if not repo_exists:  # 不存在仓库
             run_print_cmd("git init")
             file = datetime.now().strftime("0-%Y%m%d-%H%M%S.txt")
             with open(file, "wb") as f:
