@@ -1,4 +1,6 @@
 import os
+import time
+import shutil
 import itertools
 import re
 from datetime import datetime
@@ -14,7 +16,8 @@ max_num_index = git_repo_list_3digit.get_max_num_index()
 
 
 def run_print_cmd(cmd):
-    print(f"***** {cmd}", flush=True)
+    b.p(f"***** {cmd}")
+    # print(f"***** {cmd}")
     os.system(cmd)
 
 
@@ -114,12 +117,15 @@ if __name__ == "__main__":
             # b.p(f"{repo_bak} {r}")
             if res:
                 repo_exists = 1
+                repo = r
+                b.p("++++++++++++++++")
                 break
         if not repo_exists:  # 不存在仓库
             multi_repo_names = get_multi_repo(repo_bak_ori)
             # b.p(str(multi_repo_names))
             to_break = 0
             for r in repos:
+                # b.p(f"{r}==")
                 for bak in multi_repo_names:
                     bak = get_w_repo(bak)
                     res = re.findall(bak, r)
@@ -127,6 +133,7 @@ if __name__ == "__main__":
                     if res:
                         repo_exists = 1
                         repo = r
+                        b.p("################")
                         to_break = 1
                         break
                 if to_break:
@@ -143,7 +150,17 @@ if __name__ == "__main__":
             )
             run_print_cmd("git push -u origin main")
         os.chdir(root)
+        temp_e = os.path.join(root, path)
+        for i in range(20):
+            # b.p(os.path.join(root, path) + ":" + str(i) + "--------------")
+            shutil.rmtree(temp_e)
+            if not os.path.exists(temp_e):
+                break
+            time.sleep(1)
         run_print_cmd(f"git submodule add -f git@github.com:{name}/{repo} {path}")
+        if repo_exists:
+            os.chdir(root)
+        run_print_cmd("pwd")
         run_print_cmd("git add .")
         run_print_cmd(f'git commit -m "{root_tail}/{path}"')
         run_print_cmd("git push")
