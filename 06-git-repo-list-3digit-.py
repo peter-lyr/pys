@@ -73,7 +73,7 @@ def get_repos(root):
     return repos
 
 
-def get_max_num_index():
+def get_all_repos():
     try:
         params = b.get_params()
         root = params[0]
@@ -89,12 +89,21 @@ def get_max_num_index():
         if R:
             R.sort(reverse=True)
             AA = purify(R, True)
-            return AA[0].split("-")[0].split("_")[0]
+            return AA
+        return []
     except:
         print("{{[[{{{owi2ww}}}]]}}", format_exc(), flush=True)
+        return []
 
 
-def test():
+def get_max_num_index():
+    try:
+        return get_all_repos()[0].split("-")[0].split("_")[0]
+    except:
+        return "0"
+
+
+def main():
     try:
         params = b.get_params()
         root = params[0]
@@ -125,5 +134,5 @@ def test():
 
 
 if __name__ == "__main__":
-    test()
+    main()
     # print(get_max_num_index())
