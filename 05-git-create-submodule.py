@@ -126,11 +126,7 @@ if __name__ == "__main__":
                     # b.p(f"{bak} {r}")
                     if res:
                         repo_exists = 1
-                        temp__ = get_repo_pinyin(
-                            repo, num_index_new, num_index, has_num_prefix
-                        )
-                        if temp__:
-                            repo = temp__
+                        repo = r
                         to_break = 1
                         break
                 if to_break:
