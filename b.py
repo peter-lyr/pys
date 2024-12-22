@@ -80,6 +80,20 @@ def get_sta_output(cmd_params, silent=False):
     return sta, output
 
 
+def get_cmd_output(cmd):
+    result = subprocess.run(
+        cmd, shell=True, capture_output=True, text=True, encoding="utf-8"
+    )
+    if result.returncode == 0:
+        # print("命令执行成功，输出信息如下：")
+        # print(result.stdout)
+        return 0, result.stdout
+    else:
+        # print("命令执行失败，错误信息如下：")
+        # print(result.stderr)
+        return result.returncode, result.stderr
+
+
 # def run_cmd_and_get_output(command):
 #     """
 #     运行cmd命令并返回它的执行结果

@@ -45,16 +45,18 @@ if __name__ == "__main__":
         if os.path.exists(".git"):
             print(f".git exists in {path}", flush=True)
             os._exit(2)
-        run_print_cmd("git init")
-        file = datetime.now().strftime("0-%Y%m%d-%H%M%S.txt")
-        with open(file, "wb") as f:
-            f.write(b"")
-        run_print_cmd("git add .")
-        run_print_cmd('git commit -m "s1"')
-        run_print_cmd(
-            f'gh repo create {repo} --{public} --description "{root_tail}/{path}" --source=. --remote=origin'
-        )
-        run_print_cmd("git push -u origin main")
+        res = b.get_sta_output(f"gh repo view peter-lyr/{repo}")
+        if res[0] or not res[1]:  # 不存在仓库
+            run_print_cmd("git init")
+            file = datetime.now().strftime("0-%Y%m%d-%H%M%S.txt")
+            with open(file, "wb") as f:
+                f.write(b"")
+            run_print_cmd("git add .")
+            run_print_cmd('git commit -m "s1"')
+            run_print_cmd(
+                f'gh repo create {repo} --{public} --description "{root_tail}/{path}" --source=. --remote=origin'
+            )
+            run_print_cmd("git push -u origin main")
         os.chdir(root)
         run_print_cmd(f"git submodule add -f git@github.com:{name}/{repo} {path}")
         run_print_cmd("git add .")
