@@ -7,6 +7,10 @@ from xpinyin import Pinyin
 
 import b
 
+filename = "06-git-repo-list-3digit-"
+git_repo_list_3digit = __import__(filename)
+max_num_index = git_repo_list_3digit.get_max_num_index()
+
 
 def run_print_cmd(cmd):
     print(f"***** {cmd}", flush=True)
@@ -29,6 +33,17 @@ if __name__ == "__main__":
             print(f"{root} not exists", flush=True)
             os._exit(1)
         repo = os.path.split(path)[1]
+        num_index = repo.split("_")[0].split("-")[0]
+        try:
+            temp_index = int(num_index)
+            if temp_index < int(max_num_index):
+                temp_index = int(max_num_index) + 1
+            num_index_new = str(temp_index)
+        except Exception as e:
+            # print(e)
+            num_index_new = ""
+        if num_index != num_index_new:
+            repo = re.sub(num_index, num_index_new, repo, 1)
         p = Pinyin()
         temp = repo.replace("-", ":").replace("，", ",")
         xxx = p.get_initials(temp)

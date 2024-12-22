@@ -16,6 +16,7 @@ def purify(lines):
             B.append(temp[1])
         else:
             A.append(temp[0])
+    AA = []
     if len(A) == len(B):
         m = max([len(n) for n in A])
         t = f"{{:<{m}}} {{}}"
@@ -24,6 +25,7 @@ def purify(lines):
             L.append(t.format(a, b))
         for l in L:
             print(l)
+            AA.append(l)
     else:
         m = max([len(n) for n in A])
         t = f"{{:<{m}}}"
@@ -32,42 +34,70 @@ def purify(lines):
             L.append(t.format(a))
         for l in L:
             print(l)
+            AA.append(l)
+    return AA
 
 
-if __name__ == "__main__":
+def get_repos(root):
+    os.chdir(root)
+    bash_cmd = r"""gh repo list --limit 9999999 --json name,description --jq '.[] | "\(.name)\t\t\t\t\t\(.description)"'"""
+    result = subprocess.run(
+        ["bash.exe", "-c", bash_cmd],
+        capture_output=True,
+        text=True,
+    )
+    try:
+        repos = result.stdout.replace("\r", "").split("\n")
+    except:
+        result = subprocess.run(
+            [
+                "gh",
+                "repo",
+                "list",
+                "--limit",
+                "9999999",
+                "--source",
+                "--json",
+                "name",
+                "--jq",
+                ".[] | select(.name) | .name",
+            ],
+            universal_newlines=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+    repos = result.stdout.replace("\r", "").split("\n")
+    return repos
+
+
+def get_max_num_index():
     try:
         params = b.get_params()
         root = params[0]
         show_what = params[1]
-        os.chdir(root)
-        bash_cmd = r"""gh repo list --limit 9999999 --json name,description --jq '.[] | "\(.name)\t\t\t\t\t\(.description)"'"""
-        result = subprocess.run(
-            ["bash.exe", "-c", bash_cmd],
-            capture_output=True,
-            text=True,
-        )
-        try:
-            repos = result.stdout.replace("\r", "").split("\n")
-        except:
-            result = subprocess.run(
-                [
-                    "gh",
-                    "repo",
-                    "list",
-                    "--limit",
-                    "9999999",
-                    "--source",
-                    "--json",
-                    "name",
-                    "--jq",
-                    ".[] | select(.name) | .name",
-                ],
-                universal_newlines=True,
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-            )
-        repos = result.stdout.replace("\r", "").split("\n")
+        repos = get_repos(root)
+        R = []
+        patt = r"^\d{3}[_-]"  # main
+        if show_what == "temp":
+            patt = r"^t\d{3}[_-]"
+        for repo in repos:
+            if re.match(patt, repo):
+                R.append(repo)
+        if R:
+            R.sort(reverse=True)
+            AA = purify(R)
+            return AA[0].split("-")[0].split("_")[0]
+    except:
+        print("{{[[{{{owi2ww}}}]]}}", format_exc(), flush=True)
+
+
+def test():
+    try:
+        params = b.get_params()
+        root = params[0]
+        show_what = params[1]
+        repos = get_repos(root)
         R = []
         L = []
         patt = r"^\d{3}[_-]"  # main
@@ -90,3 +120,8 @@ if __name__ == "__main__":
             purify(L)
     except:
         print("{{[[{{{owi2ww}}}]]}}", format_exc(), flush=True)
+
+
+if __name__ == "__main__":
+    # test()
+    print(get_max_num_index())
