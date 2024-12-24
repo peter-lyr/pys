@@ -104,9 +104,9 @@ if __name__ == "__main__":
         if temp__:
             repo = temp__
         os.chdir(root)
-        dir = os.path.join(root, path)
-        os.makedirs(dir, exist_ok=True)
-        os.chdir(path)
+        repo_dir_path = os.path.join(root, path)
+        os.makedirs(repo_dir_path, exist_ok=True)
+        os.chdir(repo_dir_path)
         if os.path.exists(".git"):
             b.p(f".git exists in {path}")
             os._exit(2)
@@ -139,6 +139,7 @@ if __name__ == "__main__":
                 if to_break:
                     break
         if not repo_exists:  # 不存在仓库
+            os.chdir(repo_dir_path)
             run_print_cmd("git init")
             file = datetime.now().strftime("0-%Y%m%d-%H%M%S.txt")
             with open(file, "wb") as f:
