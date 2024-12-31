@@ -161,6 +161,8 @@ if __name__ == "__main__":
         run_print_cmd(f"git submodule add -f git@github.com:{name}/{repo} {path}")
         if repo_exists:
             os.chdir(root)
+        else:
+            os.chdir(repo_dir_path)
         run_print_cmd("pwd")
         run_print_cmd("git add .")
         run_print_cmd(f'git commit -m "{root_tail}/{path}"')
