@@ -59,6 +59,7 @@ if __name__ == "__main__":
             task = search_task(lines[i::-1])
             if not task:
                 continue
+            task = task.replace(" ", "》")
             lists = search_lists(lines[i + 1 : :])
             if not lists:
                 tasks[task] = "未跟进"
