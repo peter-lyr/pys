@@ -154,7 +154,10 @@ if __name__ == "__main__":
         temp_e = os.path.join(root, path)
         for i in range(20):
             # b.p(os.path.join(root, path) + ":" + str(i) + "--------------")
-            shutil.rmtree(temp_e)
+            try:
+                shutil.rmtree(temp_e)
+            except:
+                pass
             if not os.path.exists(temp_e):
                 break
             time.sleep(1)
