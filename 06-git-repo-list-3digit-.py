@@ -80,9 +80,9 @@ def get_all_repos():
         show_what = params[1]
         repos = get_repos(root)
         R = []
-        patt = r"^\d{3}[_-]"  # main
+        patt = r"^\d{3,5}[_-]"  # main
         if show_what == "temp":
-            patt = r"^t\d{3}[_-]"
+            patt = r"^t\d{3,5}[_-]"
         for repo in repos:
             if re.match(patt, repo):
                 R.append(repo)
@@ -111,9 +111,9 @@ def main():
         repos = get_repos(root)
         R = []
         L = []
-        patt = r"^\d{3}[_-]"  # main
+        patt = r"^\d{3,5}[_-]"  # main
         if show_what == "temp":
-            patt = r"^t\d{3}[_-]"
+            patt = r"^t\d{3,5}[_-]"
         for repo in repos:
             if re.match(patt, repo):
                 R.append(repo)
