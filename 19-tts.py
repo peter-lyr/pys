@@ -15,6 +15,8 @@ if __name__ == "__main__":
     params = b.get_params()
     text = " ".join(params[:])
     b.p(text)
+    if not text.strip():
+        text = text.replace(" ", "空格").replace("\t", "制表符").replace("\n", "回车符")
     engine = pyttsx3.init()
     engine.say(text)
     engine.runAndWait()
