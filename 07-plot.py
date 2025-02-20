@@ -1,14 +1,14 @@
-import re
 import os
+import re
 import sys
 
 import matplotlib.pyplot as plt
 
 P = {
-    "num":    [0, re.compile("\b([0-9]+)\b")],
-    "XX":     [1, re.compile(r"\b([0-9a-fA-F]{2})\b")],
-    "XX":     [1, re.compile(r"\b([0-9a-fA-F]{4})\b")],
-    "0xXX":   [1, re.compile(r"\b(0[xX][0-9a-fA-F]{2})\b")],
+    "num": [0, re.compile("\b([0-9]+)\b")],
+    "XX": [1, re.compile(r"\b([0-9a-fA-F]{2})\b")],
+    "XX": [1, re.compile(r"\b([0-9a-fA-F]{4})\b")],
+    "0xXX": [1, re.compile(r"\b(0[xX][0-9a-fA-F]{2})\b")],
     "0xXXXX": [2, re.compile(r"\b(0[xX][0-9a-fA-F]{4})\b")],
 }
 
@@ -52,7 +52,7 @@ def get_nums_list_from_file(file):
 
 
 def main():
-    file = ''
+    file = ""
     if len(sys.argv) > 1:
         file = sys.argv[1]
         y = get_nums_list_from_file(file)
@@ -61,9 +61,9 @@ def main():
     else:
         return
     if file:
-        with open(file + '.pcm', 'wb') as f:
+        with open(file + ".pcm", "wb") as f:
             for i in y:
-                f.write(i.to_bytes(P[N][0], 'little'))
+                f.write(i.to_bytes(P[N][0], "little"))
     # x = [i for i in range(len(y))]
     # plt.plot(x, y)
     # plt.scatter(x, y)
