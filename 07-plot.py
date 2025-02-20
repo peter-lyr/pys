@@ -1,17 +1,17 @@
 import re
+import os
 import sys
 
 import matplotlib.pyplot as plt
 
 P = {
-    "num": re.compile("\b([0-9]+)\b"),
-    "0xXX": re.compile(r"\b(0x[0-9a-fA-F]{2})\b"),
-    "XX": re.compile(r"\b([0-9a-fA-F]{2})\b"),
-    "0xXXXX": re.compile(r"\b(0x[0-9a-fA-F]{4})\b"),
-    "0xXXXXXX": re.compile(r"\b(0x[0-9a-fA-F]{6})\b"),
+    "num":    [0, re.compile("\b([0-9]+)\b")],
+    "0xXX":   [1, re.compile(r"\b(0x[0-9a-fA-F]{2})\b")],
+    "XX":     [1, re.compile(r"\b([0-9a-fA-F]{2})\b")],
+    "0xXXXX": [2, re.compile(r"\b(0x[0-9a-fA-F]{4})\b")],
 }
 
-N = "0xXXXXXX"
+N = "0xXX"
 
 
 def get_num(text):
@@ -25,7 +25,7 @@ def get_num(text):
 def get_number(t):
     if "Error" in t:
         return None
-    m = P[N].findall(t)
+    m = P[N][1].findall(t)
     if not m:
         return None
     try:
@@ -51,16 +51,22 @@ def get_nums_list_from_file(file):
 
 
 def main():
+    file = ''
     if len(sys.argv) > 1:
-        y = get_nums_list_from_file(sys.argv[1])
+        file = sys.argv[1]
+        y = get_nums_list_from_file(file)
         if not y:
             return
     else:
         return
-    x = [i for i in range(len(y))]
-    plt.plot(x, y)
-    plt.scatter(x, y)
-    plt.show()
+    if file:
+        with open(file + '.pcm', 'wb') as f:
+            for i in y:
+                f.write(i.to_bytes(P[N][0], 'little'))
+    # x = [i for i in range(len(y))]
+    # plt.plot(x, y)
+    # plt.scatter(x, y)
+    # plt.show()
 
 
 if __name__ == "__main__":
