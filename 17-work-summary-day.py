@@ -3,7 +3,7 @@ import pyperclip
 import re
 import sys
 
-work_org = sys.argv[1]
+work_md = sys.argv[1]
 day = sys.argv[2]
 morning = sys.argv[3]
 
@@ -14,7 +14,7 @@ def search_task(lines):
     for line in lines:
         if not line:
             break
-        res = re.findall(r"^\* (.+)", line)
+        res = re.findall(r"^# (.+)", line)
         if res:
             # b.p(line)
             return res[0]
@@ -47,15 +47,15 @@ def search_lists(lines):
 
 
 if __name__ == "__main__":
-    with open(work_org, "rb") as f:
+    with open(work_md, "rb") as f:
         lines = [line.strip().decode("utf-8") for line in f.readlines()]
     tasks = {}
     y, m, d = [int(i) for i in day.split("-")]
     date_week = datetime.date(y, m, d).weekday()
-    text = f"** 刘德培{day}-{week_list[date_week]}进度\n"
+    text = f"## 刘德培{day}-{week_list[date_week]}进度\n"
     task_cnt = 1
     for i, line in enumerate(lines):
-        if re.findall(r"^\*\* " + day, line):  # ** ~2024-12-19这种不汇报
+        if re.findall(r"^## " + day, line):  # ## ~2024-12-19这种不汇报
             task = search_task(lines[i::-1])
             if not task:
                 continue

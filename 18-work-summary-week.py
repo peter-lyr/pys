@@ -4,7 +4,7 @@ import sys
 
 import pyperclip
 
-work_org = sys.argv[1]
+work_md = sys.argv[1]
 week_range = sys.argv[2]
 
 week_list = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
@@ -14,7 +14,7 @@ def search_task(lines):
     for line in lines:
         if not line:
             break
-        res = re.findall(r"^\* (.+)", line)
+        res = re.findall(r"^# (.+)", line)
         if res:
             return res[0]
 
@@ -32,7 +32,7 @@ def search_lists(lines):
 
 
 if __name__ == "__main__":
-    with open(work_org, "rb") as f:
+    with open(work_md, "rb") as f:
         lines = [line.strip().decode("utf-8") for line in f.readlines()]
     week_num = week_range.split(" ")[0]
     week_days = week_range.split(" ")[1]
@@ -42,13 +42,13 @@ if __name__ == "__main__":
     end_y, end_m, end_d = [int(i) for i in week_end.split("-")]
     datetime_start = datetime.datetime(start_y, start_m, start_d)
     datetime_end = datetime.datetime(end_y, end_m, end_d)
-    text = f"* 刘德培{week_num}周汇报\n"
+    text = f"# 刘德培{week_num}周汇报\n"
     Tasks = {}
     for i in range((datetime_end - datetime_start).days + 1):
         day = datetime_start + datetime.timedelta(days=i)
         day_str = day.strftime("%Y-%m-%d")
         for i, line in enumerate(lines):
-            if not re.findall(r"^\*\* " + day_str, line):  # ** ~2024-12-19这种不汇报
+            if not re.findall(r"^## " + day_str, line):  # ## ~2024-12-19这种不汇报
                 continue
             task = search_task(lines[i::-1])
             if not task:
@@ -64,12 +64,12 @@ if __name__ == "__main__":
         v = Tasks[k]
         if len(v) == 0:
             continue
-        text += f"\n** {k}\n"
+        text += f"\n## {k}\n"
         text += f"=========={week_num}==========\n"
         for _, days in enumerate(v[::-1]):
             if len(days) <= 1:
                 continue
-            text += f"\n*** {days[0]}\n"
+            text += f"\n### {days[0]}\n"
             for j, line in enumerate(days[:0:-1]):
                 text += f"{j+1}. {line}\n"
     pyperclip.copy(text.strip())
