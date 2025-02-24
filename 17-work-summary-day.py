@@ -1,7 +1,8 @@
 import datetime
-import pyperclip
 import re
 import sys
+
+import pyperclip
 
 work_md = sys.argv[1]
 day = sys.argv[2]
@@ -38,7 +39,7 @@ def search_lists(lines):
         if res:
             res = res[0]
             l.append(res[1])
-            percentage = res[0].strip("#")
+            percentage = res[0].strip("#").strip("%") + "%"
         else:
             l.append(t)
     if percentage:
