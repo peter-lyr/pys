@@ -25,7 +25,7 @@ def search_lists(lines):
         res = re.findall(r"^\d+\. (.+)", line)
         if not res:
             return l
-        res2 = re.findall(r"(.*\d+%，.+)", res[0])
+        res2 = re.findall(r"(.*\d+%*，.+)", res[0])
         if res2:
             l.append(res2[0])
     return l
