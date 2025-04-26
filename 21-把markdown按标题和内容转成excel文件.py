@@ -17,35 +17,35 @@ except:
 def markdown_to_excel(markdown_text):
     rows = []
     current_level = 0
-    current_content = ""
     current_title = ""
     title_stack = []
-
     lines = markdown_text.split('\n')
+    prev_line_is_title = False
     for i, line in enumerate(lines):
         line = line.strip()
         if re.match(r'^[=-]{3,}$', line):
-            # 检查上一行是否为标题
-            if i > 0:
-                prev_line = lines[i - 1].strip()
-                if prev_line:
-                    if current_content:
-                        rows.append([*title_stack, current_content])
-                        current_content = ""
-                    current_title = prev_line
-                    if line.startswith('='):
-                        current_level = 1
-                        title_stack = [current_title]
-                    else:
-                        current_level = 2
-                        if len(title_stack) > 0:
-                            title_stack = title_stack[:1] + [current_title]
-                        else:
+            if prev_line_is_title:
+                # 处理标题分隔符，前提是上一行是标题
+                if i > 0:
+                    prev_line = lines[i - 1].strip()
+                    if prev_line:
+                        current_title = prev_line
+                        if line.startswith('='):
+                            current_level = 1
                             title_stack = [current_title]
+                        else:
+                            current_level = 2
+                            if len(title_stack) > 0:
+                                title_stack = title_stack[:1] + [current_title]
+                            else:
+                                title_stack = [current_title]
+                prev_line_is_title = False
+            else:
+                # 若上一行不是标题，将分隔符作为普通内容处理
+                rows.append([*title_stack, line])
+                prev_line_is_title = False
         elif line.startswith("#"):
-            if current_content:
-                rows.append([*title_stack, current_content])
-                current_content = ""
+            # 处理 Markdown 标题
             level = line.count("#")
             current_title = line[level:].strip()
             current_level = level
@@ -53,11 +53,16 @@ def markdown_to_excel(markdown_text):
                 title_stack = title_stack[:level - 1] + [current_title]
             else:
                 title_stack.extend([current_title] * (level - len(title_stack)))
+            prev_line_is_title = True
+        elif line:
+            # 处理普通段落内容，按段落拆分
+            paragraphs = line.split('\n\n')
+            for paragraph in paragraphs:
+                if paragraph:
+                    rows.append([*title_stack, paragraph])
+            prev_line_is_title = False
         else:
-            current_content += "\n" + line if current_content else line
-
-    if current_content:
-        rows.append([*title_stack, current_content])
+            prev_line_is_title = False
 
     # 处理不同层级标题列数不一致的情况
     max_columns = max(len(row) for row in rows)
@@ -68,7 +73,6 @@ def markdown_to_excel(markdown_text):
     df = pd.DataFrame(rows)
     print("处理后数据 DataFrame:")
     print(df)
-
     return df
 
 
@@ -76,7 +80,6 @@ def merge_cells(workbook, sheet_name):
     sheet = workbook[sheet_name]
     max_row = sheet.max_row
     max_col = sheet.max_column
-
     for col in range(1, max_col + 1):
         start_row = 1
         for row in range(2, max_row + 1):
