@@ -21,6 +21,7 @@ def markdown_to_excel(markdown_text):
     title_stack = []
     lines = markdown_text.split('\n')
     prev_line_is_title = False
+    current_paragraph = ""
     for i, line in enumerate(lines):
         line = line.strip()
         if re.match(r'^[=-]{3,}$', line):
@@ -29,6 +30,9 @@ def markdown_to_excel(markdown_text):
                 if i > 0:
                     prev_line = lines[i - 1].strip()
                     if prev_line:
+                        if current_paragraph:
+                            rows.append([*title_stack, current_paragraph])
+                            current_paragraph = ""
                         current_title = prev_line
                         if line.startswith('='):
                             current_level = 1
@@ -42,10 +46,16 @@ def markdown_to_excel(markdown_text):
                 prev_line_is_title = False
             else:
                 # 若上一行不是标题，将分隔符作为普通内容处理
+                if current_paragraph:
+                    rows.append([*title_stack, current_paragraph])
+                    current_paragraph = ""
                 rows.append([*title_stack, line])
                 prev_line_is_title = False
         elif line.startswith("#"):
             # 处理 Markdown 标题
+            if current_paragraph:
+                rows.append([*title_stack, current_paragraph])
+                current_paragraph = ""
             level = line.count("#")
             current_title = line[level:].strip()
             current_level = level
@@ -55,14 +65,22 @@ def markdown_to_excel(markdown_text):
                 title_stack.extend([current_title] * (level - len(title_stack)))
             prev_line_is_title = True
         elif line:
-            # 处理普通段落内容，按段落拆分
-            paragraphs = line.split('\n\n')
-            for paragraph in paragraphs:
-                if paragraph:
-                    rows.append([*title_stack, paragraph])
+            # 处理普通段落内容
+            if current_paragraph:
+                current_paragraph += "\n" + line
+            else:
+                current_paragraph = line
             prev_line_is_title = False
         else:
+            # 遇到空行，将当前段落添加到结果中
+            if current_paragraph:
+                rows.append([*title_stack, current_paragraph])
+                current_paragraph = ""
             prev_line_is_title = False
+
+    # 处理最后一个段落
+    if current_paragraph:
+        rows.append([*title_stack, current_paragraph])
 
     # 处理不同层级标题列数不一致的情况
     max_columns = max(len(row) for row in rows)
