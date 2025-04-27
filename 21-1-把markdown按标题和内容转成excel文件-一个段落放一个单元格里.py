@@ -87,6 +87,15 @@ def markdown_to_excel(markdown_text):
         if len(row) < max_columns:
             row.extend([None] * (max_columns - len(row)))
 
+    # 增加段落行数记录列
+    for i, row in enumerate(rows):
+        # 找到最后一个有值的列作为普通段落列
+        for j in range(len(row) - 1, -1, -1):
+            if row[j]:
+                line_count = len(row[j].split("\n"))
+                rows[i] = row[:j] + [line_count] + row[j:]
+                break
+
     df = pd.DataFrame(rows)
     print("处理后数据 DataFrame:")
     print(df)
@@ -153,6 +162,15 @@ def set_cell_styles(workbook, sheet_name):
         "alignment": Alignment(vertical="top", horizontal="left"),
     }
 
+    # 定义段落行数记录列样式
+    line_count_style = {
+        "font": Font(bold=True, size=10, color="000000"),
+        "fill": PatternFill(
+            start_color="EEEEEE", end_color="EEEEEE", fill_type="solid"
+        ),
+        "alignment": Alignment(vertical="top", horizontal="center"),
+    }
+
     # 定义边框样式，将边框设置为 thin 使其更明显
     border = Border(
         left=Side(style="thin"),
@@ -173,11 +191,16 @@ def set_cell_styles(workbook, sheet_name):
         for col in range(1, max_col + 1):
             cell = sheet.cell(row, col)
             if cell.value:
-                if col < last_col:
+                if col < last_col - 1:
                     # 设置标题样式
                     cell.font = title_styles[col]["font"]
                     cell.fill = title_styles[col]["fill"]
                     cell.alignment = title_styles[col]["alignment"]
+                elif col == last_col - 1:
+                    # 段落行数记录列样式
+                    cell.font = line_count_style["font"]
+                    cell.fill = line_count_style["fill"]
+                    cell.alignment = line_count_style["alignment"]
                 else:
                     # 设置普通段落样式
                     cell.font = paragraph_style["font"]
@@ -191,7 +214,7 @@ def merge_cells(workbook, sheet_name):
     sheet = workbook[sheet_name]
     max_row = sheet.max_row
     max_col = sheet.max_column
-    for col in range(1, max_col + 1):
+    for col in range(1, max_col - 1):
         start_row = 1
         for row in range(2, max_row + 1):
             if (
