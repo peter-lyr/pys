@@ -1,21 +1,16 @@
 import os
+import re
 import sys
 
 try:
-    import re
-
     import pandas as pd
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, PatternFill
     from openpyxl.utils import get_column_letter
 except:
-    import os
-
     os.system(
         "pip install pandas openpyxl -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host mirrors.aliyun.com"
     )
-    import re
-
     import pandas as pd
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, PatternFill
