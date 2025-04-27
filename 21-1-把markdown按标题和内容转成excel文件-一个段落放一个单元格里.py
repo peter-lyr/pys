@@ -184,7 +184,7 @@ def set_cell_styles(workbook, sheet_name):
         for col in range(1, max_col + 1):
             cell = sheet.cell(row, col)
             last_col = col - 1
-            if not cell.value:
+            if not cell.value or pd.isnull(cell.value):
                 break
         else:
             last_col = max_col
