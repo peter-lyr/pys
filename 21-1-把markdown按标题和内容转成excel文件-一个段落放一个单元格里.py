@@ -107,45 +107,45 @@ def set_cell_styles(workbook, sheet_name):
     max_row = sheet.max_row
     max_col = sheet.max_column
 
-    # 定义不同级别的标题样式，使用更易辨认的颜色和调整后的字体大小
+    # 定义不同级别的标题样式，使用更易辨认的颜色和调整后的字体大小，字体设置为 Arial Black
     title_styles = {
         1: {
-            "font": Font(bold=True, size=13, color="FFFFFF"),  # 减小字体大小
+            "font": Font(name="Arial Black", bold=True, size=13, color="FFFFFF"),
             "fill": PatternFill(
                 start_color="FF6666", end_color="FF6666", fill_type="solid"
             ),
             "alignment": Alignment(vertical="top", horizontal="left"),
         },
         2: {
-            "font": Font(bold=True, size=12, color="FFFFFF"),  # 减小字体大小
+            "font": Font(name="Arial Black", bold=True, size=12, color="FFFFFF"),
             "fill": PatternFill(
                 start_color="FF9933", end_color="FF9933", fill_type="solid"
             ),
             "alignment": Alignment(vertical="top", horizontal="left"),
         },
         3: {
-            "font": Font(bold=True, size=11, color="FFFFFF"),  # 减小字体大小
+            "font": Font(name="Arial Black", bold=True, size=11, color="FFFFFF"),
             "fill": PatternFill(
                 start_color="66CC66", end_color="66CC66", fill_type="solid"
             ),
             "alignment": Alignment(vertical="top", horizontal="left"),
         },
         4: {
-            "font": Font(bold=True, size=10, color="000000"),
+            "font": Font(name="Arial Black", bold=True, size=10, color="000000"),
             "fill": PatternFill(
                 start_color="99CCFF", end_color="99CCFF", fill_type="solid"
             ),
             "alignment": Alignment(vertical="top", horizontal="left"),
         },
         5: {
-            "font": Font(bold=True, size=10, color="FFFFFF"),
+            "font": Font(name="Arial Black", bold=True, size=10, color="FFFFFF"),
             "fill": PatternFill(
                 start_color="CC99FF", end_color="CC99FF", fill_type="solid"
             ),
             "alignment": Alignment(vertical="top", horizontal="left"),
         },
         6: {
-            "font": Font(bold=True, size=10, color="000000"),
+            "font": Font(name="Arial Black", bold=True, size=10, color="000000"),
             "fill": PatternFill(
                 start_color="CCCCCC", end_color="CCCCCC", fill_type="solid"
             ),
@@ -153,18 +153,18 @@ def set_cell_styles(workbook, sheet_name):
         },
     }
 
-    # 定义普通段落样式
+    # 定义普通段落样式，字体设置为 Arial Black
     paragraph_style = {
-        "font": Font(size=10, color="000000"),
+        "font": Font(name="Arial Black", size=10, color="000000"),
         "fill": PatternFill(
             start_color="FFFFFF", end_color="FFFFFF", fill_type="solid"
         ),
         "alignment": Alignment(vertical="top", horizontal="left"),
     }
 
-    # 定义段落行数记录列样式
+    # 定义段落行数记录列样式，字体设置为 Arial Black
     line_count_style = {
-        "font": Font(bold=True, size=10, color="000000"),
+        "font": Font(name="Arial Black", bold=True, size=10, color="000000"),
         "fill": PatternFill(
             start_color="EEEEEE", end_color="EEEEEE", fill_type="solid"
         ),
