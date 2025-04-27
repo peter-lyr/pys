@@ -98,31 +98,31 @@ def set_cell_styles(workbook, sheet_name):
     max_row = sheet.max_row
     max_col = sheet.max_column
 
-    # 定义不同级别的标题样式，使用更易辨认的颜色
+    # 定义不同级别的标题样式，使用更易辨认的颜色和调整后的字体大小
     title_styles = {
         1: {
-            "font": Font(bold=True, size=18, color="FFFFFF"),
+            "font": Font(bold=True, size=13, color="FFFFFF"),  # 减小字体大小
             "fill": PatternFill(
                 start_color="FF6666", end_color="FF6666", fill_type="solid"
             ),
             "alignment": Alignment(vertical="top", horizontal="left"),
         },
         2: {
-            "font": Font(bold=True, size=16, color="FFFFFF"),
+            "font": Font(bold=True, size=12, color="FFFFFF"),  # 减小字体大小
             "fill": PatternFill(
                 start_color="FF9933", end_color="FF9933", fill_type="solid"
             ),
             "alignment": Alignment(vertical="top", horizontal="left"),
         },
         3: {
-            "font": Font(bold=True, size=14, color="FFFFFF"),
+            "font": Font(bold=True, size=11, color="FFFFFF"),  # 减小字体大小
             "fill": PatternFill(
                 start_color="66CC66", end_color="66CC66", fill_type="solid"
             ),
             "alignment": Alignment(vertical="top", horizontal="left"),
         },
         4: {
-            "font": Font(bold=True, size=12, color="000000"),
+            "font": Font(bold=True, size=10, color="000000"),
             "fill": PatternFill(
                 start_color="99CCFF", end_color="99CCFF", fill_type="solid"
             ),
@@ -136,7 +136,7 @@ def set_cell_styles(workbook, sheet_name):
             "alignment": Alignment(vertical="top", horizontal="left"),
         },
         6: {
-            "font": Font(bold=True, size=8, color="000000"),
+            "font": Font(bold=True, size=10, color="000000"),
             "fill": PatternFill(
                 start_color="CCCCCC", end_color="CCCCCC", fill_type="solid"
             ),
@@ -241,9 +241,9 @@ if __name__ == "__main__":
         # 合并相同内容的单元格
         merge_cells(wb, ws.title)
 
-        # 设置固定行高为 14pt
+        # 设置固定行高为 16pt，适当增加行高
         for row in range(1, ws.max_row + 1):
-            ws.row_dimensions[row].height = 14
+            ws.row_dimensions[row].height = 16
 
         # 设置列宽和默认列宽都为 20ch
         ws.column_dimensions.defaultWidth = 20
