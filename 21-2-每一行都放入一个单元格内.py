@@ -1,3 +1,5 @@
+'''
+# 不再使用它，不然表格太多行
 import sys
 import os
 
@@ -136,3 +138,4 @@ if __name__ == "__main__":
         print("未找到指定的 Markdown 文件，请检查文件路径。")
     except Exception as e:
         print(f"发生错误: {e}")
+'''
