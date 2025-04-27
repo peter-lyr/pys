@@ -5,7 +5,7 @@ import sys
 try:
     import pandas as pd
     from openpyxl import Workbook
-    from openpyxl.styles import Alignment, PatternFill, Font
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
 except:
     os.system(
@@ -13,7 +13,7 @@ except:
     )
     import pandas as pd
     from openpyxl import Workbook
-    from openpyxl.styles import Alignment, PatternFill, Font
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
 
 
@@ -102,36 +102,64 @@ def set_cell_styles(workbook, sheet_name):
     title_styles = {
         1: {
             "font": Font(bold=True, size=18, color="FFFFFF"),
-            "fill": PatternFill(start_color="FF6666", end_color="FF6666", fill_type="solid")
+            "fill": PatternFill(
+                start_color="FF6666", end_color="FF6666", fill_type="solid"
+            ),
+            "alignment": Alignment(vertical="top", horizontal="left"),
         },
         2: {
             "font": Font(bold=True, size=16, color="FFFFFF"),
-            "fill": PatternFill(start_color="FF9933", end_color="FF9933", fill_type="solid")
+            "fill": PatternFill(
+                start_color="FF9933", end_color="FF9933", fill_type="solid"
+            ),
+            "alignment": Alignment(vertical="top", horizontal="left"),
         },
         3: {
             "font": Font(bold=True, size=14, color="FFFFFF"),
-            "fill": PatternFill(start_color="66CC66", end_color="66CC66", fill_type="solid")
+            "fill": PatternFill(
+                start_color="66CC66", end_color="66CC66", fill_type="solid"
+            ),
+            "alignment": Alignment(vertical="top", horizontal="left"),
         },
         4: {
             "font": Font(bold=True, size=12, color="000000"),
-            "fill": PatternFill(start_color="99CCFF", end_color="99CCFF", fill_type="solid")
+            "fill": PatternFill(
+                start_color="99CCFF", end_color="99CCFF", fill_type="solid"
+            ),
+            "alignment": Alignment(vertical="top", horizontal="left"),
         },
         5: {
             "font": Font(bold=True, size=10, color="FFFFFF"),
-            "fill": PatternFill(start_color="CC99FF", end_color="CC99FF", fill_type="solid")
+            "fill": PatternFill(
+                start_color="CC99FF", end_color="CC99FF", fill_type="solid"
+            ),
+            "alignment": Alignment(vertical="top", horizontal="left"),
         },
         6: {
             "font": Font(bold=True, size=8, color="000000"),
-            "fill": PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
-        }
+            "fill": PatternFill(
+                start_color="CCCCCC", end_color="CCCCCC", fill_type="solid"
+            ),
+            "alignment": Alignment(vertical="top", horizontal="left"),
+        },
     }
 
     # 定义普通段落样式
     paragraph_style = {
         "font": Font(size=10, color="000000"),
-        "fill": PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid"),
-        "alignment": Alignment(vertical="top", horizontal="left")
+        "fill": PatternFill(
+            start_color="FFFFFF", end_color="FFFFFF", fill_type="solid"
+        ),
+        "alignment": Alignment(vertical="top", horizontal="left"),
     }
+
+    # 定义边框样式，将边框设置为 thin 使其更明显
+    border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin"),
+    )
 
     for row in range(1, max_row + 1):
         last_col = 0
@@ -149,12 +177,14 @@ def set_cell_styles(workbook, sheet_name):
                     # 设置标题样式
                     cell.font = title_styles[col]["font"]
                     cell.fill = title_styles[col]["fill"]
-                    cell.alignment = Alignment(vertical="center", horizontal="center")
+                    cell.alignment = title_styles[col]["alignment"]
                 else:
                     # 设置普通段落样式
                     cell.font = paragraph_style["font"]
                     cell.fill = paragraph_style["fill"]
                     cell.alignment = paragraph_style["alignment"]
+                # 在合并单元格之前设置边框
+                cell.border = border
 
 
 def merge_cells(workbook, sheet_name):
@@ -174,13 +204,15 @@ def merge_cells(workbook, sheet_name):
                     sheet.merge_cells(
                         f"{get_column_letter(col)}{start_row}:{get_column_letter(col)}{row - 1}"
                     )
-                    sheet.cell(start_row, col).alignment = Alignment(vertical="center")
+                    top_left_cell = sheet.cell(start_row, col)
+                    top_left_cell.alignment = Alignment(vertical="center")
                 start_row = row
         if max_row - start_row > 0 and sheet.cell(start_row, col).value:
             sheet.merge_cells(
                 f"{get_column_letter(col)}{start_row}:{get_column_letter(col)}{max_row}"
             )
-            sheet.cell(start_row, col).alignment = Alignment(vertical="center")
+            top_left_cell = sheet.cell(start_row, col)
+            top_left_cell.alignment = Alignment(vertical="center")
 
 
 if __name__ == "__main__":
