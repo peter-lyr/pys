@@ -1,3 +1,5 @@
+import sys
+import os
 try:
     import pandas as pd
     import re
@@ -126,29 +128,41 @@ def set_paragraph_background(workbook, sheet_name, df):
                 break
 
 
-try:
-    with open(r'C:\Users\llydr\w\work_summary_week.md', 'r', encoding='utf-8') as file:
-        markdown_text = file.read()
-    result_df = markdown_to_excel(markdown_text)
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("请提供 Markdown 文件的路径作为参数。")
+        sys.exit(1)
 
-    # 创建一个新的 Excel 工作簿
-    wb = Workbook()
-    ws = wb.active
-    # 将 DataFrame 数据写入工作表
-    for r_idx, row in enumerate(result_df.values, start=1):
-        for c_idx, value in enumerate(row, start=1):
-            ws.cell(row=r_idx, column=c_idx, value=value)
+    markdown_file_path = sys.argv[1]
+    try:
+        with open(markdown_file_path, 'r', encoding='utf-8') as file:
+            markdown_text = file.read()
+        result_df = markdown_to_excel(markdown_text)
 
-    # 合并相同内容的单元格
-    merge_cells(wb, ws.title)
+        # 创建一个新的 Excel 工作簿
+        wb = Workbook()
+        ws = wb.active
+        # 将 DataFrame 数据写入工作表
+        for r_idx, row in enumerate(result_df.values, start=1):
+            for c_idx, value in enumerate(row, start=1):
+                ws.cell(row=r_idx, column=c_idx, value=value)
 
-    # 设置普通段落背景为黄色
-    set_paragraph_background(wb, ws.title, result_df)
+        # 合并相同内容的单元格
+        merge_cells(wb, ws.title)
 
-    # 保存工作簿
-    wb.save(r'C:\Users\llydr\w\work_summary_week.md.xlsx')
-    print(r"转换成功，已保存为 C:\Users\llydr\w\work_summary_week.md.xlsx")
-except FileNotFoundError:
-    print("未找到指定的 Markdown 文件，请检查文件路径。")
-except Exception as e:
-    print(f"发生错误: {e}")
+        # 设置普通段落背景为黄色
+        set_paragraph_background(wb, ws.title, result_df)
+
+        # 生成 Excel 文件路径
+        file_dir = os.path.dirname(markdown_file_path)
+        file_name = os.path.basename(markdown_file_path)
+        excel_file_name = os.path.splitext(file_name)[0] + ".xlsx"
+        excel_file_path = os.path.join(file_dir, excel_file_name)
+
+        # 保存工作簿
+        wb.save(excel_file_path)
+        print(f"转换成功，已保存为 {excel_file_path}")
+    except FileNotFoundError:
+        print("未找到指定的 Markdown 文件，请检查文件路径。")
+    except Exception as e:
+        print(f"发生错误: {e}")
