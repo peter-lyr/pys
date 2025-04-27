@@ -66,7 +66,7 @@ def markdown_to_excel(markdown_text):
     max_columns = max(len(row) for row in rows)
     for row in rows:
         if len(row) < max_columns:
-            row.extend([''] * (max_columns - len(row)))
+            row.extend([None] * (max_columns - len(row)))
 
     df = pd.DataFrame(rows)
     print("处理后数据 DataFrame:")
@@ -81,14 +81,14 @@ def merge_cells(workbook, sheet_name):
     for col in range(1, max_col + 1):
         start_row = 1
         for row in range(2, max_row + 1):
-            if sheet.cell(row, col).value == sheet.cell(start_row, col).value:
+            if sheet.cell(row, col).value and sheet.cell(row, col).value == sheet.cell(start_row, col).value:
                 continue
             else:
-                if row - start_row > 1:
+                if row - start_row > 1 and sheet.cell(start_row, col).value:
                     sheet.merge_cells(f'{get_column_letter(col)}{start_row}:{get_column_letter(col)}{row - 1}')
                     sheet.cell(start_row, col).alignment = Alignment(vertical='center')
                 start_row = row
-        if max_row - start_row > 0:
+        if max_row - start_row > 0 and sheet.cell(start_row, col).value:
             sheet.merge_cells(f'{get_column_letter(col)}{start_row}:{get_column_letter(col)}{max_row}')
             sheet.cell(start_row, col).alignment = Alignment(vertical='center')
 
