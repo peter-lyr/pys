@@ -1,32 +1,37 @@
-import sys
 import os
+import sys
+
 try:
-    import pandas as pd
     import re
+
+    import pandas as pd
     from openpyxl import Workbook
-    from openpyxl.utils import get_column_letter
     from openpyxl.styles import Alignment, PatternFill
+    from openpyxl.utils import get_column_letter
 except:
     import os
-    os.system('pip install pandas openpyxl -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host mirrors.aliyun.com')
-    import pandas as pd
+
+    os.system(
+        "pip install pandas openpyxl -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host mirrors.aliyun.com"
+    )
     import re
+
+    import pandas as pd
     from openpyxl import Workbook
-    from openpyxl.utils import get_column_letter
     from openpyxl.styles import Alignment, PatternFill
+    from openpyxl.utils import get_column_letter
 
 
 def markdown_to_excel(markdown_text):
     rows = []
-    current_level = 0
     current_title = ""
     title_stack = []
-    lines = markdown_text.split('\n')
+    lines = markdown_text.split("\n")
     prev_line_is_title = False
     current_paragraph = ""
     for i, line in enumerate(lines):
         line = line.strip()
-        if re.match(r'^[=-]{3,}$', line):
+        if re.match(r"^[=-]{3,}$", line):
             if prev_line_is_title:
                 # 处理标题分隔符，前提是上一行是标题
                 if i > 0:
@@ -36,11 +41,9 @@ def markdown_to_excel(markdown_text):
                             rows.append([*title_stack, current_paragraph])
                             current_paragraph = ""
                         current_title = prev_line
-                        if line.startswith('='):
-                            current_level = 1
+                        if line.startswith("="):
                             title_stack = [current_title]
                         else:
-                            current_level = 2
                             if len(title_stack) > 0:
                                 title_stack = title_stack[:1] + [current_title]
                             else:
@@ -60,9 +63,8 @@ def markdown_to_excel(markdown_text):
                 current_paragraph = ""
             level = line.count("#")
             current_title = line[level:].strip()
-            current_level = level
             if len(title_stack) >= level:
-                title_stack = title_stack[:level - 1] + [current_title]
+                title_stack = title_stack[: level - 1] + [current_title]
             else:
                 title_stack.extend([current_title] * (level - len(title_stack)))
             prev_line_is_title = True
@@ -103,16 +105,23 @@ def merge_cells(workbook, sheet_name):
     for col in range(1, max_col + 1):
         start_row = 1
         for row in range(2, max_row + 1):
-            if sheet.cell(row, col).value and sheet.cell(row, col).value == sheet.cell(start_row, col).value:
+            if (
+                sheet.cell(row, col).value
+                and sheet.cell(row, col).value == sheet.cell(start_row, col).value
+            ):
                 continue
             else:
                 if row - start_row > 1 and sheet.cell(start_row, col).value:
-                    sheet.merge_cells(f'{get_column_letter(col)}{start_row}:{get_column_letter(col)}{row - 1}')
-                    sheet.cell(start_row, col).alignment = Alignment(vertical='center')
+                    sheet.merge_cells(
+                        f"{get_column_letter(col)}{start_row}:{get_column_letter(col)}{row - 1}"
+                    )
+                    sheet.cell(start_row, col).alignment = Alignment(vertical="center")
                 start_row = row
         if max_row - start_row > 0 and sheet.cell(start_row, col).value:
-            sheet.merge_cells(f'{get_column_letter(col)}{start_row}:{get_column_letter(col)}{max_row}')
-            sheet.cell(start_row, col).alignment = Alignment(vertical='center')
+            sheet.merge_cells(
+                f"{get_column_letter(col)}{start_row}:{get_column_letter(col)}{max_row}"
+            )
+            sheet.cell(start_row, col).alignment = Alignment(vertical="center")
 
 
 def set_paragraph_background(workbook, sheet_name, df):
@@ -123,7 +132,9 @@ def set_paragraph_background(workbook, sheet_name, df):
             cell_value = row[col_idx - 1]
             if cell_value:
                 cell = sheet.cell(row=row_idx + 1, column=col_idx)
-                fill = PatternFill(start_color='FFFF00', end_color='FFFF00', fill_type='solid')
+                fill = PatternFill(
+                    start_color="FFFF00", end_color="FFFF00", fill_type="solid"
+                )
                 cell.fill = fill
                 break
 
@@ -135,7 +146,7 @@ if __name__ == "__main__":
 
     markdown_file_path = sys.argv[1]
     try:
-        with open(markdown_file_path, 'r', encoding='utf-8') as file:
+        with open(markdown_file_path, "r", encoding="utf-8") as file:
             markdown_text = file.read()
         result_df = markdown_to_excel(markdown_text)
 
