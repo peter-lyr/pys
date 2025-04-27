@@ -5,7 +5,7 @@ import sys
 try:
     import pandas as pd
     from openpyxl import Workbook
-    from openpyxl.styles import Alignment, PatternFill
+    from openpyxl.styles import Alignment, PatternFill, Font
     from openpyxl.utils import get_column_letter
 except:
     os.system(
@@ -13,7 +13,7 @@ except:
     )
     import pandas as pd
     from openpyxl import Workbook
-    from openpyxl.styles import Alignment, PatternFill
+    from openpyxl.styles import Alignment, PatternFill, Font
     from openpyxl.utils import get_column_letter
 
 
@@ -93,6 +93,69 @@ def markdown_to_excel(markdown_text):
     return df
 
 
+def set_cell_styles(workbook, sheet_name):
+    sheet = workbook[sheet_name]
+    max_row = sheet.max_row
+    max_col = sheet.max_column
+
+    # 定义不同级别的标题样式，包含前景色和背景色
+    title_styles = {
+        1: {
+            "font": Font(bold=True, size=18, color="FFFFFF"),
+            "fill": PatternFill(start_color="333333", end_color="333333", fill_type="solid")
+        },
+        2: {
+            "font": Font(bold=True, size=16, color="FFFFFF"),
+            "fill": PatternFill(start_color="555555", end_color="555555", fill_type="solid")
+        },
+        3: {
+            "font": Font(bold=True, size=14, color="FFFFFF"),
+            "fill": PatternFill(start_color="777777", end_color="777777", fill_type="solid")
+        },
+        4: {
+            "font": Font(bold=True, size=12, color="FFFFFF"),
+            "fill": PatternFill(start_color="999999", end_color="999999", fill_type="solid")
+        },
+        5: {
+            "font": Font(bold=True, size=10, color="FFFFFF"),
+            "fill": PatternFill(start_color="BBBBBB", end_color="BBBBBB", fill_type="solid")
+        },
+        6: {
+            "font": Font(bold=True, size=8, color="FFFFFF"),
+            "fill": PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
+        }
+    }
+
+    # 定义普通段落样式
+    paragraph_style = {
+        "font": Font(size=10, color="000000"),
+        "fill": PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
+    }
+
+    for row in range(1, max_row + 1):
+        last_col = 0
+        for col in range(1, max_col + 1):
+            cell = sheet.cell(row, col)
+            last_col = col - 1
+            if not cell.value:
+                break
+        else:
+            last_col = max_col
+        for col in range(1, max_col + 1):
+            cell = sheet.cell(row, col)
+            if cell.value:
+                if col < last_col:
+                    # 设置标题样式
+                    cell.font = title_styles[col]["font"]
+                    cell.fill = title_styles[col]["fill"]
+                    cell.alignment = Alignment(vertical="center", horizontal="center")
+                else:
+                    # 设置普通段落样式
+                    cell.font = paragraph_style["font"]
+                    cell.fill = paragraph_style["fill"]
+                    cell.alignment = Alignment(vertical="top", horizontal="left")
+
+
 def merge_cells(workbook, sheet_name):
     sheet = workbook[sheet_name]
     max_row = sheet.max_row
@@ -119,21 +182,6 @@ def merge_cells(workbook, sheet_name):
             sheet.cell(start_row, col).alignment = Alignment(vertical="center")
 
 
-def set_paragraph_background(workbook, sheet_name, df):
-    sheet = workbook[sheet_name]
-    for row_idx, row in df.iterrows():
-        # 从最后一列开始往前找
-        for col_idx in range(df.shape[1], 0, -1):
-            cell_value = row[col_idx - 1]
-            if cell_value:
-                cell = sheet.cell(row=row_idx + 1, column=col_idx)
-                fill = PatternFill(
-                    start_color="FFFF00", end_color="FFFF00", fill_type="solid"
-                )
-                cell.fill = fill
-                break
-
-
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("请提供 Markdown 文件的路径作为参数。")
@@ -154,11 +202,11 @@ if __name__ == "__main__":
             for c_idx, value in enumerate(row, start=1):
                 ws.cell(row=r_idx, column=c_idx, value=value)
 
+        # 设置单元格样式
+        set_cell_styles(wb, ws.title)
+
         # 合并相同内容的单元格
         merge_cells(wb, ws.title)
-
-        # 设置普通段落背景为黄色
-        set_paragraph_background(wb, ws.title, result_df)
 
         # 设置固定行高为 14pt
         for row in range(1, ws.max_row + 1):
@@ -183,3 +231,4 @@ if __name__ == "__main__":
         print("未找到指定的 Markdown 文件，请检查文件路径。")
     except Exception as e:
         print(f"发生错误: {e}")
+    
