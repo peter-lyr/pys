@@ -142,6 +142,7 @@ if __name__ == "__main__":
         # 创建一个新的 Excel 工作簿
         wb = Workbook()
         ws = wb.active
+
         # 将 DataFrame 数据写入工作表
         for r_idx, row in enumerate(result_df.values, start=1):
             for c_idx, value in enumerate(row, start=1):
@@ -152,6 +153,16 @@ if __name__ == "__main__":
 
         # 设置普通段落背景为黄色
         set_paragraph_background(wb, ws.title, result_df)
+
+        # 设置固定行高为 14pt
+        for row in range(1, ws.max_row + 1):
+            ws.row_dimensions[row].height = 14
+
+        # 设置列宽和默认列宽都为 20ch
+        ws.column_dimensions.defaultWidth = 20
+        for col in range(1, ws.max_column + 1):
+            col_letter = get_column_letter(col)
+            ws.column_dimensions[col_letter].width = 20
 
         # 生成 Excel 文件路径
         file_dir = os.path.dirname(markdown_file_path)
