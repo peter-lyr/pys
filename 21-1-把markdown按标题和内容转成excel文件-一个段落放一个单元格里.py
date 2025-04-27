@@ -98,38 +98,39 @@ def set_cell_styles(workbook, sheet_name):
     max_row = sheet.max_row
     max_col = sheet.max_column
 
-    # 定义不同级别的标题样式，包含前景色和背景色
+    # 定义不同级别的标题样式，使用更易辨认的颜色
     title_styles = {
         1: {
             "font": Font(bold=True, size=18, color="FFFFFF"),
-            "fill": PatternFill(start_color="333333", end_color="333333", fill_type="solid")
+            "fill": PatternFill(start_color="FF6666", end_color="FF6666", fill_type="solid")
         },
         2: {
             "font": Font(bold=True, size=16, color="FFFFFF"),
-            "fill": PatternFill(start_color="555555", end_color="555555", fill_type="solid")
+            "fill": PatternFill(start_color="FF9933", end_color="FF9933", fill_type="solid")
         },
         3: {
             "font": Font(bold=True, size=14, color="FFFFFF"),
-            "fill": PatternFill(start_color="777777", end_color="777777", fill_type="solid")
+            "fill": PatternFill(start_color="66CC66", end_color="66CC66", fill_type="solid")
         },
         4: {
-            "font": Font(bold=True, size=12, color="FFFFFF"),
-            "fill": PatternFill(start_color="999999", end_color="999999", fill_type="solid")
+            "font": Font(bold=True, size=12, color="000000"),
+            "fill": PatternFill(start_color="99CCFF", end_color="99CCFF", fill_type="solid")
         },
         5: {
             "font": Font(bold=True, size=10, color="FFFFFF"),
-            "fill": PatternFill(start_color="BBBBBB", end_color="BBBBBB", fill_type="solid")
+            "fill": PatternFill(start_color="CC99FF", end_color="CC99FF", fill_type="solid")
         },
         6: {
-            "font": Font(bold=True, size=8, color="FFFFFF"),
-            "fill": PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
+            "font": Font(bold=True, size=8, color="000000"),
+            "fill": PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
         }
     }
 
     # 定义普通段落样式
     paragraph_style = {
         "font": Font(size=10, color="000000"),
-        "fill": PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
+        "fill": PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid"),
+        "alignment": Alignment(vertical="top", horizontal="left")
     }
 
     for row in range(1, max_row + 1):
@@ -153,7 +154,7 @@ def set_cell_styles(workbook, sheet_name):
                     # 设置普通段落样式
                     cell.font = paragraph_style["font"]
                     cell.fill = paragraph_style["fill"]
-                    cell.alignment = Alignment(vertical="top", horizontal="left")
+                    cell.alignment = paragraph_style["alignment"]
 
 
 def merge_cells(workbook, sheet_name):
@@ -231,4 +232,3 @@ if __name__ == "__main__":
         print("未找到指定的 Markdown 文件，请检查文件路径。")
     except Exception as e:
         print(f"发生错误: {e}")
-    
