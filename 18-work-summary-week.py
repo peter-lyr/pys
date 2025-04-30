@@ -48,7 +48,7 @@ if __name__ == "__main__":
         day = datetime_start + datetime.timedelta(days=i)
         day_str = day.strftime("%Y-%m-%d")
         for i, line in enumerate(lines):
-            if not re.findall(r"^## " + day_str, line):  # ## ~2024-12-19这种不汇报
+            if not re.findall(r"^## ~*" + day_str, line):  # ## ~2024-12-19这种汇报周报
                 continue
             task = search_task(lines[i::-1])
             if not task:
