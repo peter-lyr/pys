@@ -247,11 +247,61 @@ if __name__ == "__main__":
             markdown_text = file.read()
         result_df = markdown_to_excel(markdown_text)
 
+        D = {}
         for r_idx, row in enumerate(result_df.values, start=1):
             for c_idx, value in enumerate(row, start=1):
                 if c_idx == 2:
                     # print(f'{row}')
-                    print('->'.join([str(i) for i in row]))
+                    # print('->'.join([str(i) for i in row]))
+                    # print(len(row))
+                    if (type(row[2]) == str):
+                        # print(f"{str(row[0]):10s} | {str(row[1]):60s} | {str(row[2]):60s} | {str(row[4]):60s}")
+                        # print(f"{str(row[1])} | {str(row[2])} | {str(row[4])}")
+                        # print()
+                        task = row[1]
+                        date = row[2]
+                        detail = row[4]
+                        main_task = task.split(' ')[0]
+                        sub_task = ' '.join(task.split(' ')[1:])
+                        if main_task not in D:
+                            D[main_task] = {}
+                        S = {}
+                        if sub_task:
+                            if sub_task not in D:
+                                D[main_task][sub_task] = {}
+                            S = D[main_task][sub_task]
+                        else:
+                            S = D[main_task]
+                        S[date] = detail
+        # print(D)
+        # print()
+        with open('a.md', 'wb') as f:
+            K1 = D.keys()
+            K1 = sorted(K1)
+            for k1 in K1:
+                v1 = D[k1]
+                # print(f'\n# {k1}')
+                f.write(f'\n# {k1}\n'.encode('utf-8'))
+                K2 = v1.keys()
+                K2 = sorted(K2, reverse=True)
+                for k2 in K2:
+                    v2 = v1[k2]
+                    if type(v2) is dict:
+                        # print(f'## {k2}')
+                        f.write(f'## {k2}\n'.encode('utf-8'))
+                        K3 = v2.keys()
+                        K3 = sorted(K3)
+                        for k3 in K3:
+                            v3 = v2[k3]
+                            # print(f'#### {k3}')
+                            f.write(f'#### {k3}\n'.encode('utf-8'))
+                            # print(f'{v3}')
+                            f.write(f'{v3}\n'.encode('utf-8'))
+                    else:
+                        # print(f'### {k2}')
+                        f.write(f'### {k2}\n'.encode('utf-8'))
+                        # print(f'{v2}')
+                        f.write(f'{v2}\n'.encode('utf-8'))
     except FileNotFoundError:
         print("未找到指定的 Markdown 文件，请检查文件路径。")
     except Exception as e:
