@@ -275,7 +275,7 @@ if __name__ == "__main__":
                         S[date] = detail
         # print(D)
         # print()
-        with open(f'{os.path.splitext(markdown_file_path)[0]}-new.md', 'wb') as f:
+        with open(f'{os.path.splitext(markdown_file_path)[0]}_new.md', 'wb') as f:
             K1 = D.keys()
             K1 = sorted(K1)
             for k1 in K1:
