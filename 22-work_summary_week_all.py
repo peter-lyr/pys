@@ -278,6 +278,8 @@ if __name__ == "__main__":
         with open(f'{os.path.splitext(markdown_file_path)[0]}_new.md', 'wb') as f:
             K1 = D.keys()
             K1 = sorted(K1)
+            # print(f'[toc]')
+            f.write(f'[toc]'.encode('utf-8'))
             for k1 in K1:
                 v1 = D[k1]
                 # print(f'\n# {k1}')
