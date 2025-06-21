@@ -237,11 +237,14 @@ def merge_cells(workbook, sheet_name):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print("请提供 Markdown 文件的路径作为参数。")
         sys.exit(1)
 
     markdown_file_path = sys.argv[1]
+    week_range = sys.argv[2]
+    week_num = week_range.split(" ")[0]
+    print(week_num)
     try:
         with open(markdown_file_path, "r", encoding="utf-8") as file:
             markdown_text = file.read()
@@ -250,6 +253,9 @@ if __name__ == "__main__":
         D = {}
         for r_idx, row in enumerate(result_df.values, start=1):
             for c_idx, value in enumerate(row, start=1):
+                print(value)
+                if not value:
+                    continue
                 if c_idx == 2:
                     # print(f'{row}')
                     # print('->'.join([str(i) for i in row]))
@@ -275,7 +281,7 @@ if __name__ == "__main__":
                         S[date] = detail
         # print(D)
         # print()
-        with open(f'{os.path.splitext(markdown_file_path)[0]}_all.md', 'wb') as f:
+        with open(f'{os.path.splitext(markdown_file_path)[0]}_one.md', 'wb') as f:
             K1 = D.keys()
             K1 = sorted(K1)
             # print(f'[toc]')
