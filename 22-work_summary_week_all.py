@@ -250,29 +250,31 @@ if __name__ == "__main__":
         D = {}
         for r_idx, row in enumerate(result_df.values, start=1):
             for c_idx, value in enumerate(row, start=1):
-                if c_idx == 2:
-                    # print(f'{row}')
-                    # print('->'.join([str(i) for i in row]))
-                    # print(len(row))
-                    if (type(row[2]) == str):
-                        # print(f"{str(row[0]):10s} | {str(row[1]):60s} | {str(row[2]):60s} | {str(row[4]):60s}")
-                        # print(f"{str(row[1])} | {str(row[2])} | {str(row[4])}")
-                        # print()
-                        task = row[1]
-                        date = row[2]
-                        detail = row[4]
-                        main_task = task.split(' ')[0]
-                        sub_task = ' '.join(task.split(' ')[1:])
-                        if main_task not in D:
-                            D[main_task] = {}
-                        S = {}
-                        if sub_task:
-                            if sub_task not in D[main_task]:
-                                D[main_task][sub_task] = {}
-                            S = D[main_task][sub_task]
-                        else:
-                            S = D[main_task]
-                        S[date] = detail
+                if c_idx != 2:
+                    continue
+                # print(f'{row}')
+                # print('->'.join([str(i) for i in row]))
+                # print(len(row))
+                if (type(row[2]) != str):
+                    continue
+                # print(f"{str(row[0]):10s} | {str(row[1]):60s} | {str(row[2]):60s} | {str(row[4]):60s}")
+                # print(f"{str(row[1])} | {str(row[2])} | {str(row[4])}")
+                # print()
+                task = row[1]
+                date = row[2]
+                detail = row[4]
+                main_task = task.split(' ')[0]
+                sub_task = ' '.join(task.split(' ')[1:])
+                if main_task not in D:
+                    D[main_task] = {}
+                S = {}
+                if sub_task:
+                    if sub_task not in D[main_task]:
+                        D[main_task][sub_task] = {}
+                    S = D[main_task][sub_task]
+                else:
+                    S = D[main_task]
+                S[date] = detail
         # print(D)
         # print()
         with open(f'{os.path.splitext(markdown_file_path)[0]}_all.md', 'wb') as f:
