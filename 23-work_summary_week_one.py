@@ -244,7 +244,8 @@ if __name__ == "__main__":
     markdown_file_path = sys.argv[1]
     week_range = sys.argv[2]
     week_num = week_range.split(" ")[0]
-    print(week_num)
+    # print(week_num)
+    week = ''
     try:
         with open(markdown_file_path, "r", encoding="utf-8") as file:
             markdown_text = file.read()
@@ -263,6 +264,7 @@ if __name__ == "__main__":
                     continue
                 if week_num not in row[0]:
                     continue
+                week = row[0]
                 # print(f"{str(row[0])} | {str(row[1])} | {str(row[2])} | {str(row[4])}")
                 # print(f"{str(row[1])} | {str(row[2])} | {str(row[4])}")
                 # print()
@@ -288,6 +290,7 @@ if __name__ == "__main__":
             K1 = sorted(K1)
             # print(f'[toc]')
             f.write(f'[toc]\n'.encode('utf-8'))
+            f.write(f'\n# {week}\n'.encode('utf-8'))
             for k1 in K1:
                 v1 = D[k1]
                 # print(f'\n# {k1}')
