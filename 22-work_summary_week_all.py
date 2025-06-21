@@ -267,7 +267,7 @@ if __name__ == "__main__":
                             D[main_task] = {}
                         S = {}
                         if sub_task:
-                            if sub_task not in D:
+                            if sub_task not in D[main_task]:
                                 D[main_task][sub_task] = {}
                             S = D[main_task][sub_task]
                         else:
