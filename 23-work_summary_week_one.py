@@ -301,7 +301,7 @@ if __name__ == "__main__":
             for k1 in K1:
                 v1 = D[k1]
                 # print(f'\n# {k1}')
-                f.write(f'\n# {k1}\n\n'.encode('utf-8'))
+                f.write(f'\n# {k1}\n总结：\n细节：\n'.encode('utf-8'))
                 K2 = v1.keys()
                 K2 = sorted(K2, reverse=True)
                 for k2 in K2:
