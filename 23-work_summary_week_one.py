@@ -244,6 +244,8 @@ if __name__ == "__main__":
     markdown_file_path = sys.argv[1]
     week_range = sys.argv[2]
     week_num = week_range.split(" ")[0]
+    year_num = week_range.split(" ")[1].split("-")[0]
+    one_name = week_range.replace("-", "").replace(" ", "-").replace("~", "-")
     # print(week_num)
     week = ''
     try:
@@ -285,7 +287,13 @@ if __name__ == "__main__":
                 S[date] = detail
         # print(D)
         # print()
-        with open(f'{os.path.splitext(markdown_file_path)[0]}_one.md', 'wb') as f:
+        root = os.path.split(markdown_file_path)[0]
+        dir = f"{root}\\work_summary_week\\{year_num}"
+        os.makedirs(dir, exist_ok=True)
+        one = f'{os.path.splitext(markdown_file_path)[0]}_one.md'
+        cur = f'{dir}\\{one_name}-notdone.md'
+        cur_tomodify = f'{dir}\\{one_name}.md'
+        with open(cur, 'wb') as f:
             K1 = D.keys()
             K1 = sorted(K1)
             # print(f'[toc]')
@@ -315,6 +323,8 @@ if __name__ == "__main__":
                         f.write(f'{k2}\n'.encode('utf-8'))
                         # print(f'{v2}')
                         f.write(f'{v2}\n'.encode('utf-8'))
+        os.system(f'copy /y "{cur}" "{one}"')
+        os.system(f'copy /y "{cur}" "{cur_tomodify}"')
     except FileNotFoundError:
         print("未找到指定的 Markdown 文件，请检查文件路径。")
     except Exception as e:
