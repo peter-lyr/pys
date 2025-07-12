@@ -292,7 +292,6 @@ if __name__ == "__main__":
         os.makedirs(dir, exist_ok=True)
         one = f'{os.path.splitext(markdown_file_path)[0]}_one.md'
         cur = f'{dir}\\{one_name}-notdone.md'
-        cur_tomodify = f'{dir}\\{one_name}.md'
         with open(cur, 'wb') as f:
             K1 = D.keys()
             K1 = sorted(K1)
@@ -324,7 +323,6 @@ if __name__ == "__main__":
                         # print(f'{v2}')
                         f.write(f'{v2}\n'.encode('utf-8'))
         os.system(f'copy /y "{cur}" "{one}"')
-        os.system(f'copy /y "{cur}" "{cur_tomodify}"')
     except FileNotFoundError:
         print("未找到指定的 Markdown 文件，请检查文件路径。")
     except Exception as e:
