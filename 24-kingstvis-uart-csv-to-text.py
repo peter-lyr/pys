@@ -18,6 +18,8 @@ def process_uart_csv(input_file):
         with open(input_file, "r", newline="", encoding="utf-8") as csvfile:
             csv_reader = csv.reader(csvfile)
             for row_num, row in enumerate(csv_reader, 1):
+                if row_num == 1:
+                    continue
                 if len(row) >= 2:
                     second_column = row[1].strip()
                     second_columns.append(second_column)
