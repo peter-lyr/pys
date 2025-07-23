@@ -5,7 +5,7 @@ import sys
 import matplotlib.pyplot as plt
 
 P = {
-    "num": [0, re.compile("\b([0-9]+)\b")],
+    "num": [0, re.compile(r"\b([0-9]+)\b")],
     "XX": [1, re.compile(r"\b([0-9a-fA-F]{2})\b")],
     "XXXX": [1, re.compile(r"\b([0-9a-fA-F]{4})\b")],
     "0xXX": [1, re.compile(r"\b(0[xX][0-9a-fA-F]{2})\b")],
