@@ -114,7 +114,7 @@ if __name__ == "__main__":
             _, output = b.get_sta_output(["git", "rev-list", "--all", "--count"], True)
             b.p(f"""{"-" * len(dir)} [{int(output[0])+1}] commits""")
             b.p(dir)
-            temp_sss = 10
+            temp_sss = 20
             for j in range(temp_sss):
                 lock = os.path.join(dir, ".git", "index.lock")
                 if os.path.exists(lock):
