@@ -12,7 +12,7 @@ P = {
     "0xXXXX": [2, re.compile(r"\b(0[xX][0-9a-fA-F]{4})\b")],
 }
 
-N = "XX"
+N = "num"
 
 
 def min_bytes_needed(n):
