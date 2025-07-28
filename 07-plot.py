@@ -12,7 +12,7 @@ P = {
     "0xXXXX": [2, re.compile(r"\b(0[xX][0-9a-fA-F]{4})\b")],
 }
 
-N = "0xXX"
+N = "num"
 
 
 def min_bytes_needed(n):
@@ -39,6 +39,8 @@ def get_num(text):
 def get_number(t):
     if "Error" in t:
         return None
+    if N == 'num':
+        t = t.lstrip('0')
     m = P[N][1].findall(t)
     if not m:
         return None
@@ -79,13 +81,13 @@ def main():
     if file:
         if not P[N][0]:
             P[N][0] = min_bytes_needed(max(y))
-        with open(file + ".pcm", "wb") as f:
-            for i in y:
-                f.write(i.to_bytes(P[N][0], "little"))
-    # x = [i for i in range(len(y))]
-    # plt.plot(x, y)
-    # plt.scatter(x, y)
-    # plt.show()
+        # with open(file + ".pcm", "wb") as f:
+        #     for i in y:
+        #         f.write(i.to_bytes(P[N][0], "little"))
+    x = [i for i in range(len(y))]
+    plt.plot(x, y)
+    plt.scatter(x, y)
+    plt.show()
 
 
 if __name__ == "__main__":
