@@ -61,20 +61,20 @@ if __name__ == "__main__":
             task = search_task(lines[i::-1])
             if not task:
                 continue
-            task = task.replace(" ", "》")
+            task = task.replace(" ", " 》 ")
             lists = search_lists(lines[i + 1 : :])
             if not lists:
                 tasks[task] = "未跟进"
                 if morning == "morning":
                     text += f"{task_cnt}. {task}\n"
                 else:
-                    text += f"{task_cnt}. {task}->未跟进\n"
+                    text += f"{task_cnt}. {task} -> 未跟进\n"
             else:
                 t = "；".join([i.strip("。").strip("；") for i in lists])
                 tasks[task] = t
                 if morning == "morning":
                     text += f"{task_cnt}. {task}\n"
                 else:
-                    text += f"{task_cnt}. {task}->{t}\n"
+                    text += f"{task_cnt}. {task} -> {t}\n"
             task_cnt += 1
     pyperclip.copy(text.strip())
