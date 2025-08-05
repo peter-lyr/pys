@@ -74,7 +74,10 @@ def main():
     if len(sys.argv) > 1:
         file = sys.argv[1]
         pcm = file + ".pcm"
-        os.remove(pcm)
+        try:
+            os.remove(pcm)
+        except:
+            pass
         y = get_nums_list_from_file(file)
         if not y:
             return
