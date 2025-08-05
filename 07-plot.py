@@ -73,14 +73,14 @@ def main():
     file = ""
     if len(sys.argv) > 1:
         file = sys.argv[1]
+        pcm = file + ".pcm"
+        os.remove(pcm)
         y = get_nums_list_from_file(file)
         if not y:
             return
     else:
         return
     if file:
-        pcm = file + ".pcm"
-        os.remove(pcm)
         if not P[N][0]:
             P[N][0] = min_bytes_needed(max(y))
         with open(pcm, "wb") as f:
