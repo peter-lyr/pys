@@ -79,9 +79,11 @@ def main():
     else:
         return
     if file:
+        pcm = file + ".pcm"
+        os.remove(pcm)
         if not P[N][0]:
             P[N][0] = min_bytes_needed(max(y))
-        with open(file + ".pcm", "wb") as f:
+        with open(pcm, "wb") as f:
             for i in y:
                 f.write(i.to_bytes(P[N][0], "little"))
     # x = [i for i in range(len(y))]
