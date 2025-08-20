@@ -191,8 +191,8 @@ class CountdownTimer:
                     active_window = gw.getActiveWindow()
                     is_active = active_window and self.root.title() in active_window.title
 
-                # 根据是否活动设置透明度（60%非活动，15%活动）
-                new_alpha = 0.6 if not is_active else 0.15
+                # 根据是否活动设置透明度（60%活动，15%非活动）
+                new_alpha = 0.6 if is_active else 0.15
                 if abs(self.root.attributes("-alpha") - new_alpha) > 0.01:
                     self.root.attributes("-alpha", new_alpha)
             except Exception as e:
