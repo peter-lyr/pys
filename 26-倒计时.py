@@ -260,7 +260,7 @@ class CountdownTimer:
 
 
 if __name__ == "__main__":
-    countdown_seconds = 3  # 倒计时时间（秒）
+    countdown_seconds = 60 * 24  # 倒计时时间（秒）
     root = tk.Tk()
     app = CountdownTimer(root, countdown_seconds)
     root.mainloop()
