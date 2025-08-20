@@ -49,7 +49,7 @@ class CountdownTimer:
         # 创建总时间显示标签
         self.total_time_label = tk.Label(
             root,
-            text=f"总时间: {self.format_time(self.total_seconds)}",
+            text=f"Total time: {self.format_time(self.total_seconds)}",
             font=(self.font_family[0], 12),
             fg="gray",
             bg=self.bg_color,
@@ -163,7 +163,7 @@ class CountdownTimer:
         # 创建铺满整个窗口的"时间到了"标签（使用不透明背景）
         time_up_label = tk.Label(
             self.root,
-            text="时间到了",
+            text="Time's up",
             font=(self.font_family[0], 100, "bold"),
             fg="red",
             bg="white",  # 纯白不透明背景
@@ -173,7 +173,7 @@ class CountdownTimer:
         # 显示提示信息
         hint_label = tk.Label(
             self.root,
-            text="按ESC键退出程序",
+            text="Press ESC to exit",
             font=(self.font_family[0], 12),
             fg="gray",
             bg="white",  # 纯白不透明背景
@@ -186,7 +186,7 @@ class CountdownTimer:
 
 
 if __name__ == "__main__":
-    countdown_seconds = 10  # 倒计时时间（秒）
+    countdown_seconds = 3  # 倒计时时间（秒）
     root = tk.Tk()
     app = CountdownTimer(root, countdown_seconds)
     root.mainloop()
