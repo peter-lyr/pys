@@ -23,6 +23,7 @@ class CountdownTimer:
         self.start_datetime = datetime.now()
         self.total_seconds = total_seconds
         self.enable_wechat_save = enable_wechat_save
+        self.is_fullscreen = False  # 标记是否处于全屏状态
 
         # 窗口基础设置
         self.root.overrideredirect(True)
@@ -176,6 +177,31 @@ class CountdownTimer:
             self.hint_label.config(text="Exit allowed in 0 seconds...")
             self.enable_exit()  # 倒计时结束后允许退出
 
+    def check_window_focus(self):
+        """检查窗口是否获得焦点并调整透明度"""
+        if self.is_fullscreen:  # 仅在全屏状态下调整
+            try:
+                # 获取当前活动窗口
+                if platform.system() == "Windows":
+                    hwnd = ctypes.windll.user32.GetForegroundWindow()
+                    active_title = ctypes.create_string_buffer(256)
+                    ctypes.windll.user32.GetWindowTextA(hwnd, active_title, 256)
+                    active_title = active_title.value.decode('utf-8', errors='ignore')
+                    is_active = active_title == self.root.title()
+                else:
+                    active_window = gw.getActiveWindow()
+                    is_active = active_window and self.root.title() in active_window.title
+
+                # 根据是否活动设置透明度（60%非活动，15%活动）
+                new_alpha = 0.6 if not is_active else 0.15
+                if abs(self.root.attributes("-alpha") - new_alpha) > 0.01:
+                    self.root.attributes("-alpha", new_alpha)
+            except Exception as e:
+                print(f"检查窗口焦点时出错: {e}")
+
+        # 继续定期检查
+        self.root.after(500, self.check_window_focus)
+
     def calculate_font_sizes(self):
         """根据窗口大小计算合适的字体大小"""
         screen_width = self.root.winfo_screenwidth()
@@ -204,13 +230,20 @@ class CountdownTimer:
         elif platform.system() == "Darwin":
             self.root.attributes("-ignoremouseevents", False)
 
-        # 窗口最大化设置
+        # 窗口最大化设置 - 取消置顶
+        self.is_fullscreen = True  # 标记为全屏状态
         self.root.attributes("-alpha", 0.15)
         self.root.overrideredirect(False)
         self.root.attributes("-fullscreen", True)
-        self.root.attributes("-topmost", True)
+        self.root.attributes("-topmost", False)  # 全屏后不置顶
         self.root.focus_force()
         self.root.update_idletasks()
+
+        # 设置窗口标题用于焦点检测
+        self.root.title("Countdown Timer - Time's up")
+
+        # 启动窗口焦点检查，动态调整透明度
+        self.check_window_focus()
 
         # 创建铺满窗口的UI布局
         self.allow_exit = False
@@ -218,7 +251,7 @@ class CountdownTimer:
         start_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
         font_sizes = self.calculate_font_sizes()
 
-        main_frame = tk.Frame(self.root, bg="black")
+        main_frame = tk.Frame(self.root, bg="white")
         main_frame.pack(expand=True, fill=tk.BOTH, padx=50, pady=50)
         main_frame.grid_rowconfigure(0, weight=1)
         main_frame.grid_rowconfigure(1, weight=1)
