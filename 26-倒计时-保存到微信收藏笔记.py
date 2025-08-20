@@ -5,7 +5,7 @@ import sys
 import threading
 import time
 import tkinter as tk
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pyautogui
 import pygetwindow as gw
@@ -340,9 +340,13 @@ class CountdownTimer:
         if not self.enable_wechat_save:
             return
 
-        start_time = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S %A")
+        start_time = self.start_datetime.strftime("%A %Y-%m-%d %H:%M:%S")
+        if (self.start_datetime.strftime("%Y-%m-%d") != (self.start_datetime + timedelta(seconds=self.total_seconds)).strftime("%Y-%m-%d")):
+            end_time = (self.start_datetime + timedelta(seconds=self.total_seconds)).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            end_time = (self.start_datetime + timedelta(seconds=self.total_seconds)).strftime("%H:%M:%S")
         duration = self.format_time(self.total_seconds)
-        content = f"{duration} from {start_time}\n"
+        content = f"{duration} from {start_time} to {end_time}\n"
         pyperclip.copy(content)
 
         try:
@@ -404,7 +408,8 @@ class CountdownTimer:
 
             # 粘贴并保存
             pyautogui.hotkey("ctrl", "v")
-            # time.sleep(0.5)
+            # time.sleep(0.1)
+            # pyautogui.hotkey("ctrl", "s")
             # pyautogui.press("esc")
             print("微信收藏保存成功")
 
