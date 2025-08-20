@@ -35,6 +35,7 @@ class CountdownTimer:
         self.total_seconds = total_seconds
         self.remaining_seconds = total_seconds
         self.running = False
+        self.allow_exit = False  # 控制是否允许退出的标志
 
         # 创建时间显示标签
         self.time_label = tk.Label(
@@ -56,7 +57,7 @@ class CountdownTimer:
         )
         self.total_time_label.pack(pady=2)
 
-        # 绑定ESC键退出程序
+        # 绑定ESC键退出程序（倒计时阶段）
         self.root.bind("<Escape>", self.exit_program)
 
         # 将窗口放置在左上角（无边缘间距）
@@ -124,8 +125,15 @@ class CountdownTimer:
         self.running = True
         self.update_timer()
 
+    def enable_exit(self):
+        """2秒后允许退出"""
+        self.allow_exit = True
+        # 隐藏倒计时提示，显示退出提示
+        self.countdown_label.destroy()
+        self.hint_label.config(text="Press any key or click to exit")
+
     def time_up(self):
-        """时间到了的处理 - 确保全屏窗口完全不透明"""
+        """时间到了的处理 - 全屏置顶，前2秒不可退出"""
         self.running = False
 
         # 清除现有窗口内容
@@ -140,45 +148,58 @@ class CountdownTimer:
         elif platform.system() == "Darwin":
             self.root.attributes("-ignoremouseevents", False)
 
-        # 关键优化：强制设置为完全不透明（1.0）
-        self.root.attributes("-alpha", 1.0)
-        # 移除可能的透明色设置，确保背景不透明
-        try:
-            self.root.attributes("-transparentcolor", "")
-        except:
-            pass
+        # 设置全屏窗口透明度为15%
+        self.root.attributes("-alpha", 0.15)
 
-        # 关闭任务栏隐藏属性
-        if platform.system() == "Windows":
-            self.root.attributes("-toolwindow", False)
-
-        # 进入全屏模式
+        # 进入全屏模式并强制置顶
         self.root.overrideredirect(False)
         self.root.attributes("-fullscreen", True)
-        # 保持窗口置顶
-        self.root.attributes("-topmost", True)
-        # 重新绑定ESC键
-        self.root.bind("<Escape>", self.exit_program)
+        self.root.attributes("-topmost", True)  # 保持置顶
 
-        # 创建铺满整个窗口的"时间到了"标签（使用不透明背景）
+        # 初始化退出权限为False
+        self.allow_exit = False
+
+        # 创建铺满整个窗口的"Time's up"标签
         time_up_label = tk.Label(
             self.root,
             text="Time's up",
             font=(self.font_family[0], 100, "bold"),
             fg="red",
-            bg="white",  # 纯白不透明背景
+            bg="white",
         )
         time_up_label.pack(expand=True, fill=tk.BOTH)
 
-        # 显示提示信息
-        hint_label = tk.Label(
+        # 显示倒计时提示（2秒后可退出）
+        self.countdown_label = tk.Label(
             self.root,
-            text="Press ESC to exit",
+            text="Exit allowed in 2 seconds...",
+            font=(self.font_family[0], 12),
+            fg="orange",
+            bg="white",
+        )
+        self.countdown_label.place(relx=0.5, rely=0.95, anchor=tk.CENTER)
+
+        # 2秒后允许退出
+        self.root.after(2000, self.enable_exit)
+
+        # 创建退出提示标签（初始隐藏，由enable_exit显示）
+        self.hint_label = tk.Label(
+            self.root,
+            text="",
             font=(self.font_family[0], 12),
             fg="gray",
-            bg="white",  # 纯白不透明背景
+            bg="white",
         )
-        hint_label.place(relx=0.5, rely=0.95, anchor=tk.CENTER)
+        self.hint_label.place(relx=0.5, rely=0.95, anchor=tk.CENTER)
+
+        # 绑定任意键和鼠标点击事件
+        self.root.bind("<Key>", self.delayed_exit)
+        self.root.bind("<Button>", self.delayed_exit)
+
+    def delayed_exit(self, event=None):
+        """延迟退出处理 - 只有在允许退出后才生效"""
+        if self.allow_exit:
+            self.exit_program()
 
     def exit_program(self, event=None):
         """退出整个程序"""
