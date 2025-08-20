@@ -145,8 +145,29 @@ class CountdownTimer:
         else:
             print("警告：hint_label未初始化，无法更新退出提示")
 
+    def calculate_font_sizes(self):
+        """根据窗口大小计算合适的字体大小"""
+        # 获取屏幕尺寸
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # 根据屏幕尺寸按比例计算字体大小（确保在不同分辨率下适配）
+        base_width = 1920  # 基准宽度（1080p）
+        base_height = 1080  # 基准高度
+
+        # 计算缩放比例（取宽高比例中的较小值，避免文字溢出）
+        scale = min(screen_width / base_width, screen_height / base_height)
+
+        # 基于缩放比例计算各元素字体大小（增大比例确保铺满窗口）
+        return {
+            "title": int(120 * scale),  # 主标题（增大字号）
+            "overtime": int(50 * scale),  # 超时时间（增大字号）
+            "info": int(36 * scale),  # 开始时间和时长（增大字号）
+            "hint": int(18 * scale),  # 退出提示（增大字号）
+        }
+
     def time_up(self):
-        """倒计时结束处理（修复hint_label初始化问题）"""
+        """倒计时结束处理（确保内容铺满窗口）"""
         self.running = False
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -166,72 +187,91 @@ class CountdownTimer:
         self.root.attributes("-topmost", True)
         self.root.focus_force()  # 确保窗口获得焦点
 
-        # 2. 创建居中布局的全屏UI
+        # 确保获取正确的屏幕尺寸（等待窗口最大化完成）
+        self.root.update_idletasks()
+
+        # 2. 创建铺满窗口的UI布局
         self.allow_exit = False
         self.overtime_seconds = 0
         start_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
-        # 主容器：使用grid布局，确保内容垂直和水平居中
-        main_frame = tk.Frame(self.root, bg="white")
-        main_frame.pack(expand=True, fill=tk.BOTH)  # 填充整个窗口
-        main_frame.grid_rowconfigure(0, weight=1)  # 允许行扩展
-        main_frame.grid_columnconfigure(0, weight=1)  # 允许列扩展
+        # 计算适合当前屏幕的字体大小
+        font_sizes = self.calculate_font_sizes()
 
-        # 内容容器：所有元素放在这里，实现整体居中
-        content_frame = tk.Frame(main_frame, bg="black")
-        content_frame.grid(row=0, column=0, sticky="nsew")  # 居中对齐
+        # 主容器：填充整个窗口
+        main_frame = tk.Frame(self.root, bg="black")
+        main_frame.pack(expand=True, fill=tk.BOTH, padx=50, pady=50)  # 保留少量边距
 
-        # "Time's up"主标签（居中显示）
+        # 使用网格布局实现垂直均匀分布
+        main_frame.grid_rowconfigure(0, weight=1)  # 标题行权重
+        main_frame.grid_rowconfigure(1, weight=1)  # 超时时间行权重
+        main_frame.grid_rowconfigure(2, weight=1)  # 开始时间行权重
+        main_frame.grid_rowconfigure(3, weight=1)  # 时长行权重
+        main_frame.grid_rowconfigure(4, weight=1)  # 提示行权重
+        main_frame.grid_columnconfigure(0, weight=1)  # 列权重
+
+        # "Time's up"主标签（居中，占满行高）
         tk.Label(
-            content_frame,
+            main_frame,
             text="Time's up",
-            font=(self.font_family[0], 100, "bold"),
+            font=(self.font_family[0], font_sizes["title"], "bold"),
             fg="red",
             bg="white",
-            anchor="center",  # 文本自身居中
-        ).pack(pady=(0, 40))
+            anchor="center",
+            justify="center",
+        ).grid(
+            row=0, column=0, sticky="nsew", pady=(0, 20)
+        )  # 粘性布局充满单元格
 
-        # 超时时间标签（居中显示）
+        # 超时时间标签（居中，占满行高）
         self.overtime_label = tk.Label(
-            content_frame,
+            main_frame,
             text=f"Overtime: {self.format_time(0)}",
-            font=(self.font_family[0], 36, "bold"),
+            font=(self.font_family[0], font_sizes["overtime"], "bold"),
             fg="orange",
             bg="white",
             anchor="center",
+            justify="center",
         )
-        self.overtime_label.pack(pady=20)
+        self.overtime_label.grid(row=1, column=0, sticky="nsew", pady=20)  # 粘性布局
 
-        # 开始时间标签（居中显示）
+        # 开始时间标签（居中，占满行高）
         tk.Label(
-            content_frame,
+            main_frame,
             text=f"Start time: {start_time_str}",
-            font=(self.font_family[0], 24),
+            font=(self.font_family[0], font_sizes["info"]),
             fg="blue",
             bg="white",
             anchor="center",
-        ).pack(pady=10)
+            justify="center",
+        ).grid(
+            row=2, column=0, sticky="nsew", pady=20
+        )  # 粘性布局
 
-        # 时长标签（居中显示）
+        # 时长标签（居中，占满行高）
         tk.Label(
-            content_frame,
+            main_frame,
             text=f"Duration: {self.format_time(self.total_seconds)}",
-            font=(self.font_family[0], 24),
+            font=(self.font_family[0], font_sizes["info"]),
             fg="purple",
             bg="white",
             anchor="center",
-        ).pack(pady=10)
+            justify="center",
+        ).grid(
+            row=3, column=0, sticky="nsew", pady=20
+        )  # 粘性布局
 
-        # 退出提示标签（关键修复：显式赋值给self.hint_label，不使用链式调用）
+        # 退出提示标签（居中，占满行高）
         self.hint_label = tk.Label(
-            content_frame,
+            main_frame,
             text="Saving to WeChat...",
-            font=(self.font_family[0], 12),
+            font=(self.font_family[0], font_sizes["hint"]),
             fg="orange",
             bg="white",
             anchor="center",
+            justify="center",
         )
-        self.hint_label.pack(pady=(40, 0))  # 分开调用pack，确保赋值成功
+        self.hint_label.grid(row=4, column=0, sticky="nsew", pady=(20, 0))  # 粘性布局
 
         # 3. 启动超时计时
         self.update_overtime()
