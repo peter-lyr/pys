@@ -1,6 +1,7 @@
 import ctypes
 import os
 import platform
+import sys  # 导入sys模块处理命令行参数
 import threading
 import time
 import tkinter as tk
@@ -12,7 +13,7 @@ import pyperclip
 
 
 class CountdownTimer:
-    def __init__(self, root, total_seconds=10):
+    def __init__(self, root, total_seconds=1500):  # 默认25分钟（25*60=1500秒）
         """初始化倒计时器"""
         self.root = root
         self.start_datetime = datetime.now()
@@ -40,11 +41,11 @@ class CountdownTimer:
         self.allow_exit = False
         self.overtime_seconds = 0
 
-        # 创建倒计时标签（调整字体大小和布局以适配新格式）
+        # 创建倒计时标签（显示已用时间/剩余时间）
         self.time_label = tk.Label(
             root,
             text=self._init_time_text(),  # 初始显示已用/剩余时间
-            font=(self.font_family[0], 20),  # 适当减小字体，避免文本溢出
+            font=(self.font_family[0], 20),
             fg="green",
             bg=self.bg_color,
         )
@@ -52,7 +53,7 @@ class CountdownTimer:
 
         self.total_time_label = tk.Label(
             root,
-            text=f"{self.format_time(self.total_seconds)}",
+            text=f"Total time: {self.format_time(self.total_seconds)}",
             font=(self.font_family[0], 14),
             fg="gray",
             bg=self.bg_color,
@@ -407,7 +408,17 @@ class CountdownTimer:
 
 
 if __name__ == "__main__":
-    countdown_seconds = 10000  # 测试用1秒
+    # 处理命令行参数：如果有传入参数则使用，否则默认25分钟（1500秒）
+    try:
+        # 尝试将第一个参数转换为整数（秒数）
+        countdown_seconds = int(sys.argv[1])
+        # 确保传入的时间为正数
+        if countdown_seconds <= 0:
+            raise ValueError("时间必须为正数")
+    except (IndexError, ValueError):
+        # 没有传入参数或参数无效时使用默认值
+        countdown_seconds = 1500  # 25分钟 = 25 * 60 = 1500秒
+
     root = tk.Tk()
     app = CountdownTimer(root, countdown_seconds)
     root.mainloop()
