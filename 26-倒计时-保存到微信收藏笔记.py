@@ -340,9 +340,9 @@ class CountdownTimer:
         if not self.enable_wechat_save:
             return
 
-        start_time = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        start_time = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S %A")
         duration = self.format_time(self.total_seconds)
-        content = f"倒计时记录\n开始时间: {start_time}\n时长: {duration}"
+        content = f"{duration} from {start_time}\n"
         pyperclip.copy(content)
 
         try:
@@ -404,8 +404,8 @@ class CountdownTimer:
 
             # 粘贴并保存
             pyautogui.hotkey("ctrl", "v")
-            time.sleep(0.5)
-            pyautogui.press("esc")
+            # time.sleep(0.5)
+            # pyautogui.press("esc")
             print("微信收藏保存成功")
 
         except Exception as e:
@@ -452,6 +452,7 @@ if __name__ == "__main__":
         enable_wechat_save = 1 if enable_wechat_save == 1 else 0
     except (IndexError, ValueError):
         enable_wechat_save = 0
+    enable_wechat_save = 1
 
     root = tk.Tk()
     app = CountdownTimer(root, countdown_seconds, enable_wechat_save)
