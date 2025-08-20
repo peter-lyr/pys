@@ -350,6 +350,10 @@ class CountdownTimer:
             # 激活微信窗口
             wechat_windows = gw.getWindowsWithTitle("Weixin")
             if not wechat_windows:
+                pyautogui.hotkey("ctrl", "alt", "w")
+                time.sleep(0.3)
+                wechat_windows = gw.getWindowsWithTitle("Weixin")
+            if not wechat_windows:
                 print("未找到微信窗口，尝试启动...")
                 wechat_path = r"C:\Program Files (x86)\Tencent\WeChat\WeChat.exe"
                 if os.path.exists(wechat_path):
@@ -447,6 +451,7 @@ if __name__ == "__main__":
             raise ValueError("时间必须为正数")
     except ValueError:
         countdown_seconds = 1500
+    countdown_seconds = 1
 
     # 处理微信保存控制参数
     try:
