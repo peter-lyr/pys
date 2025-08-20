@@ -21,7 +21,6 @@ class CountdownTimer:
         """初始化倒计时器"""
         self.root = root
         self.start_datetime = datetime.now()
-        total_seconds = 1  # 测试用1秒
         self.total_seconds = total_seconds
         self.enable_wechat_save = enable_wechat_save
 
