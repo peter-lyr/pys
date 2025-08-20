@@ -199,7 +199,7 @@ class CountdownTimer:
                 print(f"检查窗口焦点时出错: {e}")
 
         # 继续定期检查
-        self.root.after(500, self.check_window_focus)
+        self.root.after(20, self.check_window_focus)
 
     def calculate_font_sizes(self):
         """根据窗口大小计算合适的字体大小"""
