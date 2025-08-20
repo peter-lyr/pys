@@ -11,6 +11,10 @@ import pyautogui
 import pygetwindow as gw
 import pyperclip
 
+home = os.environ["USERPROFILE"]
+dp = os.path.join(home, "Dp")
+temp = os.path.join(dp, "temp")
+kill_self_py_bat = os.path.join(temp, "26-倒计时-保存到微信收藏笔记.py.bat")
 
 class CountdownTimer:
     def __init__(self, root, total_seconds=1500):  # 默认25分钟（25*60=1500秒）
@@ -408,6 +412,13 @@ class CountdownTimer:
 
 
 if __name__ == "__main__":
+    if os.path.exists(kill_self_py_bat):
+        os.system(kill_self_py_bat)
+    with open(kill_self_py_bat, "wb") as f:
+        f.write(b"@echo off\n")
+        f.write(f"taskkill /f /pid {os.getpid()}\n".encode("utf-8"))
+        f.write(f"taskkill /f /pid {os.getppid()}\n".encode("utf-8"))
+
     # 处理命令行参数：如果有传入参数则使用，否则默认25分钟（1500秒）
     try:
         # 尝试将第一个参数转换为整数（秒数）
