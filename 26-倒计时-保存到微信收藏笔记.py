@@ -18,9 +18,8 @@ class CountdownTimer:
         self.start_datetime = datetime.now()
         self.total_seconds = total_seconds
 
-        # 窗口基础设置
+        # 窗口基础设置 - 取消固定大小，后续会动态设置
         self.root.overrideredirect(True)
-        self.root.geometry("148x68")
         self.root.attributes("-alpha", 0.2)
         self.root.attributes("-topmost", True)
 
@@ -41,11 +40,11 @@ class CountdownTimer:
         self.allow_exit = False
         self.overtime_seconds = 0
 
-        # 创建倒计时标签
+        # 创建倒计时标签（调整字体大小和布局以适配新格式）
         self.time_label = tk.Label(
             root,
-            text=self.format_time(self.remaining_seconds),
-            font=(self.font_family[0], 24),
+            text=self._init_time_text(),  # 初始显示已用/剩余时间
+            font=(self.font_family[0], 20),  # 适当减小字体，避免文本溢出
             fg="green",
             bg=self.bg_color,
         )
@@ -62,9 +61,15 @@ class CountdownTimer:
 
         # 绑定退出与初始化
         self.root.bind("<Escape>", self.exit_program)
-        self.position_window()
+        self.position_window()  # 设置窗口位置和大小
         self.set_mouse_transparent()
         self.start_countdown()
+
+    def _init_time_text(self):
+        """初始化时间显示文本"""
+        elapsed_time = self.format_time(0)  # 初始已用时间为0
+        remaining_time = self.format_time(self.total_seconds)  # 初始剩余时间为总时长
+        return f"{elapsed_time} / {remaining_time}"
 
     def get_transparent_color(self):
         """获取系统支持的透明色"""
@@ -79,8 +84,23 @@ class CountdownTimer:
                 return "white"
 
     def position_window(self):
-        """窗口固定在左上角"""
-        self.root.geometry("148x68+0+0")
+        """窗口固定在右上角，铺满除任务栏外的屏幕"""
+        # 获取屏幕工作区大小（排除任务栏）
+        if platform.system() == "Windows":
+            # Windows系统获取工作区大小
+            user32 = ctypes.windll.user32
+            screen_width = user32.GetSystemMetrics(0)  # 屏幕宽度
+            screen_height = user32.GetSystemMetrics(1)  # 屏幕高度（不含任务栏）
+        else:
+            # 其他系统使用tkinter获取
+            screen_width = self.root.winfo_screenwidth()
+            screen_height = self.root.winfo_screenheight()
+            # 粗略估计任务栏高度（通常为屏幕高度的5%）
+            taskbar_height = int(screen_height * 0.05)
+            screen_height -= taskbar_height
+
+        # 设置窗口大小和位置（右上角）
+        self.root.geometry(f"{screen_width}x{screen_height}+0+0")
 
     def set_mouse_transparent(self):
         """设置鼠标穿透效果"""
@@ -108,9 +128,16 @@ class CountdownTimer:
         )
 
     def update_timer(self):
-        """更新倒计时显示"""
+        """更新倒计时显示：同时显示已计时时间和剩余时间"""
         if self.remaining_seconds > 0 and self.running:
-            self.time_label.config(text=self.format_time(self.remaining_seconds))
+            # 计算已计时时间（总时长 - 剩余时长）
+            elapsed_seconds = self.total_seconds - self.remaining_seconds
+            # 格式化已计时时间和剩余时间
+            elapsed_time = self.format_time(elapsed_seconds)
+            remaining_time = self.format_time(self.remaining_seconds)
+            # 更新显示（格式：已用时间 / 剩余时间）
+            self.time_label.config(text=f"{elapsed_time} / {remaining_time}")
+            # 减少剩余时间并继续计时
             self.remaining_seconds -= 1
             self.root.after(1000, self.update_timer)
         elif self.remaining_seconds == 0 and self.running:
@@ -380,7 +407,7 @@ class CountdownTimer:
 
 
 if __name__ == "__main__":
-    countdown_seconds = 1  # 测试用1秒
+    countdown_seconds = 10000  # 测试用1秒
     root = tk.Tk()
     app = CountdownTimer(root, countdown_seconds)
     root.mainloop()
