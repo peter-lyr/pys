@@ -162,9 +162,8 @@ class CountdownTimer:
         """实际更新UI的方法（在主线程执行）"""
         if hasattr(self, "hint_label") and self.hint_label is not None:
             self.allow_exit = True
-            self.hint_label.config(text="Press any key or click to exit")
-            self.root.bind("<Key>", self.delayed_exit)
-            self.root.bind("<Button-1>", self.delayed_exit)
+            self.hint_label.config(text="Press ESC to exit")
+            self.root.bind("<Escape>", self.delayed_exit)
         else:
             print("警告：hint_label未初始化，无法更新退出提示")
 
@@ -321,10 +320,8 @@ class CountdownTimer:
         self.update_overtime()
 
         # 绑定事件
-        self.root.bind("<Key>", self.delayed_exit)
-        self.root.bind("<Button-1>", self.delayed_exit)
-        main_frame.bind("<Key>", self.delayed_exit)
-        main_frame.bind("<Button-1>", self.delayed_exit)
+        self.root.bind("<Escape>", self.delayed_exit)
+        main_frame.bind("<Escape>", self.delayed_exit)
 
         # 根据控制变量决定是否启动微信保存线程
         if self.enable_wechat_save:
