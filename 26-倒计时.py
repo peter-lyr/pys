@@ -36,6 +36,7 @@ class CountdownTimer:
         self.remaining_seconds = total_seconds
         self.running = False
         self.allow_exit = False  # 控制是否允许退出的标志
+        self.overtime_seconds = 0  # 超时秒数
 
         # 创建时间显示标签
         self.time_label = tk.Label(
@@ -120,6 +121,15 @@ class CountdownTimer:
         elif self.remaining_seconds == 0 and self.running:
             self.time_up()
 
+    def update_overtime(self):
+        """更新超时时间显示"""
+        self.overtime_seconds += 1
+        self.overtime_label.config(
+            text=f"Overtime: {self.format_time(self.overtime_seconds)}"
+        )
+        # 继续每秒更新
+        self.root.after(1000, self.update_overtime)
+
     def start_countdown(self):
         """开始倒计时"""
         self.running = True
@@ -128,12 +138,11 @@ class CountdownTimer:
     def enable_exit(self):
         """2秒后允许退出"""
         self.allow_exit = True
-        # 隐藏倒计时提示，显示退出提示
-        self.countdown_label.destroy()
+        # 更新提示信息
         self.hint_label.config(text="Press any key or click to exit")
 
     def time_up(self):
-        """时间到了的处理 - 全屏置顶，前2秒不可退出"""
+        """时间到了的处理 - 优化布局避免文字重叠"""
         self.running = False
 
         # 清除现有窗口内容
@@ -158,39 +167,54 @@ class CountdownTimer:
 
         # 初始化退出权限为False
         self.allow_exit = False
+        # 初始化超时时间为0
+        self.overtime_seconds = 0
 
-        # 创建铺满整个窗口的"Time's up"标签
+        # 创建主容器，使用网格布局管理位置
+        main_frame = tk.Frame(self.root, bg="white")
+        main_frame.pack(expand=True, fill=tk.BOTH)
+
+        # 创建"Time's up"主标签（放置在上方）
         time_up_label = tk.Label(
-            self.root,
+            main_frame,
             text="Time's up",
             font=(self.font_family[0], 100, "bold"),
             fg="red",
             bg="white",
         )
-        time_up_label.pack(expand=True, fill=tk.BOTH)
+        time_up_label.grid(row=0, column=0, pady=(50, 30))  # 顶部留出空间
 
-        # 显示倒计时提示（2秒后可退出）
-        self.countdown_label = tk.Label(
-            self.root,
+        # 创建超时时间显示标签（放置在中间）
+        self.overtime_label = tk.Label(
+            main_frame,
+            text=f"Overtime: {self.format_time(self.overtime_seconds)}",
+            font=(self.font_family[0], 36, "bold"),
+            fg="orange",
+            bg="white",
+        )
+        self.overtime_label.grid(row=1, column=0, pady=20)  # 与上下保持间距
+
+        # 让主容器在网格中居中
+        main_frame.grid_rowconfigure(0, weight=1)
+        main_frame.grid_rowconfigure(1, weight=1)
+        main_frame.grid_rowconfigure(2, weight=1)
+        main_frame.grid_columnconfigure(0, weight=1)
+
+        # 显示提示标签（放置在底部，单独一行）
+        self.hint_label = tk.Label(
+            main_frame,
             text="Exit allowed in 2 seconds...",
             font=(self.font_family[0], 12),
             fg="orange",
             bg="white",
         )
-        self.countdown_label.place(relx=0.5, rely=0.95, anchor=tk.CENTER)
+        self.hint_label.grid(row=3, column=0, pady=(0, 30))  # 底部留出空间
+
+        # 开始更新超时时间
+        self.update_overtime()
 
         # 2秒后允许退出
         self.root.after(2000, self.enable_exit)
-
-        # 创建退出提示标签（初始隐藏，由enable_exit显示）
-        self.hint_label = tk.Label(
-            self.root,
-            text="",
-            font=(self.font_family[0], 12),
-            fg="gray",
-            bg="white",
-        )
-        self.hint_label.place(relx=0.5, rely=0.95, anchor=tk.CENTER)
 
         # 绑定任意键和鼠标点击事件
         self.root.bind("<Key>", self.delayed_exit)
@@ -207,7 +231,7 @@ class CountdownTimer:
 
 
 if __name__ == "__main__":
-    countdown_seconds = 3  # 倒计时时间（秒）
+    countdown_seconds = 1  # 倒计时时间（秒）
     root = tk.Tk()
     app = CountdownTimer(root, countdown_seconds)
     root.mainloop()
