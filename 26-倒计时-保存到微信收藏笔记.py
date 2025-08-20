@@ -234,7 +234,7 @@ class CountdownTimer:
         self.root.attributes("-alpha", 0.15)
         self.root.overrideredirect(False)
         self.root.attributes("-fullscreen", True)
-        self.root.attributes("-topmost", False)  # 全屏后不置顶
+        self.root.attributes("-topmost", True)
         self.root.focus_force()
         self.root.update_idletasks()
 
