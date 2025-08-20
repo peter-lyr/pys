@@ -1,4 +1,7 @@
+import ctypes
+import platform
 import tkinter as tk
+from ctypes import wintypes  # 用于Windows系统获取任务栏高度
 
 
 class CountdownTimer:
@@ -8,6 +11,17 @@ class CountdownTimer:
         self.root.overrideredirect(True)
         # 设置初始窗口大小
         self.root.geometry("300x200")
+
+        # 设置窗口透明度为50%
+        self.root.attributes("-alpha", 0.5)
+
+        # 设置窗口不在任务栏显示（跨平台处理）
+        if platform.system() == "Windows":
+            self.root.attributes("-toolwindow", True)  # Windows系统不显示在任务栏
+        elif platform.system() == "Darwin":  # macOS
+            self.root.attributes("-type", "utility")
+        else:  # Linux等其他系统
+            self.root.attributes("-type", "toolbar")
 
         # 设置中文字体支持
         self.font_family = ("SimHei", "WenQuanYi Micro Hei", "Heiti TC", "Arial")
@@ -41,8 +55,73 @@ class CountdownTimer:
         self.root.bind("<Button-1>", self.start_drag)
         self.root.bind("<B1-Motion>", self.on_drag)
 
+        # 将窗口放置在左下角（避开任务栏）
+        self.position_window()
+
         # 开始倒计时
         self.start_countdown()
+
+    def get_taskbar_height(self):
+        """获取系统任务栏高度，处理不同操作系统"""
+        if platform.system() == "Windows":
+            try:
+                # 正确获取Windows任务栏高度的方法
+                user32 = ctypes.WinDLL("user32", use_last_error=True)
+
+                # 定义RECT结构
+                class RECT(ctypes.Structure):
+                    _fields_ = [
+                        ("left", ctypes.c_long),
+                        ("top", ctypes.c_long),
+                        ("right", ctypes.c_long),
+                        ("bottom", ctypes.c_long),
+                    ]
+
+                # 查找任务栏窗口
+                h_taskbar = user32.FindWindowW("Shell_TrayWnd", None)
+                if not h_taskbar:
+                    return 40  # 找不到任务栏时使用默认值
+
+                # 获取任务栏位置和大小
+                rect = RECT()
+                user32.GetWindowRect(h_taskbar, ctypes.byref(rect))
+
+                # 计算任务栏高度
+                return rect.bottom - rect.top
+            except:
+                # 发生错误时使用默认高度
+                return 40
+        elif platform.system() == "Darwin":  # macOS
+            # macOS Dock栏高度，通常约为50-60像素
+            return 60
+        else:  # Linux等其他系统
+            # 通常任务栏高度约为40-50像素
+            return 50
+
+    def position_window(self):
+        """将窗口放置在屏幕左下角（避开任务栏）"""
+        # 获取屏幕尺寸
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # 获取窗口尺寸
+        window_width = 300
+        window_height = 200
+
+        # 获取任务栏高度
+        taskbar_height = self.get_taskbar_height()
+
+        # 计算左下角位置（留出10像素边距 + 任务栏高度）
+        x = 10  # 左边距10像素
+        # 底部位置 = 屏幕高度 - 窗口高度 - 边距 - 任务栏高度
+        y = screen_height - window_height - 10 - taskbar_height
+
+        # 确保y坐标不会为负数
+        if y < 10:
+            y = 10
+
+        # 设置窗口位置
+        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
     def format_time(self, seconds):
         """将秒数格式化为时:分:秒"""
@@ -76,10 +155,17 @@ class CountdownTimer:
         for widget in self.root.winfo_children():
             widget.destroy()
 
+        # 禁用透明效果，让提示更醒目
+        self.root.attributes("-alpha", 1.0)
+
+        # 关闭任务栏隐藏属性，确保全屏正常显示
+        if platform.system() == "Windows":
+            self.root.attributes("-toolwindow", False)
+
         # 关键修复：先禁用overrideredirect，再设置全屏，确保全屏生效
         self.root.overrideredirect(False)
         self.root.attributes("-fullscreen", True)
-        # 重新绑定ESC键（因为窗口属性变化可能导致绑定失效）
+        # 重新绑定ESC键
         self.root.bind("<Escape>", self.exit_program)
 
         # 创建铺满整个窗口的"时间到了"标签
@@ -119,7 +205,7 @@ class CountdownTimer:
 
 if __name__ == "__main__":
     # 可以修改这里的秒数来设置不同的倒计时时间
-    countdown_seconds = 2  # 倒计时时间（秒）
+    countdown_seconds = 8  # 倒计时时间（秒）
 
     root = tk.Tk()
     app = CountdownTimer(root, countdown_seconds)
