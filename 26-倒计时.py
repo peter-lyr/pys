@@ -1,5 +1,5 @@
 import time
-L = 60*15
+L = 60*8
 for i in range(L):
     time.sleep(1)
     print(f'\r{i}s/{L} {i/60:.3f}m/{int(L/60)}', end='')
