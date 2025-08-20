@@ -17,11 +17,11 @@ temp = os.path.join(dp, "temp")
 kill_self_py_bat = os.path.join(temp, "26-倒计时-保存到微信收藏笔记.py.bat")
 
 class CountdownTimer:
-    def __init__(self, root, total_seconds=1500, enable_wechat_save=0):
+    def __init__(self, root, countdown_seconds=1500, enable_wechat_save=0):
         """初始化倒计时器"""
         self.root = root
         self.start_datetime = datetime.now()
-        self.total_seconds = total_seconds
+        self.total_seconds = countdown_seconds
         self.enable_wechat_save = enable_wechat_save
         self.is_fullscreen = False  # 标记是否处于全屏状态
 
@@ -42,7 +42,7 @@ class CountdownTimer:
 
         # 字体与计时变量
         self.font_family = ("SimHei", "WenQuanYi Micro Hei", "Heiti TC", "Arial")
-        self.remaining_seconds = total_seconds
+        self.remaining_seconds = countdown_seconds
         self.running = False
         self.allow_exit = False
         self.overtime_seconds = 0
@@ -451,7 +451,7 @@ if __name__ == "__main__":
             raise ValueError("时间必须为正数")
     except ValueError:
         countdown_seconds = 1500
-    countdown_seconds = 1
+    # countdown_seconds = 1
 
     # 处理微信保存控制参数
     try:
