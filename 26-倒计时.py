@@ -11,7 +11,7 @@ class CountdownTimer:
         # 设置窗口尺寸为148x68
         self.root.geometry("148x68")
 
-        # 设置窗口透明度为50%
+        # 设置倒计时阶段窗口透明度为20%
         self.root.attributes("-alpha", 0.2)
 
         # 设置窗口置顶
@@ -36,25 +36,25 @@ class CountdownTimer:
         self.remaining_seconds = total_seconds
         self.running = False
 
-        # 创建时间显示标签（调整字体大小适应新窗口）
+        # 创建时间显示标签
         self.time_label = tk.Label(
             root,
             text=self.format_time(self.remaining_seconds),
-            font=(self.font_family[0], 24),  # 减小字体大小以适应小窗口
+            font=(self.font_family[0], 24),
             fg="green",
             bg=self.bg_color,
         )
         self.time_label.pack(expand=True)
 
-        # 创建总时间显示标签（调整字体大小适应新窗口）
+        # 创建总时间显示标签
         self.total_time_label = tk.Label(
             root,
             text=f"总时间: {self.format_time(self.total_seconds)}",
-            font=(self.font_family[0], 12),  # 减小字体大小以适应小窗口
+            font=(self.font_family[0], 12),
             fg="gray",
             bg=self.bg_color,
         )
-        self.total_time_label.pack(pady=2)  # 减小边距
+        self.total_time_label.pack(pady=2)
 
         # 绑定ESC键退出程序
         self.root.bind("<Escape>", self.exit_program)
@@ -71,40 +71,32 @@ class CountdownTimer:
     def get_transparent_color(self):
         """获取系统支持的透明色或替代方案"""
         try:
-            # 尝试使用系统透明色
             self.root.attributes("-transparentcolor", "white")
             return "white"
         except:
             try:
-                # 尝试其他常见透明色名称
                 self.root.attributes("-transparentcolor", "#000000")
                 return "#000000"
             except:
-                # 如果都不支持，返回普通背景色，依赖窗口透明度实现效果
                 return "white"
 
     def position_window(self):
         """将窗口放置在屏幕左上角（无边缘间距）"""
         window_width = 148
         window_height = 68
-        # 左上角位置（x=0, y=0 无边缘间距）
         self.root.geometry(f"{window_width}x{window_height}+0+0")
 
     def set_mouse_transparent(self):
         """设置窗口鼠标穿透效果"""
         if platform.system() == "Windows":
-            # Windows系统通过设置扩展窗口样式实现
             hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id())
-            # WS_EX_LAYERED(0x80000) | WS_EX_TRANSPARENT(0x20)
             style = ctypes.windll.user32.GetWindowLongW(hwnd, -20)
             ctypes.windll.user32.SetWindowLongW(hwnd, -20, style | 0x80000 | 0x20)
-        elif platform.system() == "Darwin":  # macOS
-            # macOS通过设置窗口级别和忽略鼠标事件实现
+        elif platform.system() == "Darwin":
             self.root.attributes("-level", "floating")
             self.root.attributes("-ignorezoom", True)
             self.root.attributes("-ignoremouseevents", True)
-        else:  # Linux
-            # Linux通过设置窗口属性实现
+        else:
             self.root.attributes("-type", "dock")
             self.root.attributes("-acceptfocus", False)
 
@@ -133,7 +125,7 @@ class CountdownTimer:
         self.update_timer()
 
     def time_up(self):
-        """时间到了的处理"""
+        """时间到了的处理 - 确保全屏窗口完全不透明"""
         self.running = False
 
         # 清除现有窗口内容
@@ -144,14 +136,17 @@ class CountdownTimer:
         if platform.system() == "Windows":
             hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id())
             style = ctypes.windll.user32.GetWindowLongW(hwnd, -20)
-            ctypes.windll.user32.SetWindowLongW(
-                hwnd, -20, style & ~0x20
-            )  # 清除WS_EX_TRANSPARENT
+            ctypes.windll.user32.SetWindowLongW(hwnd, -20, style & ~0x20)
         elif platform.system() == "Darwin":
             self.root.attributes("-ignoremouseevents", False)
 
-        # 禁用透明效果，让提示更醒目
+        # 关键优化：强制设置为完全不透明（1.0）
         self.root.attributes("-alpha", 1.0)
+        # 移除可能的透明色设置，确保背景不透明
+        try:
+            self.root.attributes("-transparentcolor", "")
+        except:
+            pass
 
         # 关闭任务栏隐藏属性
         if platform.system() == "Windows":
@@ -160,16 +155,18 @@ class CountdownTimer:
         # 进入全屏模式
         self.root.overrideredirect(False)
         self.root.attributes("-fullscreen", True)
+        # 保持窗口置顶
+        self.root.attributes("-topmost", True)
         # 重新绑定ESC键
         self.root.bind("<Escape>", self.exit_program)
 
-        # 创建铺满整个窗口的"时间到了"标签
+        # 创建铺满整个窗口的"时间到了"标签（使用不透明背景）
         time_up_label = tk.Label(
             self.root,
             text="时间到了",
             font=(self.font_family[0], 100, "bold"),
             fg="red",
-            bg="white",
+            bg="white",  # 纯白不透明背景
         )
         time_up_label.pack(expand=True, fill=tk.BOTH)
 
@@ -179,7 +176,7 @@ class CountdownTimer:
             text="按ESC键退出程序",
             font=(self.font_family[0], 12),
             fg="gray",
-            bg="white",
+            bg="white",  # 纯白不透明背景
         )
         hint_label.place(relx=0.5, rely=0.95, anchor=tk.CENTER)
 
