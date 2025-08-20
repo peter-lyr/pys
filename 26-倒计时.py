@@ -1,7 +1,6 @@
 import ctypes
 import platform
 import tkinter as tk
-from ctypes import wintypes
 
 
 class CountdownTimer:
@@ -9,14 +8,16 @@ class CountdownTimer:
         self.root = root
         # 移除窗口标题栏和控制按钮
         self.root.overrideredirect(True)
-        # 设置初始窗口大小
-        self.root.geometry("300x200")
+        # 设置窗口尺寸为148x68
+        self.root.geometry("148x68")
 
-        # 设置窗口透明度为50%（内容可见但不突兀）
-        self.root.attributes("-alpha", 0.5)
+        # 设置窗口透明度为50%
+        self.root.attributes("-alpha", 0.2)
 
-        # 关键修复：使用更通用的方式设置透明背景，不依赖systemTransparent
-        # 对于不支持透明色的系统，使用白色背景配合窗口透明度实现类似效果
+        # 设置窗口置顶
+        self.root.attributes("-topmost", True)
+
+        # 设置透明背景方案
         self.bg_color = self.get_transparent_color()
         self.root.configure(bg=self.bg_color)
 
@@ -35,27 +36,27 @@ class CountdownTimer:
         self.remaining_seconds = total_seconds
         self.running = False
 
-        # 创建时间显示标签（使用窗口背景色实现透明效果）
+        # 创建时间显示标签（调整字体大小适应新窗口）
         self.time_label = tk.Label(
             root,
             text=self.format_time(self.remaining_seconds),
-            font=(self.font_family[0], 48),
-            fg="black",
-            bg=self.bg_color,  # 使用窗口背景色
+            font=(self.font_family[0], 24),  # 减小字体大小以适应小窗口
+            fg="green",
+            bg=self.bg_color,
         )
         self.time_label.pack(expand=True)
 
-        # 创建总时间显示标签
+        # 创建总时间显示标签（调整字体大小适应新窗口）
         self.total_time_label = tk.Label(
             root,
             text=f"总时间: {self.format_time(self.total_seconds)}",
-            font=(self.font_family[0], 24),
+            font=(self.font_family[0], 12),  # 减小字体大小以适应小窗口
             fg="gray",
-            bg=self.bg_color,  # 使用窗口背景色
+            bg=self.bg_color,
         )
-        self.total_time_label.pack(pady=20)
+        self.total_time_label.pack(pady=2)  # 减小边距
 
-        # 绑定ESC键退出程序（唯一的交互方式）
+        # 绑定ESC键退出程序
         self.root.bind("<Escape>", self.exit_program)
 
         # 将窗口放置在左上角（无边缘间距）
@@ -84,8 +85,8 @@ class CountdownTimer:
 
     def position_window(self):
         """将窗口放置在屏幕左上角（无边缘间距）"""
-        window_width = 300
-        window_height = 200
+        window_width = 148
+        window_height = 68
         # 左上角位置（x=0, y=0 无边缘间距）
         self.root.geometry(f"{window_width}x{window_height}+0+0")
 
