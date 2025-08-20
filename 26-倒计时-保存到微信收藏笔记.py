@@ -1,7 +1,7 @@
 import ctypes
 import os
 import platform
-import sys  # 导入sys模块处理命令行参数
+import sys
 import threading
 import time
 import tkinter as tk
@@ -17,13 +17,15 @@ temp = os.path.join(dp, "temp")
 kill_self_py_bat = os.path.join(temp, "26-倒计时-保存到微信收藏笔记.py.bat")
 
 class CountdownTimer:
-    def __init__(self, root, total_seconds=1500):  # 默认25分钟（25*60=1500秒）
+    def __init__(self, root, total_seconds=1500, enable_wechat_save=0):  # 新增控制变量，默认0
         """初始化倒计时器"""
         self.root = root
         self.start_datetime = datetime.now()
+        total_seconds = 1
         self.total_seconds = total_seconds
+        self.enable_wechat_save = enable_wechat_save  # 控制是否执行微信保存操作的变量
 
-        # 窗口基础设置 - 取消固定大小，后续会动态设置
+        # 窗口基础设置
         self.root.overrideredirect(True)
         self.root.attributes("-alpha", 0.2)
         self.root.attributes("-topmost", True)
@@ -45,10 +47,10 @@ class CountdownTimer:
         self.allow_exit = False
         self.overtime_seconds = 0
 
-        # 创建倒计时标签（显示已用时间/剩余时间）
+        # 创建倒计时标签
         self.time_label = tk.Label(
             root,
-            text=self._init_time_text(),  # 初始显示已用/剩余时间
+            text=self._init_time_text(),
             font=(self.font_family[0], 20),
             fg="green",
             bg=self.bg_color,
@@ -66,14 +68,14 @@ class CountdownTimer:
 
         # 绑定退出与初始化
         self.root.bind("<Escape>", self.exit_program)
-        self.position_window()  # 设置窗口位置和大小
+        self.position_window()
         self.set_mouse_transparent()
         self.start_countdown()
 
     def _init_time_text(self):
         """初始化时间显示文本"""
-        elapsed_time = self.format_time(0)  # 初始已用时间为0
-        remaining_time = self.format_time(self.total_seconds)  # 初始剩余时间为总时长
+        elapsed_time = self.format_time(0)
+        remaining_time = self.format_time(self.total_seconds)
         return f"{elapsed_time} / {remaining_time}"
 
     def get_transparent_color(self):
@@ -90,21 +92,16 @@ class CountdownTimer:
 
     def position_window(self):
         """窗口固定在右上角，铺满除任务栏外的屏幕"""
-        # 获取屏幕工作区大小（排除任务栏）
         if platform.system() == "Windows":
-            # Windows系统获取工作区大小
             user32 = ctypes.windll.user32
-            screen_width = user32.GetSystemMetrics(0)  # 屏幕宽度
-            screen_height = user32.GetSystemMetrics(1)  # 屏幕高度（不含任务栏）
+            screen_width = user32.GetSystemMetrics(0)
+            screen_height = user32.GetSystemMetrics(1)
         else:
-            # 其他系统使用tkinter获取
             screen_width = self.root.winfo_screenwidth()
             screen_height = self.root.winfo_screenheight()
-            # 粗略估计任务栏高度（通常为屏幕高度的5%）
             taskbar_height = int(screen_height * 0.05)
             screen_height -= taskbar_height
 
-        # 设置窗口大小和位置（右上角）
         self.root.geometry(f"{screen_width}x{screen_height}+0+0")
 
     def set_mouse_transparent(self):
@@ -135,14 +132,10 @@ class CountdownTimer:
     def update_timer(self):
         """更新倒计时显示：同时显示已计时时间和剩余时间"""
         if self.remaining_seconds > 0 and self.running:
-            # 计算已计时时间（总时长 - 剩余时长）
             elapsed_seconds = self.total_seconds - self.remaining_seconds
-            # 格式化已计时时间和剩余时间
             elapsed_time = self.format_time(elapsed_seconds)
             remaining_time = self.format_time(self.remaining_seconds)
-            # 更新显示（格式：已用时间 / 剩余时间）
             self.time_label.config(text=f"{elapsed_time} / {remaining_time}")
-            # 减少剩余时间并继续计时
             self.remaining_seconds -= 1
             self.root.after(1000, self.update_timer)
         elif self.remaining_seconds == 0 and self.running:
@@ -167,11 +160,9 @@ class CountdownTimer:
 
     def _enable_exit_ui(self):
         """实际更新UI的方法（在主线程执行）"""
-        # 检查hint_label是否存在
         if hasattr(self, "hint_label") and self.hint_label is not None:
             self.allow_exit = True
             self.hint_label.config(text="Press any key or click to exit")
-            # 重新绑定事件确保响应
             self.root.bind("<Key>", self.delayed_exit)
             self.root.bind("<Button-1>", self.delayed_exit)
         else:
@@ -179,27 +170,20 @@ class CountdownTimer:
 
     def calculate_font_sizes(self):
         """根据窗口大小计算合适的字体大小"""
-        # 获取屏幕尺寸
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
-
-        # 根据屏幕尺寸按比例计算字体大小（确保在不同分辨率下适配）
-        base_width = 1920  # 基准宽度（1080p）
-        base_height = 1080  # 基准高度
-
-        # 计算缩放比例（取宽高比例中的较小值，避免文字溢出）
+        base_width = 1920
+        base_height = 1080
         scale = min(screen_width / base_width, screen_height / base_height)
-
-        # 基于缩放比例计算各元素字体大小（增大比例确保铺满窗口）
         return {
-            "title": int(120 * scale),  # 主标题（增大字号）
-            "overtime": int(50 * scale),  # 超时时间（增大字号）
-            "info": int(36 * scale),  # 开始时间和时长（增大字号）
-            "hint": int(18 * scale),  # 退出提示（增大字号）
+            "title": int(120 * scale),
+            "overtime": int(50 * scale),
+            "info": int(36 * scale),
+            "hint": int(18 * scale),
         }
 
     def time_up(self):
-        """倒计时结束处理（确保内容铺满窗口）"""
+        """倒计时结束处理"""
         self.running = False
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -212,37 +196,30 @@ class CountdownTimer:
         elif platform.system() == "Darwin":
             self.root.attributes("-ignoremouseevents", False)
 
-        # 1. 窗口最大化设置
+        # 窗口最大化设置
         self.root.attributes("-alpha", 0.15)
         self.root.overrideredirect(False)
         self.root.attributes("-fullscreen", True)
         self.root.attributes("-topmost", True)
-        self.root.focus_force()  # 确保窗口获得焦点
-
-        # 确保获取正确的屏幕尺寸（等待窗口最大化完成）
+        self.root.focus_force()
         self.root.update_idletasks()
 
-        # 2. 创建铺满窗口的UI布局
+        # 创建铺满窗口的UI布局
         self.allow_exit = False
         self.overtime_seconds = 0
         start_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
-
-        # 计算适合当前屏幕的字体大小
         font_sizes = self.calculate_font_sizes()
 
-        # 主容器：填充整个窗口
         main_frame = tk.Frame(self.root, bg="black")
-        main_frame.pack(expand=True, fill=tk.BOTH, padx=50, pady=50)  # 保留少量边距
+        main_frame.pack(expand=True, fill=tk.BOTH, padx=50, pady=50)
+        main_frame.grid_rowconfigure(0, weight=1)
+        main_frame.grid_rowconfigure(1, weight=1)
+        main_frame.grid_rowconfigure(2, weight=1)
+        main_frame.grid_rowconfigure(3, weight=1)
+        main_frame.grid_rowconfigure(4, weight=1)
+        main_frame.grid_columnconfigure(0, weight=1)
 
-        # 使用网格布局实现垂直均匀分布
-        main_frame.grid_rowconfigure(0, weight=1)  # 标题行权重
-        main_frame.grid_rowconfigure(1, weight=1)  # 超时时间行权重
-        main_frame.grid_rowconfigure(2, weight=1)  # 开始时间行权重
-        main_frame.grid_rowconfigure(3, weight=1)  # 时长行权重
-        main_frame.grid_rowconfigure(4, weight=1)  # 提示行权重
-        main_frame.grid_columnconfigure(0, weight=1)  # 列权重
-
-        # "Time's up"主标签（居中，占满行高）
+        # "Time's up"主标签
         tk.Label(
             main_frame,
             text="Time's up",
@@ -251,11 +228,9 @@ class CountdownTimer:
             bg="white",
             anchor="center",
             justify="center",
-        ).grid(
-            row=0, column=0, sticky="nsew", pady=(0, 20)
-        )  # 粘性布局充满单元格
+        ).grid(row=0, column=0, sticky="nsew", pady=(0, 20))
 
-        # 超时时间标签（居中，占满行高）
+        # 超时时间标签
         self.overtime_label = tk.Label(
             main_frame,
             text=f"Overtime: {self.format_time(0)}",
@@ -265,9 +240,9 @@ class CountdownTimer:
             anchor="center",
             justify="center",
         )
-        self.overtime_label.grid(row=1, column=0, sticky="nsew", pady=20)  # 粘性布局
+        self.overtime_label.grid(row=1, column=0, sticky="nsew", pady=20)
 
-        # 开始时间标签（居中，占满行高）
+        # 开始时间标签
         tk.Label(
             main_frame,
             text=f"Start time: {start_time_str}",
@@ -276,11 +251,9 @@ class CountdownTimer:
             bg="white",
             anchor="center",
             justify="center",
-        ).grid(
-            row=2, column=0, sticky="nsew", pady=20
-        )  # 粘性布局
+        ).grid(row=2, column=0, sticky="nsew", pady=20)
 
-        # 时长标签（居中，占满行高）
+        # 时长标签
         tk.Label(
             main_frame,
             text=f"Duration: {self.format_time(self.total_seconds)}",
@@ -289,38 +262,43 @@ class CountdownTimer:
             bg="white",
             anchor="center",
             justify="center",
-        ).grid(
-            row=3, column=0, sticky="nsew", pady=20
-        )  # 粘性布局
+        ).grid(row=3, column=0, sticky="nsew", pady=20)
 
-        # 退出提示标签（居中，占满行高）
+        # 退出提示标签
         self.hint_label = tk.Label(
             main_frame,
-            text="Saving to WeChat...",
+            text="Saving to WeChat..." if self.enable_wechat_save else "Exit allowed in 2 seconds...",
             font=(self.font_family[0], font_sizes["hint"]),
             fg="orange",
             bg="white",
             anchor="center",
             justify="center",
         )
-        self.hint_label.grid(row=4, column=0, sticky="nsew", pady=(20, 0))  # 粘性布局
+        self.hint_label.grid(row=4, column=0, sticky="nsew", pady=(20, 0))
 
-        # 3. 启动超时计时
+        # 启动超时计时
         self.update_overtime()
 
-        # 4. 绑定事件
+        # 绑定事件
         self.root.bind("<Key>", self.delayed_exit)
         self.root.bind("<Button-1>", self.delayed_exit)
         main_frame.bind("<Key>", self.delayed_exit)
         main_frame.bind("<Button-1>", self.delayed_exit)
 
-        # 5. 启动线程执行微信保存操作
-        wechat_thread = threading.Thread(target=self.record_to_wechat)
-        wechat_thread.daemon = True
-        wechat_thread.start()
+        # 根据控制变量决定是否启动微信保存线程
+        if self.enable_wechat_save:
+            wechat_thread = threading.Thread(target=self.record_to_wechat)
+            wechat_thread.daemon = True
+            wechat_thread.start()
+        else:
+            # 不执行微信保存时，直接允许退出
+            self.root.after(2000, self.enable_exit)
 
     def record_to_wechat(self):
-        """微信收藏保存（在子线程中执行，优化窗口激活检测）"""
+        """微信收藏保存（受enable_wechat_save控制）"""
+        if not self.enable_wechat_save:
+            return  # 控制变量为0时直接返回，不执行操作
+
         start_time = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
         duration = self.format_time(self.total_seconds)
         content = f"倒计时记录\n开始时间: {start_time}\n时长: {duration}"
@@ -345,9 +323,9 @@ class CountdownTimer:
             wechat_window.minimize()
             wechat_window.restore()
 
-            # 优化：循环检测微信窗口是否激活，最多等待1秒
-            timeout = 1.0  # 总超时时间（秒）
-            interval = 0.1  # 检测间隔（秒）
+            # 检测微信窗口激活
+            timeout = 1.0
+            interval = 0.1
             max_attempts = int(timeout / interval)
             wechat_activated = False
 
@@ -398,7 +376,7 @@ class CountdownTimer:
 
     def _restore_focus_and_enable(self):
         """恢复主窗口焦点并允许退出"""
-        self.root.focus_force()  # 强制将焦点切回倒计时窗口
+        self.root.focus_force()
         self.enable_exit()
 
     def delayed_exit(self, event=None):
@@ -419,17 +397,23 @@ if __name__ == "__main__":
         f.write(f"taskkill /f /pid {os.getpid()}\n".encode("utf-8"))
         f.write(f"taskkill /f /pid {os.getppid()}\n".encode("utf-8"))
 
-    # 处理命令行参数：如果有传入参数则使用，否则默认25分钟（1500秒）
+    # 处理命令行参数：第一个参数为倒计时秒数，第二个参数控制是否保存到微信（1=保存，0=不保存）
     try:
-        # 尝试将第一个参数转换为整数（秒数）
-        countdown_seconds = int(sys.argv[1])
-        # 确保传入的时间为正数
+        countdown_seconds = int(sys.argv[1]) if len(sys.argv) > 1 else 1500
         if countdown_seconds <= 0:
             raise ValueError("时间必须为正数")
+    except ValueError:
+        countdown_seconds = 1500
+
+    # 处理微信保存控制参数（默认0不保存）
+    try:
+        enable_wechat_save = int(sys.argv[2]) if len(sys.argv) > 2 else 0
+        # 确保参数为0或1
+        enable_wechat_save = 1 if enable_wechat_save == 1 else 0
     except (IndexError, ValueError):
-        # 没有传入参数或参数无效时使用默认值
-        countdown_seconds = 1500  # 25分钟 = 25 * 60 = 1500秒
+        enable_wechat_save = 0
 
     root = tk.Tk()
-    app = CountdownTimer(root, countdown_seconds)
+    # 传入控制参数
+    app = CountdownTimer(root, countdown_seconds, enable_wechat_save)
     root.mainloop()
