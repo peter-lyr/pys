@@ -1,83 +1,73 @@
 import ctypes
 import os
 import platform
+import threading
 import time
 import tkinter as tk
 from datetime import datetime
 
-import psutil  # 用于进程管理和窗口所属进程检测
-import pyautogui  # 用于模拟鼠标键盘操作
-import pygetwindow as gw  # 用于窗口管理和激活
-import pyperclip  # 用于操作系统剪贴板
+import pyautogui
+import pygetwindow as gw
+import pyperclip
 
 
 class CountdownTimer:
     def __init__(self, root, total_seconds=10):
-        """初始化倒计时器
-
-        Args:
-            root: Tkinter主窗口实例
-            total_seconds: 倒计时总时长（秒），默认10秒
-        """
+        """初始化倒计时器"""
         self.root = root
-        self.start_datetime = datetime.now()  # 记录倒计时开始时间
-        self.total_seconds = total_seconds    # 记录总倒计时时长
+        self.start_datetime = datetime.now()
+        self.total_seconds = total_seconds
 
-        # 窗口基础设置 - 无边框、固定尺寸、半透明且置顶
-        self.root.overrideredirect(True)       # 移除窗口标题栏和边框
-        self.root.geometry("148x68")           # 设置窗口尺寸为148x68像素
-        self.root.attributes("-alpha", 0.2)    # 窗口透明度20%
-        self.root.attributes("-topmost", True) # 窗口始终置顶
+        # 窗口基础设置
+        self.root.overrideredirect(True)
+        self.root.geometry("148x68")
+        self.root.attributes("-alpha", 0.2)
+        self.root.attributes("-topmost", True)
 
-        # 透明背景与任务栏显示设置
-        self.bg_color = self.get_transparent_color()  # 获取系统支持的透明色
+        # 透明背景与任务栏设置
+        self.bg_color = self.get_transparent_color()
         self.root.configure(bg=self.bg_color)
-        # 根据操作系统设置窗口在任务栏的显示方式
         if platform.system() == "Windows":
-            self.root.attributes("-toolwindow", True)  # Windows系统：工具窗口样式（不显示在任务栏）
-        elif platform.system() == "Darwin":  # macOS系统
+            self.root.attributes("-toolwindow", True)
+        elif platform.system() == "Darwin":
             self.root.attributes("-type", "utility")
-        else:  # Linux系统
+        else:
             self.root.attributes("-type", "toolbar")
 
-        # 字体与计时相关变量
-        self.font_family = ("SimHei", "WenQuanYi Micro Hei", "Heiti TC", "Arial")  # 中文字体支持
-        self.remaining_seconds = total_seconds  # 剩余秒数
-        self.running = False                     # 倒计时运行状态标记
-        self.allow_exit = False                  # 控制是否允许退出的标志
-        self.overtime_seconds = 0                # 超时秒数记录
+        # 字体与计时变量
+        self.font_family = ("SimHei", "WenQuanYi Micro Hei", "Heiti TC", "Arial")
+        self.remaining_seconds = total_seconds
+        self.running = False
+        self.allow_exit = False
+        self.overtime_seconds = 0
 
-        # 创建倒计时显示标签
+        # 创建倒计时标签
         self.time_label = tk.Label(
             root,
-            text=self.format_time(self.remaining_seconds),  # 格式化显示时间
-            font=(self.font_family[0], 24),                 # 字体大小24
-            fg="green",                                     # 文字颜色绿色
-            bg=self.bg_color,                               # 背景色与窗口一致
-        )
-        self.time_label.pack(expand=True)  # 居中显示
-
-        # 创建总时间显示标签
-        self.total_time_label = tk.Label(
-            root,
-            text=f"Total time: {self.format_time(self.total_seconds)}",  # 显示总时长
-            font=(self.font_family[0], 12),                              # 字体大小12
-            fg="gray",                                                   # 文字颜色灰色
+            text=self.format_time(self.remaining_seconds),
+            font=(self.font_family[0], 24),
+            fg="green",
             bg=self.bg_color,
         )
-        self.total_time_label.pack(pady=2)  # 底部留出2像素间距
+        self.time_label.pack(expand=True)
 
-        # 绑定ESC键退出程序（仅在倒计时阶段有效）
+        self.total_time_label = tk.Label(
+            root,
+            text=f"Total time: {self.format_time(self.total_seconds)}",
+            font=(self.font_family[0], 12),
+            fg="gray",
+            bg=self.bg_color,
+        )
+        self.total_time_label.pack(pady=2)
+
+        # 绑定退出与初始化
         self.root.bind("<Escape>", self.exit_program)
-        self.position_window()             # 定位窗口到左上角
-        self.set_mouse_transparent()       # 设置鼠标穿透效果
-        self.start_countdown()             # 开始倒计时
+        self.position_window()
+        self.set_mouse_transparent()
+        self.start_countdown()
 
     def get_transparent_color(self):
-        """获取系统支持的透明色方案
-
-        尝试设置白色或黑色为透明色，若都失败则返回白色
-        """
+        """获取系统支持的透明色"""
         try:
             self.root.attributes("-transparentcolor", "white")
             return "white"
@@ -89,44 +79,25 @@ class CountdownTimer:
                 return "white"
 
     def position_window(self):
-        """将窗口固定在屏幕左上角（无边缘间距）"""
-        self.root.geometry("148x68+0+0")  # 尺寸148x68，位置(0,0)
+        """窗口固定在左上角"""
+        self.root.geometry("148x68+0+0")
 
     def set_mouse_transparent(self):
-        """设置窗口鼠标穿透效果（鼠标可穿过窗口操作下方内容）
-
-        不同操作系统实现方式不同：
-        - Windows：通过修改窗口样式实现
-        - macOS：通过设置窗口属性实现
-        - Linux：通过设置窗口类型实现
-        """
+        """设置鼠标穿透效果"""
         if platform.system() == "Windows":
-            # 获取窗口句柄并修改样式
             hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id())
-            # WS_EX_LAYERED(0x80000) | WS_EX_TRANSPARENT(0x20) 实现分层透明和鼠标穿透
             style = ctypes.windll.user32.GetWindowLongW(hwnd, -20)
             ctypes.windll.user32.SetWindowLongW(hwnd, -20, style | 0x80000 | 0x20)
         elif platform.system() == "Darwin":
-            self.root.attributes("-level", "floating")       # 浮动窗口级别
-            self.root.attributes("-ignorezoom", True)        # 忽略缩放
-            self.root.attributes("-ignoremouseevents", True)  # 忽略鼠标事件
+            self.root.attributes("-level", "floating")
+            self.root.attributes("-ignorezoom", True)
+            self.root.attributes("-ignoremouseevents", True)
         else:
-            self.root.attributes("-type", "dock")            # 停靠栏类型
-            self.root.attributes("-acceptfocus", False)      # 不接受焦点
+            self.root.attributes("-type", "dock")
+            self.root.attributes("-acceptfocus", False)
 
     def format_time(self, seconds):
-        """将秒数格式化为易读的时间字符串
-
-        格式为：
-        - 若小时数>0：时:分:秒（例如 01:23:45）
-        - 否则：分:秒（例如 23:45）
-
-        Args:
-            seconds: 要格式化的秒数
-
-        Returns:
-            格式化后的时间字符串
-        """
+        """格式化时间为时分秒"""
         hours = seconds // 3600
         minutes = (seconds % 3600) // 60
         secs = seconds % 60
@@ -137,252 +108,218 @@ class CountdownTimer:
         )
 
     def update_timer(self):
-        """每秒更新倒计时显示
-
-        若倒计时未结束，更新显示并继续计时；
-        若倒计时结束，触发时间到处理逻辑
-        """
+        """更新倒计时显示"""
         if self.remaining_seconds > 0 and self.running:
             self.time_label.config(text=self.format_time(self.remaining_seconds))
             self.remaining_seconds -= 1
-            self.root.after(1000, self.update_timer)  # 1秒后再次调用
+            self.root.after(1000, self.update_timer)
         elif self.remaining_seconds == 0 and self.running:
-            self.time_up()  # 时间到处理
+            self.time_up()
 
     def update_overtime(self):
-        """每秒更新超时时间显示"""
+        """更新超时时间（每秒）"""
         self.overtime_seconds += 1
         self.overtime_label.config(
             text=f"Overtime: {self.format_time(self.overtime_seconds)}"
         )
-        self.root.after(1000, self.update_overtime)  # 1秒后再次调用
+        self.root.after(1000, self.update_overtime)
 
     def start_countdown(self):
         """启动倒计时"""
         self.running = True
-        self.update_timer()  # 开始更新计时
+        self.update_timer()
 
     def enable_exit(self):
-        """2秒后允许退出程序"""
-        self.allow_exit = True
-        self.hint_label.config(text="Press any key or click to exit")  # 更新提示信息
+        """允许退出（确保在主线程中更新UI）"""
+        self.root.after(0, lambda: self._enable_exit_ui())
+
+    def _enable_exit_ui(self):
+        """实际更新UI的方法（在主线程执行）"""
+        # 检查hint_label是否存在
+        if hasattr(self, "hint_label") and self.hint_label is not None:
+            self.allow_exit = True
+            self.hint_label.config(text="Press any key or click to exit")
+            # 重新绑定事件确保响应
+            self.root.bind("<Key>", self.delayed_exit)
+            self.root.bind("<Button-1>", self.delayed_exit)
+        else:
+            print("警告：hint_label未初始化，无法更新退出提示")
 
     def time_up(self):
-        """倒计时结束处理逻辑
-
-        1. 停止倒计时
-        2. 清除原有窗口内容
-        3. 恢复窗口交互能力（取消鼠标穿透）
-        4. 切换到全屏提示模式
-        5. 记录信息到微信收藏
-        6. 显示超时信息和退出提示
-        """
-        self.running = False  # 停止倒计时
-
-        # 清除现有窗口内容
+        """倒计时结束处理（修复hint_label初始化问题）"""
+        self.running = False
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        # 恢复窗口正常交互（取消鼠标穿透）
+        # 恢复窗口交互
         if platform.system() == "Windows":
             hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id())
             style = ctypes.windll.user32.GetWindowLongW(hwnd, -20)
-            ctypes.windll.user32.SetWindowLongW(hwnd, -20, style & ~0x20)  # 移除穿透标志
+            ctypes.windll.user32.SetWindowLongW(hwnd, -20, style & ~0x20)
         elif platform.system() == "Darwin":
-            self.root.attributes("-ignoremouseevents", False)  # 允许鼠标事件
+            self.root.attributes("-ignoremouseevents", False)
 
-        # 全屏设置 - 半透明且强制置顶
-        self.root.attributes("-alpha", 0.15)         # 透明度15%
-        self.root.overrideredirect(False)           # 恢复窗口边框
-        self.root.attributes("-fullscreen", True)   # 全屏显示
-        self.root.attributes("-topmost", True)      # 保持置顶
+        # 1. 窗口最大化设置
+        self.root.attributes("-alpha", 0.15)
+        self.root.overrideredirect(False)
+        self.root.attributes("-fullscreen", True)
+        self.root.attributes("-topmost", True)
+        self.root.focus_force()  # 确保窗口获得焦点
 
-        # 记录信息到微信收藏
-        self.record_to_wechat()
+        # 2. 创建居中布局的全屏UI
+        self.allow_exit = False
+        self.overtime_seconds = 0
+        start_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
-        # 全屏界面布局
-        self.allow_exit = False                     # 初始不允许退出
-        self.overtime_seconds = 0                   # 超时时间清零
-        start_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")  # 格式化开始时间
-
-        # 创建主容器，用于布局所有元素
+        # 主容器：使用grid布局，确保内容垂直和水平居中
         main_frame = tk.Frame(self.root, bg="white")
-        main_frame.pack(expand=True, fill=tk.BOTH, padx=50, pady=50)
+        main_frame.pack(expand=True, fill=tk.BOTH)  # 填充整个窗口
+        main_frame.grid_rowconfigure(0, weight=1)  # 允许行扩展
+        main_frame.grid_columnconfigure(0, weight=1)  # 允许列扩展
 
-        # "Time's up"主标签（醒目提示）
+        # 内容容器：所有元素放在这里，实现整体居中
+        content_frame = tk.Frame(main_frame, bg="black")
+        content_frame.grid(row=0, column=0, sticky="nsew")  # 居中对齐
+
+        # "Time's up"主标签（居中显示）
         tk.Label(
-            main_frame,
+            content_frame,
             text="Time's up",
-            font=(self.font_family[0], 100, "bold"),  # 大号粗体
-            fg="red",                                 # 红色文字
+            font=(self.font_family[0], 100, "bold"),
+            fg="red",
             bg="white",
-        ).grid(row=0, column=0, pady=(0, 40))
+            anchor="center",  # 文本自身居中
+        ).pack(pady=(0, 40))
 
-        # 超时时间显示标签
+        # 超时时间标签（居中显示）
         self.overtime_label = tk.Label(
-            main_frame,
+            content_frame,
             text=f"Overtime: {self.format_time(0)}",
-            font=(self.font_family[0], 36, "bold"),  # 中号粗体
-            fg="orange",                             # 橙色文字
+            font=(self.font_family[0], 36, "bold"),
+            fg="orange",
             bg="white",
+            anchor="center",
         )
-        self.overtime_label.grid(row=1, column=0, pady=20)
+        self.overtime_label.pack(pady=20)
 
-        # 开始时间显示
+        # 开始时间标签（居中显示）
         tk.Label(
-            main_frame,
+            content_frame,
             text=f"Start time: {start_time_str}",
-            font=(self.font_family[0], 24),  # 常规大小
-            fg="blue",                       # 蓝色文字
+            font=(self.font_family[0], 24),
+            fg="blue",
             bg="white",
-        ).grid(row=2, column=0, pady=10)
+            anchor="center",
+        ).pack(pady=10)
 
-        # 倒计时时长显示
+        # 时长标签（居中显示）
         tk.Label(
-            main_frame,
+            content_frame,
             text=f"Duration: {self.format_time(self.total_seconds)}",
-            font=(self.font_family[0], 24),  # 常规大小
-            fg="purple",                     # 紫色文字
+            font=(self.font_family[0], 24),
+            fg="purple",
             bg="white",
-        ).grid(row=3, column=0, pady=10)
+            anchor="center",
+        ).pack(pady=10)
 
-        # 退出提示标签
+        # 退出提示标签（关键修复：显式赋值给self.hint_label，不使用链式调用）
         self.hint_label = tk.Label(
-            main_frame,
-            text="Exit allowed in 2 seconds...",  # 初始提示
-            font=(self.font_family[0], 12),       # 小号字体
-            fg="orange",                          # 橙色文字
+            content_frame,
+            text="Saving to WeChat...",
+            font=(self.font_family[0], 12),
+            fg="orange",
             bg="white",
+            anchor="center",
         )
-        self.hint_label.grid(row=4, column=0, pady=(40, 0))
+        self.hint_label.pack(pady=(40, 0))  # 分开调用pack，确保赋值成功
 
-        # 开始更新超时时间
+        # 3. 启动超时计时
         self.update_overtime()
-        # 2秒后允许退出
-        self.root.after(2000, self.enable_exit)
-        # 绑定任意键和鼠标点击事件用于退出
+
+        # 4. 绑定事件
         self.root.bind("<Key>", self.delayed_exit)
-        self.root.bind("<Button>", self.delayed_exit)
+        self.root.bind("<Button-1>", self.delayed_exit)
+        main_frame.bind("<Key>", self.delayed_exit)
+        main_frame.bind("<Button-1>", self.delayed_exit)
+
+        # 5. 启动线程执行微信保存操作
+        wechat_thread = threading.Thread(target=self.record_to_wechat)
+        wechat_thread.daemon = True
+        wechat_thread.start()
 
     def record_to_wechat(self):
-        """自动将倒计时记录保存到微信收藏
-
-        流程：
-        1. 准备记录内容并复制到剪贴板
-        2. 激活微信窗口（若未找到则尝试启动）
-        3. 使用快捷键Ctrl+Alt+D打开微信收藏新建笔记
-        4. 等待收藏窗口激活
-        5. 粘贴内容并保存
-
-        容错机制：即使窗口检测失败，仍尝试执行粘贴操作
-        """
-        # 1. 准备内容并复制到剪贴板
-        start_time = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")  # 格式化开始时间
-        duration = self.format_time(self.total_seconds)                  # 格式化总时长
-        content = f"倒计时记录\n开始时间: {start_time}\n时长: {duration}"  # 拼接记录内容
-        pyperclip.copy(content)  # 将内容复制到系统剪贴板
+        """微信收藏保存（在子线程中执行）"""
+        start_time = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        duration = self.format_time(self.total_seconds)
+        content = f"倒计时记录\n开始时间: {start_time}\n时长: {duration}"
+        pyperclip.copy(content)
 
         try:
-            # 2. 激活微信窗口（标题为"Weixin"）
-            wechat_windows = gw.getWindowsWithTitle("Weixin")  # 查找标题包含"Weixin"的窗口
+            # 激活微信窗口
+            wechat_windows = gw.getWindowsWithTitle("Weixin")
             if not wechat_windows:
-                print("未找到微信窗口，尝试启动微信...")
-                # 微信默认安装路径（可根据实际情况修改）
+                print("未找到微信窗口，尝试启动...")
                 wechat_path = r"C:\Program Files (x86)\Tencent\WeChat\WeChat.exe"
                 if os.path.exists(wechat_path):
-                    # 启动微信
                     ctypes.windll.shell32.ShellExecuteW(
                         None, "open", wechat_path, None, None, 1
                     )
-                    time.sleep(8)  # 等待微信启动（包含登录时间）
+                    time.sleep(20)
                     wechat_windows = gw.getWindowsWithTitle("Weixin")
                 else:
-                    raise Exception("未找到微信安装路径")
+                    raise Exception("未找到微信路径")
 
-            # 获取微信窗口并激活
             wechat_window = wechat_windows[0]
-            # 强制将微信窗口置于最前（先最小化再恢复，解决单纯activate()可能失效的问题）
             wechat_window.minimize()
             wechat_window.restore()
-            time.sleep(2)  # 等待窗口激活
+            time.sleep(1)
 
-            # 3. 按Ctrl-Alt-D打开新建收藏笔记（微信快捷键）
+            # 打开收藏并保存
             pyautogui.hotkey("ctrl", "alt", "d")
-            time.sleep(1.5)  # 延长等待时间，确保快捷键生效
 
-            # 4. 等待微信收藏窗口激活
-            timeout = 3       # 超时时间（秒）
-            interval = 0.5    # 检查间隔（秒）
-            activated = False # 激活状态标记
-            # 微信收藏窗口可能的标题关键词（根据实际版本调整）
+            # 等待收藏窗口
+            timeout = 5
+            interval = 0.5
             target_title_keywords = ["Note", "笔记"]
 
-            # 循环检查窗口激活状态
             for _ in range(int(timeout / interval)):
-                # 处理getActiveWindow()可能返回None的情况
                 active_window = gw.getActiveWindow()
-                if active_window is None:
-                    time.sleep(interval)
-                    continue
-
-                # 检查活动窗口标题是否包含目标关键词
-                active_title = active_window.title
-                print("当前活动窗口标题:", active_title)  # 调试信息
-                if any(keyword in active_title for keyword in target_title_keywords):
-                    # 进一步确认窗口所属进程为微信收藏进程（WeChatAppEx.exe）
-                    try:
-                        # 通过窗口句柄获取进程ID
-                        hwnd = active_window._hWnd
-                        pid = ctypes.c_ulong()
-                        ctypes.windll.user32.GetWindowThreadProcessId(
-                            hwnd, ctypes.byref(pid)
-                        )
-                        process = psutil.Process(pid.value)
-                        # 确认进程名称为微信收藏进程
-                        if process.name() == "WeChatAppEx.exe":
-                            activated = True
-                            break
-                    except Exception as e:
-                        print("进程检测异常:", e)  # 打印异常信息
-                        pass  # 进程检测失败时，仍以标题匹配为准
-
+                if active_window and any(
+                    keyword in active_window.title for keyword in target_title_keywords
+                ):
+                    break
                 time.sleep(interval)
 
-            if not activated:
-                # 未检测到窗口激活时的容错处理
-                print("未明确检测到窗口激活，尝试直接粘贴...")
-                activated = True  # 强制继续，尝试执行操作
-
-            # 5. 粘贴内容并保存（无论是否检测到激活，都尝试操作）
-            pyautogui.hotkey("ctrl", "v")  # 粘贴剪贴板内容
+            # 粘贴并保存
+            pyautogui.hotkey("ctrl", "v")
             time.sleep(0.5)
-            # pyautogui.hotkey("ctrl", "s")  # 保存笔记（根据实际情况决定是否启用）
-            pyautogui.press("esc")  # 退出编辑界面
-            print("操作完成（已尝试粘贴并保存）")
+            pyautogui.press("esc")
+            print("微信收藏保存成功")
 
         except Exception as e:
-            # 捕获所有异常并提示手动记录
-            print(f"自动记录失败: {str(e)}")
-            print("\n请手动记录以下信息到微信收藏：")
-            print(f"开始时间: {start_time}")
-            print(f"时长: {duration}")
+            print(f"微信保存失败: {str(e)}")
+
+        finally:
+            # 保存完成后切回主窗口并允许退出
+            self.root.after(0, lambda: self._restore_focus_and_enable())
+
+    def _restore_focus_and_enable(self):
+        """恢复主窗口焦点并允许退出"""
+        self.root.focus_force()  # 强制将焦点切回倒计时窗口
+        self.enable_exit()
 
     def delayed_exit(self, event=None):
-        """延迟退出处理
-
-        只有在允许退出（allow_exit为True）时才执行退出操作
-        """
+        """延迟退出处理"""
         if self.allow_exit:
             self.exit_program()
 
     def exit_program(self, event=None):
-        """退出整个程序"""
+        """退出程序"""
         self.root.destroy()
 
 
 if __name__ == "__main__":
-    # 安装依赖：pip install pyautogui pygetwindow pyperclip psutil
-    countdown_seconds = 1  # 倒计时时长（秒），测试时可设为1秒快速验证
+    countdown_seconds = 1  # 测试用1秒
     root = tk.Tk()
     app = CountdownTimer(root, countdown_seconds)
     root.mainloop()
