@@ -255,7 +255,7 @@ class CountdownTimer:
             main_frame,
             text=f"Start time: {start_time_str}",
             font=(self.font_family[0], font_sizes["info"]),
-            fg="blue",
+            fg="green",
             bg="white",
             anchor="center",
             justify="center",
