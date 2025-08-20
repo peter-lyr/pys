@@ -53,8 +53,8 @@ class CountdownTimer:
 
         self.total_time_label = tk.Label(
             root,
-            text=f"Total time: {self.format_time(self.total_seconds)}",
-            font=(self.font_family[0], 12),
+            text=f"{self.format_time(self.total_seconds)}",
+            font=(self.font_family[0], 14),
             fg="gray",
             bg=self.bg_color,
         )
