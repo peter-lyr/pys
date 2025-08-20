@@ -1,11 +1,16 @@
 import ctypes
 import platform
 import tkinter as tk
+from datetime import datetime
 
 
 class CountdownTimer:
     def __init__(self, root, total_seconds=10):
         self.root = root
+        # 记录倒计时开始时间
+        self.start_datetime = datetime.now()
+        self.total_seconds = total_seconds
+
         # 移除窗口标题栏和控制按钮
         self.root.overrideredirect(True)
         # 设置窗口尺寸为148x68
@@ -32,7 +37,6 @@ class CountdownTimer:
         # 设置中文字体支持
         self.font_family = ("SimHei", "WenQuanYi Micro Hei", "Heiti TC", "Arial")
 
-        self.total_seconds = total_seconds
         self.remaining_seconds = total_seconds
         self.running = False
         self.allow_exit = False  # 控制是否允许退出的标志
@@ -142,7 +146,7 @@ class CountdownTimer:
         self.hint_label.config(text="Press any key or click to exit")
 
     def time_up(self):
-        """时间到了的处理 - 优化布局避免文字重叠"""
+        """时间到了的处理 - 显示超时时间、开始时间和倒计时时长"""
         self.running = False
 
         # 清除现有窗口内容
@@ -170,9 +174,12 @@ class CountdownTimer:
         # 初始化超时时间为0
         self.overtime_seconds = 0
 
+        # 格式化开始时间（年月日 时分秒）
+        start_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
         # 创建主容器，使用网格布局管理位置
         main_frame = tk.Frame(self.root, bg="white")
-        main_frame.pack(expand=True, fill=tk.BOTH)
+        main_frame.pack(expand=True, fill=tk.BOTH, padx=50, pady=50)
 
         # 创建"Time's up"主标签（放置在上方）
         time_up_label = tk.Label(
@@ -182,7 +189,7 @@ class CountdownTimer:
             fg="red",
             bg="white",
         )
-        time_up_label.grid(row=0, column=0, pady=(50, 30))  # 顶部留出空间
+        time_up_label.grid(row=0, column=0, pady=(0, 40))
 
         # 创建超时时间显示标签（放置在中间）
         self.overtime_label = tk.Label(
@@ -192,15 +199,37 @@ class CountdownTimer:
             fg="orange",
             bg="white",
         )
-        self.overtime_label.grid(row=1, column=0, pady=20)  # 与上下保持间距
+        self.overtime_label.grid(row=1, column=0, pady=20)
+
+        # 显示开始时间
+        start_time_label = tk.Label(
+            main_frame,
+            text=f"Start time: {start_time_str}",
+            font=(self.font_family[0], 24),
+            fg="blue",
+            bg="white",
+        )
+        start_time_label.grid(row=2, column=0, pady=10)
+
+        # 显示倒计时时长
+        duration_label = tk.Label(
+            main_frame,
+            text=f"Duration: {self.format_time(self.total_seconds)}",
+            font=(self.font_family[0], 24),
+            fg="purple",
+            bg="white",
+        )
+        duration_label.grid(row=3, column=0, pady=10)
 
         # 让主容器在网格中居中
         main_frame.grid_rowconfigure(0, weight=1)
         main_frame.grid_rowconfigure(1, weight=1)
         main_frame.grid_rowconfigure(2, weight=1)
+        main_frame.grid_rowconfigure(3, weight=1)
+        main_frame.grid_rowconfigure(4, weight=1)
         main_frame.grid_columnconfigure(0, weight=1)
 
-        # 显示提示标签（放置在底部，单独一行）
+        # 显示提示标签（放置在底部）
         self.hint_label = tk.Label(
             main_frame,
             text="Exit allowed in 2 seconds...",
@@ -208,7 +237,7 @@ class CountdownTimer:
             fg="orange",
             bg="white",
         )
-        self.hint_label.grid(row=3, column=0, pady=(0, 30))  # 底部留出空间
+        self.hint_label.grid(row=4, column=0, pady=(40, 0))
 
         # 开始更新超时时间
         self.update_overtime()
@@ -231,7 +260,7 @@ class CountdownTimer:
 
 
 if __name__ == "__main__":
-    countdown_seconds = 1  # 倒计时时间（秒）
+    countdown_seconds = 3  # 倒计时时间（秒）
     root = tk.Tk()
     app = CountdownTimer(root, countdown_seconds)
     root.mainloop()
