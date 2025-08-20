@@ -17,13 +17,13 @@ temp = os.path.join(dp, "temp")
 kill_self_py_bat = os.path.join(temp, "26-倒计时-保存到微信收藏笔记.py.bat")
 
 class CountdownTimer:
-    def __init__(self, root, total_seconds=1500, enable_wechat_save=0):  # 新增控制变量，默认0
+    def __init__(self, root, total_seconds=1500, enable_wechat_save=0):
         """初始化倒计时器"""
         self.root = root
         self.start_datetime = datetime.now()
-        total_seconds = 1
+        total_seconds = 1  # 测试用1秒
         self.total_seconds = total_seconds
-        self.enable_wechat_save = enable_wechat_save  # 控制是否执行微信保存操作的变量
+        self.enable_wechat_save = enable_wechat_save
 
         # 窗口基础设置
         self.root.overrideredirect(True)
@@ -168,6 +168,15 @@ class CountdownTimer:
         else:
             print("警告：hint_label未初始化，无法更新退出提示")
 
+    def update_exit_countdown(self, remaining):
+        """更新退出倒计时提示文字"""
+        if remaining > 0:
+            self.hint_label.config(text=f"Exit allowed in {remaining} seconds...")
+            self.root.after(1000, self.update_exit_countdown, remaining - 1)
+        else:
+            self.hint_label.config(text="Exit allowed in 0 seconds...")
+            self.enable_exit()  # 倒计时结束后允许退出
+
     def calculate_font_sizes(self):
         """根据窗口大小计算合适的字体大小"""
         screen_width = self.root.winfo_screenwidth()
@@ -264,10 +273,10 @@ class CountdownTimer:
             justify="center",
         ).grid(row=3, column=0, sticky="nsew", pady=20)
 
-        # 退出提示标签
+        # 退出提示标签（初始状态）
         self.hint_label = tk.Label(
             main_frame,
-            text="Saving to WeChat..." if self.enable_wechat_save else "Exit allowed in 2 seconds...",
+            text="",  # 初始为空，后续由倒计时函数更新
             font=(self.font_family[0], font_sizes["hint"]),
             fg="orange",
             bg="white",
@@ -291,13 +300,13 @@ class CountdownTimer:
             wechat_thread.daemon = True
             wechat_thread.start()
         else:
-            # 不执行微信保存时，直接允许退出
-            self.root.after(2000, self.enable_exit)
+            # 不执行微信保存时，启动退出倒计时（从2秒开始）
+            self.update_exit_countdown(2)
 
     def record_to_wechat(self):
         """微信收藏保存（受enable_wechat_save控制）"""
         if not self.enable_wechat_save:
-            return  # 控制变量为0时直接返回，不执行操作
+            return
 
         start_time = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
         duration = self.format_time(self.total_seconds)
@@ -371,13 +380,13 @@ class CountdownTimer:
             print(f"微信保存失败: {str(e)}")
 
         finally:
-            # 保存完成后切回主窗口并允许退出
-            self.root.after(0, lambda: self._restore_focus_and_enable())
+            # 保存完成后启动退出倒计时
+            self.root.after(0, lambda: self.update_exit_countdown(2))
 
     def _restore_focus_and_enable(self):
         """恢复主窗口焦点并允许退出"""
         self.root.focus_force()
-        self.enable_exit()
+        # 由update_exit_countdown负责启用退出
 
     def delayed_exit(self, event=None):
         """延迟退出处理"""
@@ -397,7 +406,7 @@ if __name__ == "__main__":
         f.write(f"taskkill /f /pid {os.getpid()}\n".encode("utf-8"))
         f.write(f"taskkill /f /pid {os.getppid()}\n".encode("utf-8"))
 
-    # 处理命令行参数：第一个参数为倒计时秒数，第二个参数控制是否保存到微信（1=保存，0=不保存）
+    # 处理命令行参数
     try:
         countdown_seconds = int(sys.argv[1]) if len(sys.argv) > 1 else 1500
         if countdown_seconds <= 0:
@@ -405,15 +414,13 @@ if __name__ == "__main__":
     except ValueError:
         countdown_seconds = 1500
 
-    # 处理微信保存控制参数（默认0不保存）
+    # 处理微信保存控制参数
     try:
         enable_wechat_save = int(sys.argv[2]) if len(sys.argv) > 2 else 0
-        # 确保参数为0或1
         enable_wechat_save = 1 if enable_wechat_save == 1 else 0
     except (IndexError, ValueError):
         enable_wechat_save = 0
 
     root = tk.Tk()
-    # 传入控制参数
     app = CountdownTimer(root, countdown_seconds, enable_wechat_save)
     root.mainloop()
