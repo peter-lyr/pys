@@ -288,7 +288,7 @@ class CountdownTimer:
         wechat_thread.start()
 
     def record_to_wechat(self):
-        """微信收藏保存（在子线程中执行）"""
+        """微信收藏保存（在子线程中执行，优化窗口激活检测）"""
         start_time = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
         duration = self.format_time(self.total_seconds)
         content = f"倒计时记录\n开始时间: {start_time}\n时长: {duration}"
@@ -312,7 +312,23 @@ class CountdownTimer:
             wechat_window = wechat_windows[0]
             wechat_window.minimize()
             wechat_window.restore()
-            time.sleep(1)
+
+            # 优化：循环检测微信窗口是否激活，最多等待1秒
+            timeout = 1.0  # 总超时时间（秒）
+            interval = 0.1  # 检测间隔（秒）
+            max_attempts = int(timeout / interval)
+            wechat_activated = False
+
+            for attempt in range(max_attempts):
+                active_window = gw.getActiveWindow()
+                if active_window and "Weixin" in active_window.title:
+                    wechat_activated = True
+                    print(f"微信窗口已激活（第{attempt+1}次尝试）")
+                    break
+                time.sleep(interval)
+
+            if not wechat_activated:
+                raise Exception(f"微信窗口激活超时（{timeout}秒内未激活）")
 
             # 打开收藏并保存
             pyautogui.hotkey("ctrl", "alt", "d")
@@ -321,14 +337,19 @@ class CountdownTimer:
             timeout = 5
             interval = 0.5
             target_title_keywords = ["Note", "笔记"]
+            note_window_activated = False
 
             for _ in range(int(timeout / interval)):
                 active_window = gw.getActiveWindow()
                 if active_window and any(
                     keyword in active_window.title for keyword in target_title_keywords
                 ):
+                    note_window_activated = True
                     break
                 time.sleep(interval)
+
+            if not note_window_activated:
+                raise Exception(f"收藏窗口激活超时（{timeout}秒内未激活）")
 
             # 粘贴并保存
             pyautogui.hotkey("ctrl", "v")
