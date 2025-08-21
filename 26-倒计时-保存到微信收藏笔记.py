@@ -106,11 +106,6 @@ class CountdownTimer:
                     self.root.after(0, self.manual_end_countdown)
                     sta = 1
                 elif sta == 1:
-                    if self.is_manual_done:
-                        content = f"timeout {self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}\n"
-                    else:
-                        content = f"timeout {self.format_time(self.auto_elapsed_seconds)} from {self.end_time_str}"
-                    pyperclip.copy(content)
                     self.exit_program()
             except Exception as e:
                 print(f"监测文件出错: {e}")
@@ -497,6 +492,11 @@ class CountdownTimer:
 
     def exit_program(self, event=None):
         """退出程序"""
+        if self.is_manual_done:
+            content = f"timeout {self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}\n"
+        else:
+            content = f"timeout {self.format_time(self.auto_elapsed_seconds)} from {self.end_time_str}"
+        pyperclip.copy(content)
         self.root.destroy()
 
 
