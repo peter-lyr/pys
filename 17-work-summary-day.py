@@ -25,12 +25,13 @@ def search_lists(lines):
     l = []
     percentage = ""
     for line in lines:
+        if not line.strip():
+            if percentage:
+                return [percentage] + l
         res = re.findall(r"^\d+\. (.+)", line)
         # 1. #50%，trim一下芯片，微信去电未听见杂音，给到华哥测试
         if not res:
-            if percentage:
-                return [percentage] + l
-            return l
+            continue
         t = res[0]
         report = re.findall(r"^\d+\. #", line)  # 汇报该行
         if not report:
