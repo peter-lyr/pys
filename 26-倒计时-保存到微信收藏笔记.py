@@ -40,6 +40,10 @@ class CountdownTimer:
         self.total_seconds = countdown_seconds  # 总倒计时时长（秒）
         self.enable_wechat_save = enable_wechat_save  # 微信保存开关
 
+        # 初始化关键时间属性，避免未定义错误
+        self.end_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        self.update_manual_elapsed_started = 0
+
         # 状态管理
         self.status = 0  # 状态标记：0-等待手动结束；1-等待退出；≥2-计时器模式
         self.is_fullscreen = False  # 是否处于全屏模式
@@ -81,16 +85,20 @@ class CountdownTimer:
         self.auto_elapsed_seconds = 0  # 自动结束后经过的秒数
         self.current_elapsed_label = None  # 计时器模式的计时标签
 
-        # 创建UI组件
-        self._create_widgets()
-
-        # 绑定退出事件（ESC键）
-        self.root.bind("<Escape>", self.exit_program)
-        # 定位窗口并设置鼠标穿透
-        self.position_window()
-        self.set_mouse_transparent()
-        # 启动倒计时
-        self.start_countdown()
+        # 判断是否直接进入计时模式
+        if self.total_seconds == 0:
+            self.status = 1  # 直接设置状态为1
+            self.enter_timer_mode()  # 进入计时模式
+        else:
+            # 创建UI组件
+            self._create_widgets()
+            # 绑定退出事件（ESC键）
+            self.root.bind("<Escape>", self.exit_program)
+            # 定位窗口并设置鼠标穿透
+            self.position_window()
+            self.set_mouse_transparent()
+            # 启动倒计时
+            self.start_countdown()
 
     def _create_widgets(self):
         """创建初始界面组件"""
@@ -180,6 +188,9 @@ class CountdownTimer:
         """进入计时器模式：调整UI显示，包含三行内容并铺满屏幕"""
         self.timer_mode = True  # 标记为计时器模式
 
+        # 更新结束时间为当前时间
+        self.end_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
         # 清除所有现有组件
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -196,10 +207,6 @@ class CountdownTimer:
             main_frame.grid_rowconfigure(i, weight=1)
         main_frame.grid_columnconfigure(0, weight=1)
 
-        end_time_str = datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )  # 格式化结束时间
-
         # 1. 主标题行
         tk.Label(
             main_frame,
@@ -214,7 +221,7 @@ class CountdownTimer:
         # 2. 计时信息行
         self.current_elapsed_label = tk.Label(
             main_frame,
-            text=f"{self.format_time(0)} from {end_time_str}",
+            text=f"{self.format_time(0)} from {self.end_time_str}",
             font=(self.font_family[0], font_sizes["overtime"], "bold"),
             fg="purple",
             bg="white",
@@ -238,9 +245,12 @@ class CountdownTimer:
 
         # 复制当前超时信息到剪贴板
         self.update_timer_clipboard()
-        self.end_time_str = end_time_str
         self.auto_elapsed_seconds = 0
         self.manual_elapsed_seconds = 0
+
+        # 启动计时更新
+        if not self.update_manual_elapsed_started:
+            self.update_manual_elapsed()
 
     def update_timer_clipboard(self):
         """更新计时器模式下的剪贴板内容"""
@@ -347,6 +357,7 @@ class CountdownTimer:
 
     def update_manual_elapsed(self):
         """更新手动结束后的经过时间（每秒更新）"""
+        self.update_manual_elapsed_started = 1
         self.manual_elapsed_seconds += 1
         # 显示内容（根据模式调整标签）
         if self.timer_mode and self.current_elapsed_label:
@@ -363,6 +374,7 @@ class CountdownTimer:
 
     def update_auto_elapsed(self):
         """更新自动结束后的经过时间（每秒更新）"""
+        self.update_auto_elapsed_started = 1
         self.auto_elapsed_seconds += 1
         # 显示内容（根据模式调整标签）
         if self.timer_mode and self.current_elapsed_label:
@@ -403,35 +415,6 @@ class CountdownTimer:
         else:
             self.hint_label.config(text="Exit allowed in 0 seconds...")
             self.enable_exit()  # 倒计时结束，允许退出
-
-    # def check_window_focus(self):
-    #     """检查窗口是否获得焦点，并动态调整透明度"""
-    #     if self.is_fullscreen:  # 仅在全屏模式下调整
-    #         try:
-    #             # 判断当前活动窗口是否为倒计时窗口
-    #             if platform.system() == "Windows":
-    #                 # Windows通过系统API获取活动窗口标题
-    #                 hwnd = ctypes.windll.user32.GetForegroundWindow()
-    #                 active_title = ctypes.create_string_buffer(256)
-    #                 ctypes.windll.user32.GetWindowTextA(hwnd, active_title, 256)
-    #                 active_title = active_title.value.decode("utf-8", errors="ignore")
-    #                 is_active = active_title == self.root.title()
-    #             else:
-    #                 # 其他系统通过pygetwindow获取活动窗口
-    #                 active_window = gw.getActiveWindow()
-    #                 is_active = (
-    #                     active_window and self.root.title() in active_window.title
-    #                 )
-    #
-    #             # 根据是否活动调整透明度（活动60%，非活动15%）
-    #             new_alpha = 0.6 if is_active else 0.15
-    #             if abs(self.root.attributes("-alpha") - new_alpha) > 0.01:
-    #                 self.root.attributes("-alpha", new_alpha)
-    #         except Exception as e:
-    #             print(f"检查窗口焦点时出错: {e}")
-    #
-    #     # 每20毫秒检查一次
-    #     self.root.after(20, self.check_window_focus)
 
     def calculate_font_sizes(self):
         """根据屏幕尺寸计算自适应字体大小（基于1920x1080基准缩放）"""
@@ -486,8 +469,6 @@ class CountdownTimer:
 
         # 设置窗口标题（用于焦点检测）
         self.root.title("Countdown Timer - Time's up")
-        # 启动窗口焦点检测（动态调整透明度）
-        # self.check_window_focus()
 
         # 初始化结束后的变量
         self.allow_exit = False
@@ -744,8 +725,8 @@ if __name__ == "__main__":
     # 处理命令行参数（倒计时秒数）
     try:
         countdown_seconds = int(sys.argv[1]) if len(sys.argv) > 1 else 1500
-        if countdown_seconds <= 0:
-            raise ValueError("时间必须为正数")
+        if countdown_seconds < 0:  # 允许0值
+            raise ValueError("时间不能为负数")
     except ValueError:
         countdown_seconds = 1500  # 默认25分钟
 
