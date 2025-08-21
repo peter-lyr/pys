@@ -196,6 +196,10 @@ class CountdownTimer:
             main_frame.grid_rowconfigure(i, weight=1)
         main_frame.grid_columnconfigure(0, weight=1)
 
+        end_time_str = datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )  # 格式化结束时间
+
         # 1. 主标题行
         tk.Label(
             main_frame,
@@ -210,7 +214,7 @@ class CountdownTimer:
         # 2. 计时信息行
         self.current_elapsed_label = tk.Label(
             main_frame,
-            text=f"{self.format_time(0)} from {self.end_time_str}",
+            text=f"{self.format_time(0)} from {end_time_str}",
             font=(self.font_family[0], font_sizes["overtime"], "bold"),
             fg="purple",
             bg="white",
@@ -234,9 +238,7 @@ class CountdownTimer:
 
         # 复制当前超时信息到剪贴板
         self.update_timer_clipboard()
-        self.end_time_str = datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )  # 格式化结束时间
+        self.end_time_str = end_time_str
         self.auto_elapsed_seconds = 0
         self.manual_elapsed_seconds = 0
 
