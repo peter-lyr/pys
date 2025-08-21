@@ -97,6 +97,9 @@ class CountdownTimer:
                 with open(MONITOR_FILE, "r", encoding="utf-8") as f:
                     content = f.read().strip().lower()
                 if content == "exit ui":
+                    with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
+                        f_clear.write("")
+                    self.root.after(0, self.manual_end_countdown)
                     self.exit_program()
                 elif self.remaining_seconds > 0 and self.running and content == "manual done":
                     self.is_manual_done = True
