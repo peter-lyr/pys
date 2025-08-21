@@ -42,6 +42,7 @@ class CountdownTimer:
         self.is_manual_done = False  # 是否手动结束倒计时
         self.running = False  # 倒计时是否正在运行
         self.remaining_seconds = countdown_seconds  # 剩余秒数
+        self.timer_mode = False  # 是否处于计时器模式（新增）
 
         # 初始化监测文件（清空内容）
         with open(MONITOR_FILE, "w", encoding="utf-8") as f:
@@ -77,6 +78,7 @@ class CountdownTimer:
         self.overtime_seconds = 0  # 超时秒数（自动结束后）
         self.manual_elapsed_seconds = 0  # 手动结束后经过的秒数
         self.auto_elapsed_seconds = 0  # 自动结束后经过的秒数
+        self.current_elapsed_label = None  # 当前计时标签（新增，用于计时器模式）
 
         # 创建倒计时显示标签（已用时间/剩余时间）
         self.time_label = tk.Label(
@@ -121,9 +123,10 @@ class CountdownTimer:
         监测控制文件内容变化，响应外部指令
 
         支持的指令:
-            "step_forward": 第一次触发手动结束倒计时，第二次触发程序退出
+            "step_forward": 状态0→手动结束；状态1→退出；状态≥2→退出
+            "for_timer": 状态0→同step_forward；状态1→进入计时器模式；状态≥2→响应但不退出
         """
-        status = 0  # 状态标记：0-等待手动结束指令，1-等待退出指令
+        status = 0  # 状态标记：0-等待手动结束；1-等待退出；≥2-计时器模式
         while True:
             try:
                 # 若监测文件不存在则退出循环
@@ -134,28 +137,88 @@ class CountdownTimer:
                 with open(MONITOR_FILE, "r", encoding="utf-8") as f:
                     content = f.read().strip().lower()
 
-                # 仅响应"step_forward"指令
-                if content != "step_forward":
+                # 指令为空则跳过
+                if not content:
                     continue
 
                 # 清空文件内容（避免重复触发）
                 with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
                     f_clear.write("")
 
-                # 根据当前状态执行对应操作
-                if status == 0:
-                    # 第一次触发：手动结束倒计时
-                    self.is_manual_done = True
-                    self.root.after(0, self.manual_end_countdown)  # 在主线程执行UI操作
-                    status = 1  # 切换到等待退出状态
-                elif status == 1:
-                    # 第二次触发：退出程序
-                    self.exit_program()
+                # 处理"step_forward"指令
+                if content == "step_forward":
+                    if status == 0:
+                        # 状态0：手动结束倒计时，状态转为1
+                        self.is_manual_done = True
+                        self.root.after(0, self.manual_end_countdown)
+                        status = 1
+                    else:
+                        # 状态≥2：退出程序
+                        self.root.after(0, self.exit_program)
+
+                # 处理"for_timer"指令（新增）
+                elif content == "for_timer":
+                    if status == 0:
+                        # 状态0：同step_forward，手动结束倒计时，状态转为1
+                        self.is_manual_done = True
+                        self.root.after(0, self.manual_end_countdown)
+                        status = 1
+                    else:
+                        self.auto_elapsed_seconds = 0
+                        self.manual_elapsed_seconds = 0
+                        self.end_time_str = datetime.now().strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        )  # 格式化结束时间
+                        self.root.after(0, self.enter_timer_mode)
 
             except Exception as e:
                 print(f"监测文件出错: {e}")
 
             time.sleep(1)  # 每秒检查一次
+
+    def enter_timer_mode(self):
+        """进入计时器模式（新增）：调整UI显示，仅保留计时行"""
+        self.timer_mode = True  # 标记为计时器模式
+        
+        # 清除所有现有组件
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+        # 1. 修改主标题为"Timer"
+        font_sizes = self.calculate_font_sizes()
+        tk.Label(
+            self.root,
+            text="Timer",
+            font=(self.font_family[0], font_sizes["title"], "bold"),
+            fg="purple",  # 计时器模式用紫色标题
+            bg="white",
+            anchor="center",
+            justify="center",
+        ).pack(pady=(20, 40))
+
+        # 2. 保留并更新每秒计时行（原第三行）
+        # 初始化计时标签
+        self.current_elapsed_label = tk.Label(
+            self.root,
+            text=f"{self.format_time(0)} from {self.end_time_str}",
+            font=(self.font_family[0], font_sizes["overtime"], "bold"),
+            fg="purple",
+            bg="white",
+            anchor="center",
+            justify="center",
+        )
+        self.current_elapsed_label.pack(pady=20)
+
+        # 3. 复制当前超时信息到剪贴板
+        self.update_timer_clipboard()
+
+    def update_timer_clipboard(self):
+        """更新计时器模式下的剪贴板内容（新增）"""
+        if self.is_manual_done:
+            content = f"timeout {self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}\n"
+        else:
+            content = f"timeout {self.format_time(self.auto_elapsed_seconds)} from {self.end_time_str}"
+        pyperclip.copy(content)
 
     def manual_end_countdown(self):
         """手动结束倒计时（设置状态并触发结束处理）"""
@@ -254,19 +317,33 @@ class CountdownTimer:
     def update_manual_elapsed(self):
         """更新手动结束后的经过时间（每秒更新）"""
         self.manual_elapsed_seconds += 1
-        # 显示格式："XX:XX:XX from 结束时间"
-        self.manual_elapsed_label.config(
-            text=f"{self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}"
-        )
+        # 显示内容（根据模式调整标签）
+        if self.timer_mode and self.current_elapsed_label:
+            # 计时器模式：更新专用标签
+            self.current_elapsed_label.config(
+                text=f"{self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}"
+            )
+        else:
+            # 普通模式：更新原有标签
+            self.manual_elapsed_label.config(
+                text=f"{self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}"
+            )
         self.root.after(1000, self.update_manual_elapsed)
 
     def update_auto_elapsed(self):
         """更新自动结束后的经过时间（每秒更新）"""
         self.auto_elapsed_seconds += 1
-        # 显示格式："XX:XX:XX from 开始时间"
-        self.auto_elapsed_label.config(
-            text=f"{self.format_time(self.auto_elapsed_seconds)} from {self.start_time_str}"
-        )
+        # 显示内容（根据模式调整标签）
+        if self.timer_mode and self.current_elapsed_label:
+            # 计时器模式：更新专用标签
+            self.current_elapsed_label.config(
+                text=f"{self.format_time(self.auto_elapsed_seconds)} from {self.start_time_str}"
+            )
+        else:
+            # 普通模式：更新原有标签
+            self.auto_elapsed_label.config(
+                text=f"{self.format_time(self.auto_elapsed_seconds)} from {self.start_time_str}"
+            )
         self.root.after(1000, self.update_auto_elapsed)
 
     def start_countdown(self):
