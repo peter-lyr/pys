@@ -91,19 +91,19 @@ class CountdownTimer:
     def monitor_file(self):
         """监测文件内容，检查是否需要手动结束"""
         while True:
-            if not self.running or self.remaining_seconds <= 0:
-                continue
-
             try:
-                if os.path.exists(MONITOR_FILE):
-                    with open(MONITOR_FILE, "r", encoding="utf-8") as f:
-                        content = f.read().strip().lower()
-                        if content == "manual done":
-                            self.is_manual_done = True
-                            with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
-                                f_clear.write("")
-                            self.root.after(0, self.manual_end_countdown)
-                            break
+                if not os.path.exists(MONITOR_FILE):
+                    break
+                with open(MONITOR_FILE, "r", encoding="utf-8") as f:
+                    content = f.read().strip().lower()
+                if content == "exit ui":
+                    self.exit_program()
+                elif self.remaining_seconds > 0 and self.running and content == "manual done":
+                    self.is_manual_done = True
+                    with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
+                        f_clear.write("")
+                    self.root.after(0, self.manual_end_countdown)
+                    break
             except Exception as e:
                 print(f"监测文件出错: {e}")
 
