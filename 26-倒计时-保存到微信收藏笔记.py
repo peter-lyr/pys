@@ -178,39 +178,60 @@ class CountdownTimer:
             time.sleep(1)  # 每秒检查一次
 
     def enter_timer_mode(self):
-        """进入计时器模式（新增）：调整UI显示，仅保留计时行"""
+        """进入计时器模式：调整UI显示，包含三行内容并铺满屏幕"""
         self.timer_mode = True  # 标记为计时器模式
-        
+
         # 清除所有现有组件
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        # 1. 修改主标题为"Timer"
+        # 计算自适应字体大小
         font_sizes = self.calculate_font_sizes()
+
+        # 创建主框架并设置网格布局
+        main_frame = tk.Frame(self.root, bg="white")
+        main_frame.pack(expand=True, fill=tk.BOTH)
+
+        # 设置三行均等权重，确保铺满屏幕
+        for i in range(3):
+            main_frame.grid_rowconfigure(i, weight=1)
+        main_frame.grid_columnconfigure(0, weight=1)
+
+        # 1. 主标题行
         tk.Label(
-            self.root,
+            main_frame,
             text="Timer",
             font=(self.font_family[0], font_sizes["title"], "bold"),
-            fg="purple",  # 计时器模式用紫色标题
+            fg="purple",
             bg="white",
             anchor="center",
-            justify="center",
-        ).pack(pady=(20, 40))
+            justify="center"
+        ).grid(row=0, column=0, sticky="nsew", pady=10)
 
-        # 2. 保留并更新每秒计时行（原第三行）
-        # 初始化计时标签
+        # 2. 计时信息行
         self.current_elapsed_label = tk.Label(
-            self.root,
+            main_frame,
             text=f"{self.format_time(0)} from {self.end_time_str}",
             font=(self.font_family[0], font_sizes["overtime"], "bold"),
             fg="purple",
             bg="white",
             anchor="center",
-            justify="center",
+            justify="center"
         )
-        self.current_elapsed_label.pack(pady=20)
+        self.current_elapsed_label.grid(row=1, column=0, sticky="nsew", pady=10)
 
-        # 3. 复制当前超时信息到剪贴板
+        # 3. 退出提示行
+        tk.Label(
+            main_frame,
+            text="Press ESC to exit",
+            font=(self.font_family[0], font_sizes["hint"], "bold"),
+            fg="orange",
+            bg="white",
+            anchor="center",
+            justify="center"
+        ).grid(row=2, column=0, sticky="nsew", pady=10)
+
+        # 复制当前超时信息到剪贴板
         self.update_timer_clipboard()
 
     def update_timer_clipboard(self):
