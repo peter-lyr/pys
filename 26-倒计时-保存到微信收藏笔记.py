@@ -169,11 +169,6 @@ class CountdownTimer:
                         self.root.after(0, self.manual_end_countdown)
                         self.status = 1
                     else:
-                        self.auto_elapsed_seconds = 0
-                        self.manual_elapsed_seconds = 0
-                        self.end_time_str = datetime.now().strftime(
-                            "%Y-%m-%d %H:%M:%S"
-                        )  # 格式化结束时间
                         self.root.after(0, self.enter_timer_mode)
 
             except Exception as e:
@@ -237,6 +232,11 @@ class CountdownTimer:
 
         # 复制当前超时信息到剪贴板
         self.update_timer_clipboard()
+        self.end_time_str = datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )  # 格式化结束时间
+        self.auto_elapsed_seconds = 0
+        self.manual_elapsed_seconds = 0
 
     def update_timer_clipboard(self):
         """更新计时器模式下的剪贴板内容"""
