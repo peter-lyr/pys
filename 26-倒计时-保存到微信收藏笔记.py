@@ -58,7 +58,7 @@ class CountdownTimer:
 
         # 窗口基础配置（无边框、透明度、置顶）
         self.root.overrideredirect(True)  # 无边框窗口
-        self.root.attributes("-alpha", 0.2)  # 透明度20%
+        self.root.attributes("-alpha", 0.15)  # 透明度15%
         self.root.attributes("-topmost", True)  # 窗口置顶
 
         # 根据系统设置窗口透明背景和类型
@@ -402,34 +402,34 @@ class CountdownTimer:
             self.hint_label.config(text="Exit allowed in 0 seconds...")
             self.enable_exit()  # 倒计时结束，允许退出
 
-    def check_window_focus(self):
-        """检查窗口是否获得焦点，并动态调整透明度"""
-        if self.is_fullscreen:  # 仅在全屏模式下调整
-            try:
-                # 判断当前活动窗口是否为倒计时窗口
-                if platform.system() == "Windows":
-                    # Windows通过系统API获取活动窗口标题
-                    hwnd = ctypes.windll.user32.GetForegroundWindow()
-                    active_title = ctypes.create_string_buffer(256)
-                    ctypes.windll.user32.GetWindowTextA(hwnd, active_title, 256)
-                    active_title = active_title.value.decode("utf-8", errors="ignore")
-                    is_active = active_title == self.root.title()
-                else:
-                    # 其他系统通过pygetwindow获取活动窗口
-                    active_window = gw.getActiveWindow()
-                    is_active = (
-                        active_window and self.root.title() in active_window.title
-                    )
-
-                # 根据是否活动调整透明度（活动60%，非活动15%）
-                new_alpha = 0.6 if is_active else 0.15
-                if abs(self.root.attributes("-alpha") - new_alpha) > 0.01:
-                    self.root.attributes("-alpha", new_alpha)
-            except Exception as e:
-                print(f"检查窗口焦点时出错: {e}")
-
-        # 每20毫秒检查一次
-        self.root.after(20, self.check_window_focus)
+    # def check_window_focus(self):
+    #     """检查窗口是否获得焦点，并动态调整透明度"""
+    #     if self.is_fullscreen:  # 仅在全屏模式下调整
+    #         try:
+    #             # 判断当前活动窗口是否为倒计时窗口
+    #             if platform.system() == "Windows":
+    #                 # Windows通过系统API获取活动窗口标题
+    #                 hwnd = ctypes.windll.user32.GetForegroundWindow()
+    #                 active_title = ctypes.create_string_buffer(256)
+    #                 ctypes.windll.user32.GetWindowTextA(hwnd, active_title, 256)
+    #                 active_title = active_title.value.decode("utf-8", errors="ignore")
+    #                 is_active = active_title == self.root.title()
+    #             else:
+    #                 # 其他系统通过pygetwindow获取活动窗口
+    #                 active_window = gw.getActiveWindow()
+    #                 is_active = (
+    #                     active_window and self.root.title() in active_window.title
+    #                 )
+    #
+    #             # 根据是否活动调整透明度（活动60%，非活动15%）
+    #             new_alpha = 0.6 if is_active else 0.15
+    #             if abs(self.root.attributes("-alpha") - new_alpha) > 0.01:
+    #                 self.root.attributes("-alpha", new_alpha)
+    #         except Exception as e:
+    #             print(f"检查窗口焦点时出错: {e}")
+    #
+    #     # 每20毫秒检查一次
+    #     self.root.after(20, self.check_window_focus)
 
     def calculate_font_sizes(self):
         """根据屏幕尺寸计算自适应字体大小（基于1920x1080基准缩放）"""
@@ -485,7 +485,7 @@ class CountdownTimer:
         # 设置窗口标题（用于焦点检测）
         self.root.title("Countdown Timer - Time's up")
         # 启动窗口焦点检测（动态调整透明度）
-        self.check_window_focus()
+        # self.check_window_focus()
 
         # 初始化结束后的变量
         self.allow_exit = False
