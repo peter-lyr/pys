@@ -42,7 +42,9 @@ class CountdownTimer:
 
         # 初始化关键时间属性，避免未定义错误
         self.end_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        self.start_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
         self.update_manual_elapsed_started = 0
+        self.update_auto_elapsed_started = 0
 
         # 状态管理
         self.status = 0  # 状态标记：0-等待手动结束；1-等待退出；≥2-计时器模式
@@ -125,7 +127,7 @@ class CountdownTimer:
         # 手动结束提示标签
         self.manual_hint = tk.Label(
             self.root,
-            text=f"Write 'manual done' to {MONITOR_FILE} to end early",
+            text=f"Write 'step_forward done' to {MONITOR_FILE} to exit 1",
             font=(self.font_family[0], 10),
             fg="blue",
             bg=self.bg_color,
@@ -189,7 +191,7 @@ class CountdownTimer:
         self.timer_mode = True  # 标记为计时器模式
 
         # 更新结束时间为当前时间
-        self.end_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        end_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # 清除所有现有组件
         for widget in self.root.winfo_children():
@@ -198,17 +200,21 @@ class CountdownTimer:
         # 计算自适应字体大小
         font_sizes = self.calculate_font_sizes()
 
-        # 创建主框架并设置网格布局
-        main_frame = tk.Frame(self.root, bg="white")
-        main_frame.pack(expand=True, fill=tk.BOTH)
+        # 关键修复：先关闭无边框模式，再设置全屏
+        self.root.overrideredirect(False)  # 恢复窗口边框
+        self.root.attributes("-fullscreen", True)  # 再设置全屏
 
-        # 设置三行均等权重，确保铺满屏幕
+        # 创建主框架并设置网格布局，铺满整个窗口
+        main_frame = tk.Frame(self.root, bg="white")
+        main_frame.pack(expand=True, fill=tk.BOTH)  # 关键：填满父容器
+
+        # 设置三行均等权重，确保垂直方向平均分配空间
         for i in range(3):
             main_frame.grid_rowconfigure(i, weight=1)
-        main_frame.grid_columnconfigure(0, weight=1)
+        main_frame.grid_columnconfigure(0, weight=1)  # 列权重为1，水平方向填满
 
-        # 1. 主标题行
-        tk.Label(
+        # 1. 主标题行 - 填满所在网格
+        title_label = tk.Label(
             main_frame,
             text="Timer",
             font=(self.font_family[0], font_sizes["title"], "bold"),
@@ -216,48 +222,57 @@ class CountdownTimer:
             bg="white",
             anchor="center",
             justify="center"
-        ).grid(row=0, column=0, sticky="nsew", pady=10)
+        )
+        title_label.grid(row=0, column=0, sticky="nsew", pady=10)  # sticky确保填满单元格
 
-        # 2. 计时信息行
+        # 2. 计时信息行 - 填满所在网格
         self.current_elapsed_label = tk.Label(
             main_frame,
-            text=f"{self.format_time(0)} from {self.end_time_str}",
+            text=f"{self.format_time(0)} from {end_time_str}",
             font=(self.font_family[0], font_sizes["overtime"], "bold"),
             fg="purple",
             bg="white",
             anchor="center",
             justify="center"
         )
-        self.current_elapsed_label.grid(row=1, column=0, sticky="nsew", pady=10)
+        self.current_elapsed_label.grid(row=1, column=0, sticky="nsew", pady=10)  # sticky确保填满单元格
 
-        # 3. 退出提示行
-        tk.Label(
+        # 3. 退出提示行 - 填满所在网格
+        hint_label = tk.Label(
             main_frame,
-            text="Press ESC to exit",
-            font=(self.font_family[0], font_sizes["hint"], "bold"),
+            text=f"Write 'step_forward' to {MONITOR_FILE} to exit 2",
+            font=(self.font_family[0], 10),
             fg="orange",
             bg="white",
             anchor="center",
             justify="center"
-        ).grid(row=2, column=0, sticky="nsew", pady=10)
+        )
+        hint_label.grid(row=2, column=0, sticky="nsew", pady=10)  # sticky确保填满单元格
 
+        # 确保窗口全屏显示
+        self.root.attributes("-fullscreen", True)
         self.set_mouse_transparent()
 
         # 复制当前超时信息到剪贴板
         self.update_timer_clipboard()
+        self.end_time_str = end_time_str
         self.auto_elapsed_seconds = 0
         self.manual_elapsed_seconds = 0
 
         # 启动计时更新
-        if not self.update_manual_elapsed_started:
-            self.update_manual_elapsed()
+        if self.is_manual_done:
+            if not self.update_manual_elapsed_started:
+                self.update_manual_elapsed()
+        else:
+            if not self.update_auto_elapsed_started:
+                self.update_auto_elapsed()
 
     def update_timer_clipboard(self):
         """更新计时器模式下的剪贴板内容"""
         if self.is_manual_done:
             content = f"timeout {self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}\n"
         else:
-            content = f"timeout {self.format_time(self.auto_elapsed_seconds)} from {self.end_time_str}"
+            content = f"timeout {self.format_time(self.auto_elapsed_seconds)} from {self.end_time_str}\n"
         pyperclip.copy(content)
 
     def manual_end_countdown(self):
@@ -402,7 +417,10 @@ class CountdownTimer:
         """实际更新退出提示UI（确保在主线程执行）"""
         if hasattr(self, "hint_label") and self.hint_label is not None:
             self.allow_exit = True  # 允许退出
-            self.hint_label.config(text="Press ESC to exit")  # 更新提示文字
+            self.hint_label.config(
+                text=f"Write 'step_forward' to {MONITOR_FILE} to exit 3",
+                font=(self.font_family[0], 10),
+            )  # 更新提示文字
             self.root.bind("<Escape>", self.delayed_exit)  # 绑定退出事件
         else:
             print("警告：hint_label未初始化，无法更新退出提示")
