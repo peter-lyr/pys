@@ -230,6 +230,8 @@ class CountdownTimer:
             justify="center"
         ).grid(row=2, column=0, sticky="nsew", pady=10)
 
+        self.set_mouse_transparent()
+
         # 复制当前超时信息到剪贴板
         self.update_timer_clipboard()
         self.end_time_str = datetime.now().strftime(
@@ -476,6 +478,7 @@ class CountdownTimer:
         self.root.overrideredirect(False)  # 恢复窗口边框
         self.root.attributes("-fullscreen", True)  # 全屏显示
         self.root.attributes("-topmost", True)  # 保持置顶
+        self.set_mouse_transparent()
         self.root.focus_force()  # 获取焦点
         self.root.update_idletasks()  # 更新UI
 
