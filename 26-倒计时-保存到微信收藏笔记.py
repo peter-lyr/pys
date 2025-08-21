@@ -37,6 +37,8 @@ class CountdownTimer:
         self.total_seconds = countdown_seconds  # 总倒计时时长（秒）
         self.enable_wechat_save = enable_wechat_save  # 微信保存开关
 
+        self.status = 0  # 状态标记：0-等待手动结束；1-等待退出；≥2-计时器模式
+
         # 状态标记变量
         self.is_fullscreen = False  # 是否处于全屏模式
         self.is_manual_done = False  # 是否手动结束倒计时
@@ -126,7 +128,6 @@ class CountdownTimer:
             "step_forward": 状态0→手动结束；状态1→退出；状态≥2→退出
             "for_timer": 状态0→同step_forward；状态1→进入计时器模式；状态≥2→响应但不退出
         """
-        status = 0  # 状态标记：0-等待手动结束；1-等待退出；≥2-计时器模式
         while True:
             try:
                 # 若监测文件不存在则退出循环
@@ -147,22 +148,22 @@ class CountdownTimer:
 
                 # 处理"step_forward"指令
                 if content == "step_forward":
-                    if status == 0:
+                    if self.status == 0:
                         # 状态0：手动结束倒计时，状态转为1
                         self.is_manual_done = True
                         self.root.after(0, self.manual_end_countdown)
-                        status = 1
+                        self.status = 1
                     else:
                         # 状态≥2：退出程序
                         self.root.after(0, self.exit_program)
 
                 # 处理"for_timer"指令（新增）
                 elif content == "for_timer":
-                    if status == 0:
+                    if self.status == 0:
                         # 状态0：同step_forward，手动结束倒计时，状态转为1
                         self.is_manual_done = True
                         self.root.after(0, self.manual_end_countdown)
-                        status = 1
+                        self.status = 1
                     else:
                         self.auto_elapsed_seconds = 0
                         self.manual_elapsed_seconds = 0
@@ -313,6 +314,7 @@ class CountdownTimer:
         elif self.remaining_seconds == 0 and self.running:
             # 倒计时结束，执行结束逻辑
             self.time_up()
+            self.status = 1
 
     def update_manual_elapsed(self):
         """更新手动结束后的经过时间（每秒更新）"""
