@@ -393,27 +393,23 @@ class CountdownTimer:
         main_frame.bind("<Escape>", self.delayed_exit)
 
         start_time = self.start_datetime.strftime("%A %Y-%m-%d %H:%M:%S")
-        end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         duration_actual = self.total_seconds - self.remaining_seconds
         duration_planned = self.total_seconds
 
         if self.is_manual_done:
-            content = (
-                f"  Target  {self.format_time(duration_planned, 1)} from {start_time}\n"
-                f"   But    {self.format_time(duration_actual, 1)} from {end_time}\n"
-                f"Remaining {self.format_time(self.remaining_seconds, 1)}\n"
-            )
+            content = f"\n{self.format_time(duration_actual)}/{self.format_time(duration_planned)} from {start_time}"
         else:
-            content = f"{self.format_time(duration_planned)} from {start_time}\n"
-
-        pyperclip.copy(content)
+            content = f"\n{self.format_time(duration_planned)} from {start_time}"
 
         if self.enable_wechat_save:
+            content = content.strip() + "\n"
             wechat_thread = threading.Thread(target=self.record_to_wechat)
             wechat_thread.daemon = True
             wechat_thread.start()
         else:
             self.update_exit_countdown(2)
+
+        pyperclip.copy(content)
 
     def record_to_wechat(self):
         """微信收藏保存（包含手动结束信息）"""
