@@ -14,10 +14,8 @@ import pyperclip
 home = os.environ["USERPROFILE"]
 dp = os.path.join(home, "Dp")
 temp = os.path.join(dp, "temp")
-# 确保temp目录存在
 os.makedirs(temp, exist_ok=True)
 kill_self_py_bat = os.path.join(temp, "26-倒计时-保存到微信收藏笔记.py.bat")
-# 监测文件路径
 MONITOR_FILE = os.path.join(temp, "countdown_monitor.txt")
 
 
@@ -28,25 +26,21 @@ class CountdownTimer:
         self.start_datetime = datetime.now()
         self.total_seconds = countdown_seconds
         self.enable_wechat_save = enable_wechat_save
-        self.is_fullscreen = False  # 标记是否处于全屏状态
-        self.is_manual_done = False  # 标记是否手动结束
-        self.running = False  # 提前初始化running属性，解决线程访问问题
-        self.remaining_seconds = countdown_seconds  # 提前初始化
+        self.is_fullscreen = False
+        self.is_manual_done = False
+        self.running = False
+        self.remaining_seconds = countdown_seconds
 
-        # 创建监测文件
         with open(MONITOR_FILE, "w", encoding="utf-8") as f:
-            f.write('')
+            f.write("")
 
-        # 启动文件监测线程（此时running属性已初始化）
         self.monitor_thread = threading.Thread(target=self.monitor_file, daemon=True)
         self.monitor_thread.start()
 
-        # 窗口基础设置
         self.root.overrideredirect(True)
         self.root.attributes("-alpha", 0.2)
         self.root.attributes("-topmost", True)
 
-        # 透明背景与任务栏设置
         self.bg_color = self.get_transparent_color()
         self.root.configure(bg=self.bg_color)
         if platform.system() == "Windows":
@@ -56,12 +50,12 @@ class CountdownTimer:
         else:
             self.root.attributes("-type", "toolbar")
 
-        # 字体与其他变量
         self.font_family = ("SimHei", "WenQuanYi Micro Hei", "Heiti TC", "Arial")
         self.allow_exit = False
         self.overtime_seconds = 0
+        self.manual_elapsed_seconds = 0  # 手动结束后经过的时间
+        self.auto_elapsed_seconds = 0  # 自动结束后经过的时间
 
-        # 创建倒计时标签
         self.time_label = tk.Label(
             root,
             text=self._init_time_text(),
@@ -80,7 +74,6 @@ class CountdownTimer:
         )
         self.total_time_label.pack(pady=2)
 
-        # 添加手动结束提示
         self.manual_hint = tk.Label(
             root,
             text=f"Write 'manual done' to {MONITOR_FILE} to end early",
@@ -90,16 +83,14 @@ class CountdownTimer:
         )
         self.manual_hint.pack(pady=2)
 
-        # 绑定退出与初始化
         self.root.bind("<Escape>", self.exit_program)
         self.position_window()
         self.set_mouse_transparent()
-        self.start_countdown()  # 这里会设置self.running = True
+        self.start_countdown()
 
     def monitor_file(self):
         """监测文件内容，检查是否需要手动结束"""
         while True:
-            # 现在这些属性都已在初始化时定义
             if not self.running or self.remaining_seconds <= 0:
                 continue
 
@@ -109,16 +100,14 @@ class CountdownTimer:
                         content = f.read().strip().lower()
                         if content == "manual done":
                             self.is_manual_done = True
-                            # 清空文件内容，避免重复触发
                             with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
                                 f_clear.write("")
-                            # 提前结束倒计时
                             self.root.after(0, self.manual_end_countdown)
                             break
             except Exception as e:
                 print(f"监测文件出错: {e}")
 
-            time.sleep(1)  # 每秒检查一次
+            time.sleep(1)
 
     def manual_end_countdown(self):
         """手动结束倒计时"""
@@ -194,13 +183,21 @@ class CountdownTimer:
         elif self.remaining_seconds == 0 and self.running:
             self.time_up()
 
-    def update_overtime(self):
-        """更新超时时间（每秒）"""
-        self.overtime_seconds += 1
-        self.overtime_label.config(
-            text=f"Overtime: {self.format_time(self.overtime_seconds)}"
+    def update_manual_elapsed(self):
+        """更新手动结束后的经过时间（每秒）"""
+        self.manual_elapsed_seconds += 1
+        self.manual_elapsed_label.config(
+            text=f"{self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}"
         )
-        self.root.after(1000, self.update_overtime)
+        self.root.after(1000, self.update_manual_elapsed)
+
+    def update_auto_elapsed(self):
+        """更新自动结束后的经过时间（每秒）"""
+        self.auto_elapsed_seconds += 1
+        self.auto_elapsed_label.config(
+            text=f"{self.format_time(self.auto_elapsed_seconds)} from {self.start_time_str}"
+        )
+        self.root.after(1000, self.update_auto_elapsed)
 
     def start_countdown(self):
         """启动倒计时"""
@@ -227,13 +224,12 @@ class CountdownTimer:
             self.root.after(1000, self.update_exit_countdown, remaining - 1)
         else:
             self.hint_label.config(text="Exit allowed in 0 seconds...")
-            self.enable_exit()  # 倒计时结束后允许退出
+            self.enable_exit()
 
     def check_window_focus(self):
         """检查窗口是否获得焦点并调整透明度"""
-        if self.is_fullscreen:  # 仅在全屏状态下调整
+        if self.is_fullscreen:
             try:
-                # 获取当前活动窗口
                 if platform.system() == "Windows":
                     hwnd = ctypes.windll.user32.GetForegroundWindow()
                     active_title = ctypes.create_string_buffer(256)
@@ -246,14 +242,12 @@ class CountdownTimer:
                         active_window and self.root.title() in active_window.title
                     )
 
-                # 根据是否活动设置透明度（60%活动，15%非活动）
                 new_alpha = 0.6 if is_active else 0.15
                 if abs(self.root.attributes("-alpha") - new_alpha) > 0.01:
                     self.root.attributes("-alpha", new_alpha)
             except Exception as e:
                 print(f"检查窗口焦点时出错: {e}")
 
-        # 继续定期检查
         self.root.after(20, self.check_window_focus)
 
     def calculate_font_sizes(self):
@@ -276,7 +270,6 @@ class CountdownTimer:
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        # 恢复窗口交互
         if platform.system() == "Windows":
             hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id())
             style = ctypes.windll.user32.GetWindowLongW(hwnd, -20)
@@ -284,8 +277,7 @@ class CountdownTimer:
         elif platform.system() == "Darwin":
             self.root.attributes("-ignoremouseevents", False)
 
-        # 窗口最大化设置 - 取消置顶
-        self.is_fullscreen = True  # 标记为全屏状态
+        self.is_fullscreen = True
         self.root.attributes("-alpha", 0.15)
         self.root.overrideredirect(False)
         self.root.attributes("-fullscreen", True)
@@ -293,30 +285,26 @@ class CountdownTimer:
         self.root.focus_force()
         self.root.update_idletasks()
 
-        # 设置窗口标题用于焦点检测
         self.root.title("Countdown Timer - Time's up")
-
-        # 启动窗口焦点检查，动态调整透明度
         self.check_window_focus()
 
-        # 创建铺满窗口的UI布局
         self.allow_exit = False
-        self.overtime_seconds = 0
-        start_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
-        end_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.auto_elapsed_seconds = 0
+        self.manual_elapsed_seconds = 0
+        self.start_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        self.end_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         font_sizes = self.calculate_font_sizes()
 
         main_frame = tk.Frame(self.root, bg="white")
         main_frame.pack(expand=True, fill=tk.BOTH, padx=50, pady=50)
-        main_frame.grid_rowconfigure(0, weight=1)
-        main_frame.grid_rowconfigure(1, weight=1)
-        main_frame.grid_rowconfigure(2, weight=1)
-        main_frame.grid_rowconfigure(3, weight=1)
-        main_frame.grid_rowconfigure(4, weight=1)
-        main_frame.grid_rowconfigure(5, weight=1)  # 新增一行用于显示手动结束信息
+
+        # 根据结束类型设置不同的行数
+        row_count = 5 if self.is_manual_done else 4
+        for i in range(row_count):
+            main_frame.grid_rowconfigure(i, weight=1)
         main_frame.grid_columnconfigure(0, weight=1)
 
-        # 主标签（区分正常结束和手动结束）
+        # 1. 主标题（两种结束方式都有）
         title_text = "Manual done!" if self.is_manual_done else "Time's up"
         tk.Label(
             main_frame,
@@ -328,25 +316,16 @@ class CountdownTimer:
             justify="center",
         ).grid(row=0, column=0, sticky="nsew", pady=(0, 20))
 
-        # 超时时间标签（仅正常结束显示）
-        if not self.is_manual_done:
-            self.overtime_label = tk.Label(
-                main_frame,
-                text=f"Overtime: {self.format_time(0)}",
-                font=(self.font_family[0], font_sizes["overtime"], "bold"),
-                fg="orange",
-                bg="white",
-                anchor="center",
-                justify="center",
-            )
-            self.overtime_label.grid(row=1, column=0, sticky="nsew", pady=20)
-        else:
-            # 手动结束时显示已用时间和剩余时间
-            elapsed_seconds = self.total_seconds - self.remaining_seconds
-            remaining_seconds = self.remaining_seconds
+        # 计算时间值
+        elapsed = self.format_time(self.total_seconds - self.remaining_seconds)
+        remaining = self.format_time(self.remaining_seconds)
+        total_time = self.format_time(self.total_seconds)
+
+        # 手动结束特有行 - 2. 已用时间和剩余时间（仅手动结束显示）
+        if self.is_manual_done:
             tk.Label(
                 main_frame,
-                text=f"Elapsed: {self.format_time(elapsed_seconds)}",
+                text=f"{elapsed} / {remaining}",
                 font=(self.font_family[0], font_sizes["overtime"], "bold"),
                 fg="green",
                 bg="white",
@@ -354,39 +333,51 @@ class CountdownTimer:
                 justify="center",
             ).grid(row=1, column=0, sticky="nsew", pady=10)
 
-            tk.Label(
+        # 3. 结束后经过的时间（两种结束方式都有，行号根据类型调整）
+        elapsed_row = 2 if self.is_manual_done else 1
+        if self.is_manual_done:
+            self.manual_elapsed_label = tk.Label(
                 main_frame,
-                text=f"Remaining: {self.format_time(remaining_seconds)}",
+                text=f"{self.format_time(0)} from {self.end_time_str}",
                 font=(self.font_family[0], font_sizes["overtime"], "bold"),
-                fg="orange",
+                fg="blue",
                 bg="white",
                 anchor="center",
                 justify="center",
-            ).grid(row=2, column=0, sticky="nsew", pady=10)
+            )
+            self.manual_elapsed_label.grid(
+                row=elapsed_row, column=0, sticky="nsew", pady=10
+            )
+            self.update_manual_elapsed()
+        else:
+            self.auto_elapsed_label = tk.Label(
+                main_frame,
+                text=f"{self.format_time(0)} from {self.start_time_str}",
+                font=(self.font_family[0], font_sizes["overtime"], "bold"),
+                fg="red",
+                bg="white",
+                anchor="center",
+                justify="center",
+            )
+            self.auto_elapsed_label.grid(
+                row=elapsed_row, column=0, sticky="nsew", pady=10
+            )
+            self.update_auto_elapsed()
 
-        # 开始时间标签
+        # 4. 开始时间、结束时间和总时间（两种结束方式都有，行号根据类型调整）
+        info_row = 3 if self.is_manual_done else 2
         tk.Label(
             main_frame,
-            text=f"Start time: {start_time_str}",
+            text=f"{total_time} from {self.start_time_str}",
             font=(self.font_family[0], font_sizes["info"]),
-            fg="green",
+            fg="gray",
             bg="white",
             anchor="center",
             justify="center",
-        ).grid(row=3, column=0, sticky="nsew", pady=20)
+        ).grid(row=info_row, column=0, sticky="nsew", pady=20)
 
-        # 结束时间标签
-        tk.Label(
-            main_frame,
-            text=f"End time: {end_time_str}",
-            font=(self.font_family[0], font_sizes["info"]),
-            fg="purple",
-            bg="white",
-            anchor="center",
-            justify="center",
-        ).grid(row=4, column=0, sticky="nsew", pady=20)
-
-        # 退出提示标签
+        # 退出提示标签（不算在内容行内）
+        hint_row = 4 if self.is_manual_done else 3
         self.hint_label = tk.Label(
             main_frame,
             text="",
@@ -396,23 +387,16 @@ class CountdownTimer:
             anchor="center",
             justify="center",
         )
-        self.hint_label.grid(row=5, column=0, sticky="nsew", pady=(20, 0))
+        self.hint_label.grid(row=hint_row, column=0, sticky="nsew", pady=(20, 0))
 
-        # 启动超时计时（仅正常结束）
-        if not self.is_manual_done:
-            self.update_overtime()
-
-        # 绑定事件
         self.root.bind("<Escape>", self.delayed_exit)
         main_frame.bind("<Escape>", self.delayed_exit)
 
-        # 根据控制变量决定是否启动微信保存线程
         if self.enable_wechat_save:
             wechat_thread = threading.Thread(target=self.record_to_wechat)
             wechat_thread.daemon = True
             wechat_thread.start()
         else:
-            # 不执行微信保存时，启动退出倒计时
             self.update_exit_countdown(2)
 
     def record_to_wechat(self):
@@ -425,26 +409,24 @@ class CountdownTimer:
         duration_actual = self.total_seconds - self.remaining_seconds
         duration_planned = self.total_seconds
 
-        # 根据是否手动结束设置不同的内容
         if self.is_manual_done:
             content = (
-                f"Manual done!\n"
-                f"Planned duration: {self.format_time(duration_planned)}\n"
-                f"Actual duration: {self.format_time(duration_actual)}\n"
-                f"Remaining time: {self.format_time(self.remaining_seconds)}\n"
-                f"From {start_time} to {end_time}\n"
+                f"Manual done!（手动结束！）\n"
+                f"Planned duration（计划时长）: {self.format_time(duration_planned)}\n"
+                f"Actual duration（实际时长）: {self.format_time(duration_actual)}\n"
+                f"Remaining time（剩余时间）: {self.format_time(self.remaining_seconds)}\n"
+                f"From（开始时间） {start_time} to（结束时间） {end_time}\n"
             )
         else:
             content = (
-                f"Time's up!\n"
-                f"Duration: {self.format_time(duration_planned)}\n"
-                f"From {start_time} to {end_time}\n"
+                f"Time's up!（时间到！）\n"
+                f"Duration（时长）: {self.format_time(duration_planned)}\n"
+                f"From（开始时间） {start_time} to（结束时间） {end_time}\n"
             )
 
         pyperclip.copy(content)
 
         try:
-            # 激活微信窗口
             wechat_windows = gw.getWindowsWithTitle("Weixin")
             if not wechat_windows:
                 pyautogui.hotkey("ctrl", "alt", "w")
@@ -466,7 +448,6 @@ class CountdownTimer:
             wechat_window.minimize()
             wechat_window.restore()
 
-            # 检测微信窗口激活
             timeout = 1.0
             interval = 0.1
             max_attempts = int(timeout / interval)
@@ -483,10 +464,8 @@ class CountdownTimer:
             if not wechat_activated:
                 raise Exception(f"微信窗口激活超时（{timeout}秒内未激活）")
 
-            # 打开收藏并保存
             pyautogui.hotkey("ctrl", "alt", "d")
 
-            # 等待收藏窗口
             timeout = 5
             interval = 0.5
             target_title_keywords = ["Note", "笔记"]
@@ -504,7 +483,6 @@ class CountdownTimer:
             if not note_window_activated:
                 raise Exception(f"收藏窗口激活超时（{timeout}秒内未激活）")
 
-            # 粘贴并保存
             pyautogui.hotkey("ctrl", "v")
             print("微信收藏保存成功")
 
@@ -512,12 +490,7 @@ class CountdownTimer:
             print(f"微信保存失败: {str(e)}")
 
         finally:
-            # 保存完成后启动退出倒计时
             self.root.after(0, lambda: self.update_exit_countdown(2))
-
-    def _restore_focus_and_enable(self):
-        """恢复主窗口焦点并允许退出"""
-        self.root.focus_force()
 
     def delayed_exit(self, event=None):
         """延迟退出处理"""
@@ -526,12 +499,6 @@ class CountdownTimer:
 
     def exit_program(self, event=None):
         """退出程序"""
-        # # 清理监测文件
-        # if os.path.exists(MONITOR_FILE):
-        #     try:
-        #         os.remove(MONITOR_FILE)
-        #     except:
-        #         pass
         self.root.destroy()
 
 
@@ -541,9 +508,7 @@ if __name__ == "__main__":
     with open(kill_self_py_bat, "wb") as f:
         f.write(b"@echo off\n")
         f.write(f"taskkill /f /pid {os.getpid()}\n".encode("utf-8"))
-        f.write(f"taskkill /f /pid {os.getppid()}\n".encode("utf-8"))
 
-    # 处理命令行参数
     try:
         countdown_seconds = int(sys.argv[1]) if len(sys.argv) > 1 else 1500
         if countdown_seconds <= 0:
@@ -551,7 +516,6 @@ if __name__ == "__main__":
     except ValueError:
         countdown_seconds = 1500
 
-    # 处理微信保存控制参数
     try:
         enable_wechat_save = int(sys.argv[2]) if len(sys.argv) > 2 else 0
         enable_wechat_save = 1 if enable_wechat_save == 1 else 0
