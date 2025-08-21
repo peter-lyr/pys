@@ -401,9 +401,9 @@ class CountdownTimer:
         duration_planned = self.total_seconds
 
         if self.is_manual_done:
-            content = f"\n{self.format_time(duration_actual)}/{self.format_time(duration_planned)} from {start_time}"
+            content = f"{self.format_time(duration_actual)}/{self.format_time(duration_planned)} from {start_time}\n"
         else:
-            content = f"\n{self.format_time(duration_planned)} from {start_time}"
+            content = f"{self.format_time(duration_planned)} from {start_time}\n"
 
         if self.enable_wechat_save:
             content = content.strip() + "\n"
