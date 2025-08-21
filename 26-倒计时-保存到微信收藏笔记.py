@@ -407,7 +407,7 @@ class CountdownTimer:
             wechat_thread.daemon = True
             wechat_thread.start()
         else:
-            self.update_exit_countdown(2)
+            self.update_exit_countdown(1)
 
         pyperclip.copy(content)
 
