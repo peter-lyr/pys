@@ -90,24 +90,28 @@ class CountdownTimer:
 
     def monitor_file(self):
         """监测文件内容，检查是否需要手动结束"""
+        sta = 0  # 0：manual done，1：exit ui
         while True:
             try:
                 if not os.path.exists(MONITOR_FILE):
                     break
                 with open(MONITOR_FILE, "r", encoding="utf-8") as f:
                     content = f.read().strip().lower()
-                if content == "exit ui":
-                    with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
-                        f_clear.write("")
+                if content != "step_forward":
+                    continue
+                with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
+                    f_clear.write("")
+                if sta == 0:
+                    self.is_manual_done = True
+                    self.root.after(0, self.manual_end_countdown)
+                    sta = 1
+                elif sta == 1:
+                    if self.is_manual_done:
+                        content = f"timeout {self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}\n"
+                    else:
+                        content = f"timeout {self.format_time(self.auto_elapsed_seconds)} from {self.end_time_str}"
+                    pyperclip.copy(content)
                     self.exit_program()
-                elif self.remaining_seconds > 0 and self.running:
-                    if "manual done" in content: # manual done
-                        self.is_manual_done = True
-                        with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
-                            f_clear.write("")
-                        self.root.after(0, self.manual_end_countdown)
-                    if "exit ui" in content: # manual done and exit ui
-                        self.exit_program()
             except Exception as e:
                 print(f"监测文件出错: {e}")
 
@@ -199,7 +203,7 @@ class CountdownTimer:
         """更新自动结束后的经过时间（每秒）"""
         self.auto_elapsed_seconds += 1
         self.auto_elapsed_label.config(
-            text=f"{self.format_time(self.auto_elapsed_seconds)} from {self.start_time_str}"
+            text=f"{self.format_time(self.auto_elapsed_seconds)} from {self.end_time_str}"
         )
         self.root.after(1000, self.update_auto_elapsed)
 
