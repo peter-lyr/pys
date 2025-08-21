@@ -12,49 +12,56 @@ import pygetwindow as gw
 import pyperclip
 
 # 初始化路径变量
-home = os.environ["USERPROFILE"]  # 获取用户主目录
-dp = os.path.join(home, "Dp")  # 主工作目录
-temp = os.path.join(dp, "temp")  # 临时文件目录
-os.makedirs(temp, exist_ok=True)  # 确保临时目录存在
+home = os.environ["USERPROFILE"]  # 获取用户主目录路径
+dp = os.path.join(home, "Dp")  # 程序主工作目录
+temp = os.path.join(dp, "temp")  # 临时文件存储目录
+os.makedirs(temp, exist_ok=True)  # 确保临时目录存在，不存在则创建
+
 # 进程终止脚本路径（用于程序退出时清理自身进程）
 kill_self_py_bat = os.path.join(temp, "26-倒计时-保存到微信收藏笔记.py.bat")
-# 监测文件路径（用于外部控制倒计时器，如手动结束）
+# 监测文件路径（用于外部程序控制倒计时器，如手动结束倒计时）
 MONITOR_FILE = os.path.join(temp, "countdown_monitor.txt")
 
 
 class CountdownTimer:
-    """倒计时器类，支持定时提醒、手动控制和微信收藏功能"""
+    """倒计时器类，支持定时提醒、手动控制和微信收藏功能
+
+    功能特点：
+    - 支持自定义倒计时时长
+    - 可通过外部文件指令控制（手动结束、切换模式等）
+    - 倒计时结束后自动记录并支持保存到微信收藏
+    - 支持全屏显示和鼠标穿透模式
+    """
 
     def __init__(self, root, countdown_seconds=1500, enable_wechat_save=0):
-        """
-        初始化倒计时器实例
+        """初始化倒计时器实例
 
         参数:
-            root: Tkinter主窗口对象
+            root: Tkinter主窗口对象，作为UI容器
             countdown_seconds: 倒计时总秒数，默认25分钟(1500秒)
             enable_wechat_save: 是否启用微信收藏保存功能，1启用，0禁用
         """
         # 基础配置
-        self.root = root  # Tkinter主窗口
-        self.start_datetime = datetime.now()  # 倒计时开始时间
+        self.root = root  # Tkinter主窗口引用
+        self.start_datetime = datetime.now()  # 记录倒计时开始时间
         self.total_seconds = countdown_seconds  # 总倒计时时长（秒）
-        self.enable_wechat_save = enable_wechat_save  # 微信保存开关
+        self.enable_wechat_save = enable_wechat_save  # 微信保存功能开关
 
         # 初始化关键时间属性，避免未定义错误
         self.end_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
         self.start_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
-        self.update_manual_elapsed_started = 0
-        self.update_auto_elapsed_started = 0
+        self.update_manual_elapsed_started = 0  # 手动计时更新标记
+        self.update_auto_elapsed_started = 0    # 自动计时更新标记
 
-        # 状态管理
+        # 状态管理变量
         self.status = 0  # 状态标记：0-等待手动结束；1-等待退出；≥2-计时器模式
         self.is_fullscreen = False  # 是否处于全屏模式
-        self.is_manual_done = False  # 是否手动结束倒计时
+        self.is_manual_done = False  # 是否通过手动方式结束倒计时
         self.running = False  # 倒计时是否正在运行
-        self.remaining_seconds = countdown_seconds  # 剩余秒数
-        self.timer_mode = False  # 是否处于计时器模式
+        self.remaining_seconds = countdown_seconds  # 剩余倒计时秒数
+        self.timer_mode = False  # 是否处于计时器模式（区别于倒计时模式）
 
-        # 初始化监测文件（清空内容）
+        # 初始化监测文件（清空内容，避免残留指令）
         with open(MONITOR_FILE, "w", encoding="utf-8") as f:
             f.write("")
 
@@ -63,15 +70,15 @@ class CountdownTimer:
         self.monitor_thread.start()
 
         # 窗口基础配置（无边框、透明度、置顶）
-        self.root.overrideredirect(True)  # 无边框窗口
-        self.root.attributes("-alpha", 0.15)  # 透明度15%
-        self.root.attributes("-topmost", True)  # 窗口置顶
+        self.root.overrideredirect(True)  # 无边框窗口（减少干扰）
+        self.root.attributes("-alpha", 0.15)  # 窗口透明度15%（半透明）
+        self.root.attributes("-topmost", True)  # 窗口始终置顶
 
         # 根据系统设置窗口透明背景和类型
         self.bg_color = self.get_transparent_color()
         self.root.configure(bg=self.bg_color)
         if platform.system() == "Windows":
-            self.root.attributes("-toolwindow", True)  # Windows工具窗口
+            self.root.attributes("-toolwindow", True)  # Windows工具窗口（无任务栏图标）
         elif platform.system() == "Darwin":
             self.root.attributes("-type", "utility")  # macOS工具窗口
         else:
@@ -81,16 +88,16 @@ class CountdownTimer:
         self.font_family = (
             "SimHei", "WenQuanYi Micro Hei", "Heiti TC", "Arial"
         )  # 支持多系统中文字体
-        self.allow_exit = False  # 是否允许退出
+        self.allow_exit = False  # 是否允许退出程序
         self.overtime_seconds = 0  # 超时秒数（自动结束后）
         self.manual_elapsed_seconds = 0  # 手动结束后经过的秒数
         self.auto_elapsed_seconds = 0  # 自动结束后经过的秒数
         self.current_elapsed_label = None  # 计时器模式的计时标签
 
-        # 判断是否直接进入计时模式
+        # 判断是否直接进入计时模式（当倒计时秒数为0时）
         if self.total_seconds == 0:
             self.status = 1  # 直接设置状态为1
-            self.enter_timer_mode()  # 进入计时模式
+            self.enter_timer_mode()  # 进入计时器模式
         else:
             # 创建UI组件
             self._create_widgets()
@@ -103,7 +110,7 @@ class CountdownTimer:
             self.start_countdown()
 
     def _create_widgets(self):
-        """创建初始界面组件"""
+        """创建初始界面组件（倒计时模式下的UI）"""
         # 倒计时显示标签（已用时间/剩余时间）
         self.time_label = tk.Label(
             self.root,
@@ -124,7 +131,7 @@ class CountdownTimer:
         )
         self.total_time_label.pack(pady=2)
 
-        # 手动结束提示标签
+        # 手动结束提示标签（指导用户如何外部控制）
         self.manual_hint = tk.Label(
             self.root,
             text=f"Write 'step_forward done' to {MONITOR_FILE} to exit 1",
@@ -135,12 +142,19 @@ class CountdownTimer:
         self.manual_hint.pack(pady=2)
 
     def monitor_file(self):
-        """
-        监测控制文件内容变化，响应外部指令
+        """监测控制文件内容变化，响应外部指令
 
         支持的指令:
-            "step_forward": 状态0→手动结束；状态1→退出；状态≥2→退出
-            "for_timer": 状态0→同step_forward；状态1→进入计时器模式；状态≥2→响应但不退出
+            "step_forward": 
+                - 状态0→手动结束倒计时
+                - 状态1→退出程序
+                - 状态≥2→退出程序
+            "for_timer": 
+                - 状态0→同step_forward（手动结束倒计时）
+                - 状态1→进入计时器模式
+                - 状态≥2→响应但不退出
+
+        工作原理：每秒读取一次监测文件，发现指令后立即清空文件并执行对应操作
         """
         while True:
             try:
@@ -156,7 +170,7 @@ class CountdownTimer:
                 if not content:
                     continue
 
-                # 清空文件内容（避免重复触发）
+                # 清空文件内容（避免重复触发同一指令）
                 with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
                     f_clear.write("")
 
@@ -187,7 +201,13 @@ class CountdownTimer:
             time.sleep(1)  # 每秒检查一次
 
     def enter_timer_mode(self):
-        """进入计时器模式：调整UI显示，包含三行内容并铺满屏幕"""
+        """进入计时器模式：调整UI显示，包含三行内容并铺满屏幕
+
+        模式特点：
+        - 全屏显示，三行布局（标题、计时信息、退出提示）
+        - 持续计时并实时更新显示
+        - 自动将计时信息复制到剪贴板
+        """
         self.timer_mode = True  # 标记为计时器模式
 
         # 更新结束时间为当前时间
@@ -197,10 +217,10 @@ class CountdownTimer:
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        # 计算自适应字体大小
+        # 计算自适应字体大小（根据屏幕尺寸）
         font_sizes = self.calculate_font_sizes()
 
-        # 关键修复：先关闭无边框模式，再设置全屏
+        # 关键修复：先关闭无边框模式，再设置全屏（避免某些系统下的显示问题）
         self.root.overrideredirect(False)  # 恢复窗口边框
         self.root.attributes("-fullscreen", True)  # 再设置全屏
 
@@ -259,7 +279,7 @@ class CountdownTimer:
         self.auto_elapsed_seconds = 0
         self.manual_elapsed_seconds = 0
 
-        # 启动计时更新
+        # 启动计时更新（区分手动/自动结束类型）
         if self.is_manual_done:
             if not self.update_manual_elapsed_started:
                 self.update_manual_elapsed()
@@ -268,7 +288,7 @@ class CountdownTimer:
                 self.update_auto_elapsed()
 
     def update_timer_clipboard(self):
-        """更新计时器模式下的剪贴板内容"""
+        """更新计时器模式下的剪贴板内容，便于用户粘贴"""
         if self.is_manual_done:
             content = f"timeout {self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}\n"
         else:
@@ -287,7 +307,11 @@ class CountdownTimer:
         return f"{elapsed_time} / {remaining_time}"
 
     def get_transparent_color(self):
-        """获取系统支持的透明背景色（兼容不同系统）"""
+        """获取系统支持的透明背景色（兼容不同操作系统）
+
+        返回:
+            系统支持的透明色值（字符串）
+        """
         try:
             self.root.attributes("-transparentcolor", "white")
             return "white"
@@ -299,7 +323,12 @@ class CountdownTimer:
                 return "white"
 
     def position_window(self):
-        """将窗口定位到屏幕右上角，铺满除任务栏外的区域"""
+        """将窗口定位到屏幕右上角，铺满除任务栏外的区域
+
+        适配不同操作系统的屏幕尺寸获取方式：
+        - Windows：使用系统API获取准确尺寸（包含任务栏计算）
+        - 其他系统：使用Tkinter获取并估算任务栏高度
+        """
         if platform.system() == "Windows":
             # Windows系统通过系统API获取屏幕尺寸
             user32 = ctypes.windll.user32
@@ -316,7 +345,13 @@ class CountdownTimer:
         self.root.geometry(f"{screen_width}x{screen_height}+0+0")
 
     def set_mouse_transparent(self):
-        """设置鼠标穿透效果（窗口不响应鼠标事件）"""
+        """设置鼠标穿透效果（窗口不响应鼠标事件，提升用户体验）
+
+        不同系统的实现方式：
+        - Windows：修改窗口样式添加透明属性
+        - macOS：设置窗口忽略鼠标事件
+        - 其他Linux系统：设置为dock类型窗口
+        """
         if platform.system() == "Windows":
             # Windows通过修改窗口样式实现穿透
             hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id())
@@ -334,8 +369,7 @@ class CountdownTimer:
             self.root.attributes("-acceptfocus", False)
 
     def format_time(self, seconds, show_hour=None):
-        """
-        格式化秒数为时分秒字符串
+        """格式化秒数为时分秒字符串
 
         参数:
             seconds: 待格式化的秒数
@@ -354,7 +388,14 @@ class CountdownTimer:
         )
 
     def update_timer(self):
-        """更新倒计时显示（每秒执行一次）"""
+        """更新倒计时显示（每秒执行一次）
+
+        工作流程：
+        1. 检查倒计时是否仍在运行且剩余时间>0
+        2. 计算已用时间和剩余时间并更新UI
+        3. 减少剩余秒数并预约下次更新
+        4. 若时间到则触发结束逻辑
+        """
         if self.remaining_seconds > 0 and self.running:
             # 计算已用时间和剩余时间
             elapsed_seconds = self.total_seconds - self.remaining_seconds
@@ -371,7 +412,10 @@ class CountdownTimer:
             self.status = 1
 
     def update_manual_elapsed(self):
-        """更新手动结束后的经过时间（每秒更新）"""
+        """更新手动结束后的经过时间（每秒更新）
+
+        根据当前模式（计时器/普通）更新对应标签，并持续计时
+        """
         self.update_manual_elapsed_started = 1
         self.manual_elapsed_seconds += 1
         # 显示内容（根据模式调整标签）
@@ -388,7 +432,10 @@ class CountdownTimer:
         self.root.after(1000, self.update_manual_elapsed)
 
     def update_auto_elapsed(self):
-        """更新自动结束后的经过时间（每秒更新）"""
+        """更新自动结束后的经过时间（每秒更新）
+
+        根据当前模式（计时器/普通）更新对应标签，并持续计时
+        """
         self.update_auto_elapsed_started = 1
         self.auto_elapsed_seconds += 1
         # 显示内容（根据模式调整标签）
@@ -414,7 +461,7 @@ class CountdownTimer:
         self.root.after(0, lambda: self._enable_exit_ui())
 
     def _enable_exit_ui(self):
-        """实际更新退出提示UI（确保在主线程执行）"""
+        """实际更新退出提示UI（确保在主线程执行，避免Tkinter线程问题）"""
         if hasattr(self, "hint_label") and self.hint_label is not None:
             self.allow_exit = True  # 允许退出
             self.hint_label.config(
@@ -426,7 +473,11 @@ class CountdownTimer:
             print("警告：hint_label未初始化，无法更新退出提示")
 
     def update_exit_countdown(self, remaining):
-        """更新退出倒计时提示（显示剩余多少秒后允许退出）"""
+        """更新退出倒计时提示（显示剩余多少秒后允许退出）
+
+        参数:
+            remaining: 剩余秒数
+        """
         if remaining > 0:
             self.hint_label.config(text=f"Exit allowed in {remaining} seconds...")
             self.root.after(1000, self.update_exit_countdown, remaining - 1)
@@ -435,12 +486,16 @@ class CountdownTimer:
             self.enable_exit()  # 倒计时结束，允许退出
 
     def calculate_font_sizes(self):
-        """根据屏幕尺寸计算自适应字体大小（基于1920x1080基准缩放）"""
+        """根据屏幕尺寸计算自适应字体大小（基于1920x1080基准缩放）
+
+        返回:
+            包含不同类型文字字体大小的字典
+        """
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         base_width = 1920
         base_height = 1080
-        # 计算缩放比例（取宽高缩放中的较小值）
+        # 计算缩放比例（取宽高缩放中的较小值，避免文字超出屏幕）
         scale = min(screen_width / base_width, screen_height / base_height)
         return {
             "title": int(120 * scale),  # 主标题字体大小
@@ -450,8 +505,7 @@ class CountdownTimer:
         }
 
     def time_up(self):
-        """
-        倒计时结束处理（包括自动结束和手动结束）
+        """倒计时结束处理（包括自动结束和手动结束）
 
         主要流程:
             1. 切换到全屏模式并恢复窗口交互
@@ -622,13 +676,15 @@ class CountdownTimer:
         pyperclip.copy(content)
 
     def record_to_wechat(self):
-        """
-        将倒计时信息保存到微信收藏
+        """将倒计时信息保存到微信收藏
 
         操作流程:
             1. 尝试激活或启动微信应用
             2. 打开微信收藏窗口（使用快捷键Ctrl+Alt+D）
             3. 粘贴预准备的内容并完成保存
+
+        异常处理：
+            若任何步骤失败，会记录错误并继续执行退出流程
         """
         if not self.enable_wechat_save:
             return
@@ -711,21 +767,20 @@ class CountdownTimer:
             self.root.after(0, lambda: self.update_exit_countdown(2))
 
     def delayed_exit(self, event=None):
-        """延迟退出处理（仅当允许退出时执行）"""
+        """延迟退出处理（仅当允许退出时执行，防止误操作）"""
         if self.allow_exit:
             self.exit_program()
 
     def exit_program(self, event=None):
-        """
-        退出程序
+        """退出程序
 
-        退出前将超时信息复制到剪贴板
+        退出前将超时信息复制到剪贴板，方便用户后续使用
         """
         # 准备超时信息并复制到剪贴板
         if self.is_manual_done:
             content = f"timeout {self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}\n"
         else:
-            content = f"timeout {self.format_time(self.auto_elapsed_seconds)} from {self.end_time_str}"
+            content = f"timeout {self.format_time(self.auto_elapsed_seconds)} from {self.end_time_str}\n"
         pyperclip.copy(content)
 
         # 销毁窗口，结束程序
@@ -743,7 +798,7 @@ if __name__ == "__main__":
     # 处理命令行参数（倒计时秒数）
     try:
         countdown_seconds = int(sys.argv[1]) if len(sys.argv) > 1 else 1500
-        if countdown_seconds < 0:  # 允许0值
+        if countdown_seconds < 0:  # 允许0值（直接进入计时模式）
             raise ValueError("时间不能为负数")
     except ValueError:
         countdown_seconds = 1500  # 默认25分钟
