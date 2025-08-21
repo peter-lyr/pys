@@ -5,7 +5,7 @@ import sys
 import threading
 import time
 import tkinter as tk
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pyautogui
 import pygetwindow as gw
@@ -14,7 +14,12 @@ import pyperclip
 home = os.environ["USERPROFILE"]
 dp = os.path.join(home, "Dp")
 temp = os.path.join(dp, "temp")
+# 确保temp目录存在
+os.makedirs(temp, exist_ok=True)
 kill_self_py_bat = os.path.join(temp, "26-倒计时-保存到微信收藏笔记.py.bat")
+# 监测文件路径
+MONITOR_FILE = os.path.join(temp, "countdown_monitor.txt")
+
 
 class CountdownTimer:
     def __init__(self, root, countdown_seconds=1500, enable_wechat_save=0):
@@ -24,6 +29,17 @@ class CountdownTimer:
         self.total_seconds = countdown_seconds
         self.enable_wechat_save = enable_wechat_save
         self.is_fullscreen = False  # 标记是否处于全屏状态
+        self.is_manual_done = False  # 标记是否手动结束
+        self.running = False  # 提前初始化running属性，解决线程访问问题
+        self.remaining_seconds = countdown_seconds  # 提前初始化
+
+        # 创建监测文件
+        with open(MONITOR_FILE, "w", encoding="utf-8") as f:
+            f.write('')
+
+        # 启动文件监测线程（此时running属性已初始化）
+        self.monitor_thread = threading.Thread(target=self.monitor_file, daemon=True)
+        self.monitor_thread.start()
 
         # 窗口基础设置
         self.root.overrideredirect(True)
@@ -40,10 +56,8 @@ class CountdownTimer:
         else:
             self.root.attributes("-type", "toolbar")
 
-        # 字体与计时变量
+        # 字体与其他变量
         self.font_family = ("SimHei", "WenQuanYi Micro Hei", "Heiti TC", "Arial")
-        self.remaining_seconds = countdown_seconds
-        self.running = False
         self.allow_exit = False
         self.overtime_seconds = 0
 
@@ -66,11 +80,50 @@ class CountdownTimer:
         )
         self.total_time_label.pack(pady=2)
 
+        # 添加手动结束提示
+        self.manual_hint = tk.Label(
+            root,
+            text=f"Write 'manual done' to {MONITOR_FILE} to end early",
+            font=(self.font_family[0], 10),
+            fg="blue",
+            bg=self.bg_color,
+        )
+        self.manual_hint.pack(pady=2)
+
         # 绑定退出与初始化
         self.root.bind("<Escape>", self.exit_program)
         self.position_window()
         self.set_mouse_transparent()
-        self.start_countdown()
+        self.start_countdown()  # 这里会设置self.running = True
+
+    def monitor_file(self):
+        """监测文件内容，检查是否需要手动结束"""
+        while True:
+            # 现在这些属性都已在初始化时定义
+            if not self.running or self.remaining_seconds <= 0:
+                continue
+
+            try:
+                if os.path.exists(MONITOR_FILE):
+                    with open(MONITOR_FILE, "r", encoding="utf-8") as f:
+                        content = f.read().strip().lower()
+                        if content == "manual done":
+                            self.is_manual_done = True
+                            # 清空文件内容，避免重复触发
+                            with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
+                                f_clear.write("")
+                            # 提前结束倒计时
+                            self.root.after(0, self.manual_end_countdown)
+                            break
+            except Exception as e:
+                print(f"监测文件出错: {e}")
+
+            time.sleep(1)  # 每秒检查一次
+
+    def manual_end_countdown(self):
+        """手动结束倒计时"""
+        self.running = False
+        self.time_up()
 
     def _init_time_text(self):
         """初始化时间显示文本"""
@@ -185,11 +238,13 @@ class CountdownTimer:
                     hwnd = ctypes.windll.user32.GetForegroundWindow()
                     active_title = ctypes.create_string_buffer(256)
                     ctypes.windll.user32.GetWindowTextA(hwnd, active_title, 256)
-                    active_title = active_title.value.decode('utf-8', errors='ignore')
+                    active_title = active_title.value.decode("utf-8", errors="ignore")
                     is_active = active_title == self.root.title()
                 else:
                     active_window = gw.getActiveWindow()
-                    is_active = active_window and self.root.title() in active_window.title
+                    is_active = (
+                        active_window and self.root.title() in active_window.title
+                    )
 
                 # 根据是否活动设置透明度（60%活动，15%非活动）
                 new_alpha = 0.6 if is_active else 0.15
@@ -216,7 +271,7 @@ class CountdownTimer:
         }
 
     def time_up(self):
-        """倒计时结束处理"""
+        """倒计时结束处理（包括正常结束和手动结束）"""
         self.running = False
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -248,6 +303,7 @@ class CountdownTimer:
         self.allow_exit = False
         self.overtime_seconds = 0
         start_time_str = self.start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        end_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         font_sizes = self.calculate_font_sizes()
 
         main_frame = tk.Frame(self.root, bg="white")
@@ -257,30 +313,56 @@ class CountdownTimer:
         main_frame.grid_rowconfigure(2, weight=1)
         main_frame.grid_rowconfigure(3, weight=1)
         main_frame.grid_rowconfigure(4, weight=1)
+        main_frame.grid_rowconfigure(5, weight=1)  # 新增一行用于显示手动结束信息
         main_frame.grid_columnconfigure(0, weight=1)
 
-        # "Time's up"主标签
+        # 主标签（区分正常结束和手动结束）
+        title_text = "Manual done!" if self.is_manual_done else "Time's up"
         tk.Label(
             main_frame,
-            text="Time's up",
+            text=title_text,
             font=(self.font_family[0], font_sizes["title"], "bold"),
-            fg="red",
+            fg="blue" if self.is_manual_done else "red",
             bg="white",
             anchor="center",
             justify="center",
         ).grid(row=0, column=0, sticky="nsew", pady=(0, 20))
 
-        # 超时时间标签
-        self.overtime_label = tk.Label(
-            main_frame,
-            text=f"Overtime: {self.format_time(0)}",
-            font=(self.font_family[0], font_sizes["overtime"], "bold"),
-            fg="orange",
-            bg="white",
-            anchor="center",
-            justify="center",
-        )
-        self.overtime_label.grid(row=1, column=0, sticky="nsew", pady=20)
+        # 超时时间标签（仅正常结束显示）
+        if not self.is_manual_done:
+            self.overtime_label = tk.Label(
+                main_frame,
+                text=f"Overtime: {self.format_time(0)}",
+                font=(self.font_family[0], font_sizes["overtime"], "bold"),
+                fg="orange",
+                bg="white",
+                anchor="center",
+                justify="center",
+            )
+            self.overtime_label.grid(row=1, column=0, sticky="nsew", pady=20)
+        else:
+            # 手动结束时显示已用时间和剩余时间
+            elapsed_seconds = self.total_seconds - self.remaining_seconds
+            remaining_seconds = self.remaining_seconds
+            tk.Label(
+                main_frame,
+                text=f"Elapsed: {self.format_time(elapsed_seconds)}",
+                font=(self.font_family[0], font_sizes["overtime"], "bold"),
+                fg="green",
+                bg="white",
+                anchor="center",
+                justify="center",
+            ).grid(row=1, column=0, sticky="nsew", pady=10)
+
+            tk.Label(
+                main_frame,
+                text=f"Remaining: {self.format_time(remaining_seconds)}",
+                font=(self.font_family[0], font_sizes["overtime"], "bold"),
+                fg="orange",
+                bg="white",
+                anchor="center",
+                justify="center",
+            ).grid(row=2, column=0, sticky="nsew", pady=10)
 
         # 开始时间标签
         tk.Label(
@@ -291,33 +373,34 @@ class CountdownTimer:
             bg="white",
             anchor="center",
             justify="center",
-        ).grid(row=2, column=0, sticky="nsew", pady=20)
+        ).grid(row=3, column=0, sticky="nsew", pady=20)
 
-        # 时长标签
+        # 结束时间标签
         tk.Label(
             main_frame,
-            text=f"Duration: {self.format_time(self.total_seconds)}",
+            text=f"End time: {end_time_str}",
             font=(self.font_family[0], font_sizes["info"]),
             fg="purple",
             bg="white",
             anchor="center",
             justify="center",
-        ).grid(row=3, column=0, sticky="nsew", pady=20)
+        ).grid(row=4, column=0, sticky="nsew", pady=20)
 
-        # 退出提示标签（初始状态）
+        # 退出提示标签
         self.hint_label = tk.Label(
             main_frame,
-            text="",  # 初始为空，后续由倒计时函数更新
+            text="",
             font=(self.font_family[0], font_sizes["hint"]),
             fg="orange",
             bg="white",
             anchor="center",
             justify="center",
         )
-        self.hint_label.grid(row=4, column=0, sticky="nsew", pady=(20, 0))
+        self.hint_label.grid(row=5, column=0, sticky="nsew", pady=(20, 0))
 
-        # 启动超时计时
-        self.update_overtime()
+        # 启动超时计时（仅正常结束）
+        if not self.is_manual_done:
+            self.update_overtime()
 
         # 绑定事件
         self.root.bind("<Escape>", self.delayed_exit)
@@ -329,21 +412,35 @@ class CountdownTimer:
             wechat_thread.daemon = True
             wechat_thread.start()
         else:
-            # 不执行微信保存时，启动退出倒计时（从2秒开始）
+            # 不执行微信保存时，启动退出倒计时
             self.update_exit_countdown(2)
 
     def record_to_wechat(self):
-        """微信收藏保存（受enable_wechat_save控制）"""
+        """微信收藏保存（包含手动结束信息）"""
         if not self.enable_wechat_save:
             return
 
         start_time = self.start_datetime.strftime("%A %Y-%m-%d %H:%M:%S")
-        if (self.start_datetime.strftime("%Y-%m-%d") != (self.start_datetime + timedelta(seconds=self.total_seconds)).strftime("%Y-%m-%d")):
-            end_time = (self.start_datetime + timedelta(seconds=self.total_seconds)).strftime("%Y-%m-%d %H:%M:%S")
+        end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        duration_actual = self.total_seconds - self.remaining_seconds
+        duration_planned = self.total_seconds
+
+        # 根据是否手动结束设置不同的内容
+        if self.is_manual_done:
+            content = (
+                f"Manual done!\n"
+                f"Planned duration: {self.format_time(duration_planned)}\n"
+                f"Actual duration: {self.format_time(duration_actual)}\n"
+                f"Remaining time: {self.format_time(self.remaining_seconds)}\n"
+                f"From {start_time} to {end_time}\n"
+            )
         else:
-            end_time = (self.start_datetime + timedelta(seconds=self.total_seconds)).strftime("%H:%M:%S")
-        duration = self.format_time(self.total_seconds)
-        content = f"{duration} from {start_time} to {end_time}\n"
+            content = (
+                f"Time's up!\n"
+                f"Duration: {self.format_time(duration_planned)}\n"
+                f"From {start_time} to {end_time}\n"
+            )
+
         pyperclip.copy(content)
 
         try:
@@ -409,9 +506,6 @@ class CountdownTimer:
 
             # 粘贴并保存
             pyautogui.hotkey("ctrl", "v")
-            # time.sleep(0.1)
-            # pyautogui.hotkey("ctrl", "s")
-            # pyautogui.press("esc")
             print("微信收藏保存成功")
 
         except Exception as e:
@@ -424,7 +518,6 @@ class CountdownTimer:
     def _restore_focus_and_enable(self):
         """恢复主窗口焦点并允许退出"""
         self.root.focus_force()
-        # 由update_exit_countdown负责启用退出
 
     def delayed_exit(self, event=None):
         """延迟退出处理"""
@@ -433,6 +526,12 @@ class CountdownTimer:
 
     def exit_program(self, event=None):
         """退出程序"""
+        # # 清理监测文件
+        # if os.path.exists(MONITOR_FILE):
+        #     try:
+        #         os.remove(MONITOR_FILE)
+        #     except:
+        #         pass
         self.root.destroy()
 
 
@@ -451,7 +550,6 @@ if __name__ == "__main__":
             raise ValueError("时间必须为正数")
     except ValueError:
         countdown_seconds = 1500
-    # countdown_seconds = 1
 
     # 处理微信保存控制参数
     try:
