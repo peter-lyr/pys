@@ -99,14 +99,15 @@ class CountdownTimer:
                 if content == "exit ui":
                     with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
                         f_clear.write("")
-                    self.root.after(0, self.manual_end_countdown)
                     self.exit_program()
-                elif self.remaining_seconds > 0 and self.running and content == "manual done":
-                    self.is_manual_done = True
-                    with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
-                        f_clear.write("")
-                    self.root.after(0, self.manual_end_countdown)
-                    break
+                elif self.remaining_seconds > 0 and self.running:
+                    if "manual done" in content: # manual done
+                        self.is_manual_done = True
+                        with open(MONITOR_FILE, "w", encoding="utf-8") as f_clear:
+                            f_clear.write("")
+                        self.root.after(0, self.manual_end_countdown)
+                    if "exit ui" in content: # manual done and exit ui
+                        self.exit_program()
             except Exception as e:
                 print(f"监测文件出错: {e}")
 
