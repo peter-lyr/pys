@@ -23,6 +23,8 @@ MONITOR_FILE = os.path.join(temp, "countdown_monitor.txt")
 
 
 class CountdownTimer:
+    """倒计时器类，支持定时提醒、手动控制和微信收藏功能"""
+
     def __init__(self, root, countdown_seconds=1500, enable_wechat_save=0):
         """
         初始化倒计时器实例
@@ -32,19 +34,19 @@ class CountdownTimer:
             countdown_seconds: 倒计时总秒数，默认25分钟(1500秒)
             enable_wechat_save: 是否启用微信收藏保存功能，1启用，0禁用
         """
+        # 基础配置
         self.root = root  # Tkinter主窗口
         self.start_datetime = datetime.now()  # 倒计时开始时间
         self.total_seconds = countdown_seconds  # 总倒计时时长（秒）
         self.enable_wechat_save = enable_wechat_save  # 微信保存开关
 
+        # 状态管理
         self.status = 0  # 状态标记：0-等待手动结束；1-等待退出；≥2-计时器模式
-
-        # 状态标记变量
         self.is_fullscreen = False  # 是否处于全屏模式
         self.is_manual_done = False  # 是否手动结束倒计时
         self.running = False  # 倒计时是否正在运行
         self.remaining_seconds = countdown_seconds  # 剩余秒数
-        self.timer_mode = False  # 是否处于计时器模式（新增）
+        self.timer_mode = False  # 是否处于计时器模式
 
         # 初始化监测文件（清空内容）
         with open(MONITOR_FILE, "w", encoding="utf-8") as f:
@@ -71,20 +73,30 @@ class CountdownTimer:
 
         # 字体配置与计时相关变量
         self.font_family = (
-            "SimHei",
-            "WenQuanYi Micro Hei",
-            "Heiti TC",
-            "Arial",
+            "SimHei", "WenQuanYi Micro Hei", "Heiti TC", "Arial"
         )  # 支持多系统中文字体
         self.allow_exit = False  # 是否允许退出
         self.overtime_seconds = 0  # 超时秒数（自动结束后）
         self.manual_elapsed_seconds = 0  # 手动结束后经过的秒数
         self.auto_elapsed_seconds = 0  # 自动结束后经过的秒数
-        self.current_elapsed_label = None  # 当前计时标签（新增，用于计时器模式）
+        self.current_elapsed_label = None  # 计时器模式的计时标签
 
-        # 创建倒计时显示标签（已用时间/剩余时间）
+        # 创建UI组件
+        self._create_widgets()
+
+        # 绑定退出事件（ESC键）
+        self.root.bind("<Escape>", self.exit_program)
+        # 定位窗口并设置鼠标穿透
+        self.position_window()
+        self.set_mouse_transparent()
+        # 启动倒计时
+        self.start_countdown()
+
+    def _create_widgets(self):
+        """创建初始界面组件"""
+        # 倒计时显示标签（已用时间/剩余时间）
         self.time_label = tk.Label(
-            root,
+            self.root,
             text=self._init_time_text(),
             font=(self.font_family[0], 20),
             fg="green",
@@ -94,7 +106,7 @@ class CountdownTimer:
 
         # 总时长显示标签
         self.total_time_label = tk.Label(
-            root,
+            self.root,
             text=f"Total time: {self.format_time(self.total_seconds)}",
             font=(self.font_family[0], 14),
             fg="gray",
@@ -104,21 +116,13 @@ class CountdownTimer:
 
         # 手动结束提示标签
         self.manual_hint = tk.Label(
-            root,
+            self.root,
             text=f"Write 'manual done' to {MONITOR_FILE} to end early",
             font=(self.font_family[0], 10),
             fg="blue",
             bg=self.bg_color,
         )
         self.manual_hint.pack(pady=2)
-
-        # 绑定退出事件（ESC键）
-        self.root.bind("<Escape>", self.exit_program)
-        # 定位窗口并设置鼠标穿透
-        self.position_window()
-        self.set_mouse_transparent()
-        # 启动倒计时
-        self.start_countdown()
 
     def monitor_file(self):
         """
@@ -157,7 +161,7 @@ class CountdownTimer:
                         # 状态≥2：退出程序
                         self.root.after(0, self.exit_program)
 
-                # 处理"for_timer"指令（新增）
+                # 处理"for_timer"指令
                 elif content == "for_timer":
                     if self.status == 0:
                         # 状态0：同step_forward，手动结束倒计时，状态转为1
@@ -235,7 +239,7 @@ class CountdownTimer:
         self.update_timer_clipboard()
 
     def update_timer_clipboard(self):
-        """更新计时器模式下的剪贴板内容（新增）"""
+        """更新计时器模式下的剪贴板内容"""
         if self.is_manual_done:
             content = f"timeout {self.format_time(self.manual_elapsed_seconds)} from {self.end_time_str}\n"
         else:
@@ -444,11 +448,11 @@ class CountdownTimer:
         """
         倒计时结束处理（包括自动结束和手动结束）
 
-        主要功能:
-            - 切换到全屏模式并恢复窗口交互
-            - 根据结束类型（自动/手动）显示不同内容
-            - 启动结束后的计时更新
-            - 准备微信收藏内容并触发保存（若启用）
+        主要流程:
+            1. 切换到全屏模式并恢复窗口交互
+            2. 根据结束类型（自动/手动）显示不同内容
+            3. 启动结束后的计时更新
+            4. 准备微信收藏内容并触发保存（若启用）
         """
         self.running = False  # 停止倒计时
 
@@ -617,10 +621,10 @@ class CountdownTimer:
         """
         将倒计时信息保存到微信收藏
 
-        流程:
-            1. 激活或启动微信
-            2. 打开微信收藏窗口
-            3. 粘贴内容并完成保存
+        操作流程:
+            1. 尝试激活或启动微信应用
+            2. 打开微信收藏窗口（使用快捷键Ctrl+Alt+D）
+            3. 粘贴预准备的内容并完成保存
         """
         if not self.enable_wechat_save:
             return
