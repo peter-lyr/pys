@@ -392,18 +392,6 @@ class CountdownTimer:
         self.root.bind("<Escape>", self.delayed_exit)
         main_frame.bind("<Escape>", self.delayed_exit)
 
-        if self.enable_wechat_save:
-            wechat_thread = threading.Thread(target=self.record_to_wechat)
-            wechat_thread.daemon = True
-            wechat_thread.start()
-        else:
-            self.update_exit_countdown(2)
-
-    def record_to_wechat(self):
-        """微信收藏保存（包含手动结束信息）"""
-        if not self.enable_wechat_save:
-            return
-
         start_time = self.start_datetime.strftime("%A %Y-%m-%d %H:%M:%S")
         end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         duration_actual = self.total_seconds - self.remaining_seconds
@@ -419,6 +407,18 @@ class CountdownTimer:
             content = f"{self.format_time(duration_planned)} from {start_time}\n"
 
         pyperclip.copy(content)
+
+        if self.enable_wechat_save:
+            wechat_thread = threading.Thread(target=self.record_to_wechat)
+            wechat_thread.daemon = True
+            wechat_thread.start()
+        else:
+            self.update_exit_countdown(2)
+
+    def record_to_wechat(self):
+        """微信收藏保存（包含手动结束信息）"""
+        if not self.enable_wechat_save:
+            return
 
         try:
             wechat_windows = gw.getWindowsWithTitle("Weixin")
@@ -515,7 +515,6 @@ if __name__ == "__main__":
         enable_wechat_save = 1 if enable_wechat_save == 1 else 0
     except (IndexError, ValueError):
         enable_wechat_save = 0
-    enable_wechat_save = 1
 
     root = tk.Tk()
     app = CountdownTimer(root, countdown_seconds, enable_wechat_save)
