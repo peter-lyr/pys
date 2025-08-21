@@ -411,18 +411,12 @@ class CountdownTimer:
 
         if self.is_manual_done:
             content = (
-                f"Manual done!（手动结束！）\n"
-                f"Planned duration（计划时长）: {self.format_time(duration_planned)}\n"
-                f"Actual duration（实际时长）: {self.format_time(duration_actual)}\n"
-                f"Remaining time（剩余时间）: {self.format_time(self.remaining_seconds)}\n"
-                f"From（开始时间） {start_time} to（结束时间） {end_time}\n"
+                f"  Target  {self.format_time(duration_planned)} from {start_time}\n"
+                f"   But    {self.format_time(duration_actual)} from {end_time}\n"
+                f"Remaining {self.format_time(self.remaining_seconds)}\n"
             )
         else:
-            content = (
-                f"Time's up!（时间到！）\n"
-                f"Duration（时长）: {self.format_time(duration_planned)}\n"
-                f"From（开始时间） {start_time} to（结束时间） {end_time}\n"
-            )
+            content = f"{self.format_time(duration_planned)} from {start_time}\n"
 
         pyperclip.copy(content)
 
