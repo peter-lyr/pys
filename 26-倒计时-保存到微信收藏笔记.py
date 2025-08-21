@@ -160,14 +160,14 @@ class CountdownTimer:
             self.root.attributes("-type", "dock")
             self.root.attributes("-acceptfocus", False)
 
-    def format_time(self, seconds):
+    def format_time(self, seconds, show_hour=None):
         """格式化时间为时分秒"""
         hours = seconds // 3600
         minutes = (seconds % 3600) // 60
         secs = seconds % 60
         return (
             f"{hours:02d}:{minutes:02d}:{secs:02d}"
-            if hours > 0
+            if (hours > 0 or show_hour)
             else f"{minutes:02d}:{secs:02d}"
         )
 
@@ -399,9 +399,9 @@ class CountdownTimer:
 
         if self.is_manual_done:
             content = (
-                f"  Target  {self.format_time(duration_planned)} from {start_time}\n"
-                f"   But    {self.format_time(duration_actual)} from {end_time}\n"
-                f"Remaining {self.format_time(self.remaining_seconds)}\n"
+                f"  Target  {self.format_time(duration_planned, 1)} from {start_time}\n"
+                f"   But    {self.format_time(duration_actual, 1)} from {end_time}\n"
+                f"Remaining {self.format_time(self.remaining_seconds, 1)}\n"
             )
         else:
             content = f"{self.format_time(duration_planned)} from {start_time}\n"
